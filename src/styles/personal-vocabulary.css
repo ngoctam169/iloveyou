@@ -1,0 +1,62 @@
+.vocabulary-shortcuts,.word-of-day-actions,.personal-form-actions{display:flex;flex-wrap:wrap;align-items:center;gap:10px}
+.vocabulary-shortcuts{margin:0 0 20px}
+.course-resource-links{display:flex;flex-wrap:wrap;gap:10px;margin:18px 0}
+.vocabulary-list-picker{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:8px;margin:10px auto 28px;max-width:780px}
+.vocabulary-list-picker strong{font-size:.72rem}
+.vocabulary-list-picker button{padding:8px 11px;border:1px solid var(--line);border-radius:9px;color:var(--text);background:var(--surface);cursor:pointer}
+.vocabulary-list-picker button:hover,.vocabulary-list-picker button[aria-pressed=true]{border-color:var(--primary);color:var(--primary);background:var(--primary-soft)}
+.lesson-sidebar button:disabled{cursor:default;opacity:.55}
+.word-of-day{display:flex;align-items:center;justify-content:space-between;gap:24px;margin-bottom:24px}
+.word-of-day h2{margin:8px 0;font-size:clamp(1.5rem,3vw,2.2rem)}
+.word-of-day h2 small{color:var(--muted);font-size:.8rem;font-weight:500}
+.word-of-day p{margin:5px 0;color:var(--muted);line-height:1.6}
+.word-of-day-actions{justify-content:flex-end;max-width:400px}
+.personal-layout{display:grid;grid-template-columns:minmax(320px,.9fr) minmax(0,1.1fr);align-items:start;gap:20px;margin:28px 0 80px}
+.setting-selects{display:flex;flex-wrap:wrap;gap:12px}
+.setting-selects label{display:grid;gap:6px;min-width:180px;color:var(--muted);font-size:.72rem;font-weight:700}
+.setting-selects select{height:42px;padding:0 10px;border:1px solid var(--line);border-radius:10px;color:var(--text);background:var(--surface)}
+.personal-layout .panel{padding:24px}
+.personal-layout h2{margin:0 0 18px;font-size:1.2rem}
+.personal-form-grid{display:grid;grid-template-columns:1fr 1fr;gap:13px}
+.personal-form-grid label{display:grid;gap:6px;min-width:0;color:var(--muted);font-size:.72rem;font-weight:700}
+.personal-form-grid input,.personal-form-grid select,.personal-lists input,.personal-words-head input,.personal-word-actions select{width:100%;min-width:0;height:42px;padding:0 11px;border:1px solid var(--line);border-radius:10px;color:var(--text);background:var(--surface);font:inherit}
+.personal-form-actions{margin-top:20px}
+.personal-collection{display:grid;gap:20px;min-width:0}
+.personal-lists form{display:flex;gap:8px}
+.personal-lists form input{flex:1}
+.personal-list-buttons{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}
+.personal-list-buttons button,.personal-word-actions button{padding:8px 11px;border:1px solid var(--line);border-radius:9px;color:var(--text);background:var(--surface);cursor:pointer;font-weight:650}
+.personal-list-buttons button.active,.personal-list-buttons button:hover,.personal-word-actions button:hover{border-color:var(--primary);color:var(--primary);background:var(--primary-soft)}
+.personal-delete-list{margin-top:14px;border:0;background:transparent;cursor:pointer}
+.personal-words-head{display:flex;justify-content:space-between;align-items:center;gap:12px}
+.personal-words-head input{max-width:220px}
+.personal-word-list{display:grid;gap:12px}
+.personal-word-list article{display:flex;justify-content:space-between;gap:14px;padding:15px;border:1px solid var(--line);border-radius:12px}
+.personal-word-list article>div:first-child{min-width:0}
+.personal-word-list strong,.personal-word-list small{display:block;overflow-wrap:anywhere}
+.personal-word-list small{margin:5px 0;color:var(--muted)}
+.personal-word-list a{font-size:.72rem}
+.personal-word-actions{display:flex;justify-content:flex-end;align-content:start;flex-wrap:wrap;gap:6px;max-width:280px}
+.personal-word-actions button,.personal-word-actions select{height:34px;font-size:.68rem}
+.personal-word-actions select{max-width:180px}
+.flashcard-toolbar{display:flex;flex-wrap:wrap;justify-content:center;gap:8px}
+.practice-result>.btn{margin:8px}
+.grammar-filters{grid-template-columns:repeat(2,minmax(180px,240px));justify-content:start}
+.grammar-layout{display:grid;grid-template-columns:280px minmax(0,1fr);align-items:start;gap:20px;margin:20px 0 80px}
+.grammar-index,.grammar-detail{padding:24px}
+.grammar-index h2{margin:0 0 4px;font-size:1.1rem}.grammar-index p{margin:0 0 14px;color:var(--muted)}
+.grammar-index button{display:block;width:100%;margin:6px 0;padding:11px;text-align:left;border:1px solid var(--line);border-radius:10px;color:var(--text);background:var(--surface);cursor:pointer}
+.grammar-index button:hover,.grammar-index button.active{border-color:var(--primary);color:var(--primary);background:var(--primary-soft)}
+.grammar-detail-head{display:flex;align-items:start;justify-content:space-between;gap:16px}.grammar-detail h2{margin:6px 0 15px;font-size:clamp(1.5rem,3vw,2rem)}
+.grammar-detail>p{line-height:1.7}.grammar-detail h3{margin:0 0 12px;font-size:1rem}
+.grammar-structure,.grammar-examples,.grammar-practice,.grammar-output{margin:20px 0;padding:20px;border:1px solid var(--line);border-radius:14px;background:var(--surface-2)}
+.grammar-structure strong,.grammar-structure code{display:block}.grammar-structure code{margin-top:8px;white-space:normal;line-height:1.6;color:var(--primary);font-size:1rem}
+.grammar-examples p{margin:8px 0;padding:10px;border-radius:9px;background:var(--surface);line-height:1.6}
+.grammar-mistake{line-height:1.6}.grammar-practice .quiz-question{padding:0;background:transparent;border:0}.grammar-practice>.btn{margin-top:14px}
+.grammar-output p{color:var(--muted);line-height:1.6}.grammar-output textarea{display:block;width:100%;margin:12px 0;padding:12px;border:1px solid var(--line);border-radius:10px;color:var(--text);background:var(--surface);resize:vertical}.grammar-output .notice{margin-top:12px}
+@media(max-width:900px){.personal-layout{grid-template-columns:1fr}.word-of-day{display:block}.word-of-day-actions{justify-content:flex-start;max-width:none;margin-top:14px}}
+@media(max-width:900px){.grammar-layout{grid-template-columns:1fr}.grammar-index{display:flex;flex-wrap:wrap;gap:7px}.grammar-index h2,.grammar-index p{width:100%}.grammar-index button{width:auto;margin:0}}
+@media(max-width:540px){.personal-form-grid{grid-template-columns:1fr}.personal-lists form,.personal-words-head,.personal-word-list article{display:block}.personal-lists form .btn,.personal-words-head input{margin-top:10px;max-width:none;width:100%}.personal-word-actions{justify-content:flex-start;max-width:none;margin-top:12px}}
+@media(max-width:540px){.grammar-filters{grid-template-columns:1fr}.grammar-detail-head{display:block}.grammar-detail-head .btn{margin:8px 0}.grammar-index,.grammar-detail{padding:18px}}
+.reading-word{display:inline;padding:0;border:0;background:none;color:inherit;font:inherit;cursor:pointer}.reading-word mark{transition:background .2s}.reading-word:hover mark,.reading-word:focus-visible mark{background:color-mix(in srgb,var(--orange) 55%,transparent)}.reading-word:focus-visible{outline:2px solid var(--primary);outline-offset:2px;border-radius:4px}.reading-word-detail{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:15px;margin-top:16px;padding:16px;border:1px solid var(--line);border-radius:12px;background:var(--surface-2)}.reading-word-detail strong{display:block;font-size:1rem}.reading-word-detail span,.reading-word-detail small{display:block;color:var(--muted);font-size:.73rem}.reading-word-detail p{margin:6px 0;font-weight:700}.reading-word-actions{display:flex;flex-wrap:wrap;gap:8px}.reading-word-actions .btn{white-space:normal}
+.reading-context{margin:20px 0;padding:15px;border-radius:12px;background:var(--surface-2)}.reading-context h3{margin:0 0 10px;font-size:.85rem}.reading-context p{margin:7px 0;line-height:1.65;font-size:.88rem}

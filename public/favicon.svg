@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-labelledby="title">
+  <title id="title">NT</title>
+  <defs><linearGradient id="g" x1="8" y1="5" x2="57" y2="60" gradientUnits="userSpaceOnUse"><stop stop-color="#866cf0"/><stop offset="1" stop-color="#4d35ad"/></linearGradient></defs>
+  <rect width="64" height="64" rx="17" fill="url(#g)"/>
+  <path d="M15 45V19l18 26V19" fill="none" stroke="#fff" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M37 20h15M44.5 20v25" fill="none" stroke="#fff" stroke-width="6" stroke-linecap="round"/>
+  <path d="M18 52c9-3 19-3 28 0" fill="none" stroke="#f7c85f" stroke-width="3" stroke-linecap="round"/>
+</svg>

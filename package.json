@@ -1,0 +1,31 @@
+{
+  "name": "nt-language-learning",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build && node scripts/prerender.mjs",
+    "build:vocabulary": "node --no-warnings scripts/build-vocabulary-data.mjs",
+    "build:brand": "node scripts/build-brand-assets.mjs",
+    "test": "npm run test:data && npm run test:e2e && npm run test:platform",
+    "test:data": "node tests/data.mjs",
+    "test:e2e": "node tests/e2e.mjs",
+    "test:platform": "node tests/platform.mjs",
+    "preview": "vite preview",
+    "deploy": "gh-pages -d dist"
+  },
+  "dependencies": {
+    "@vitejs/plugin-react": "latest",
+    "lucide-react": "latest",
+    "react": "latest",
+    "react-dom": "latest",
+    "react-router-dom": "latest",
+    "vite": "latest"
+  },
+  "devDependencies": {
+    "gh-pages": "latest",
+    "playwright": "^1.63.0"
+  }
+}
+

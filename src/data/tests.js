@@ -1,0 +1,19 @@
+export const placementQuestions = [
+  { category: 'Vocabulary', question: '“Journey” gần nghĩa nhất với từ nào?', options: ['Hành trình', 'Thời tiết', 'Công việc', 'Bữa ăn'], answer: 0 },
+  { category: 'Grammar', question: 'Choose: She ___ a designer.', options: ['am', 'are', 'is', 'be'], answer: 2 },
+  { category: 'Reading', question: '“The train leaves at nine.” Tàu rời ga lúc nào?', options: ['7 giờ', '8 giờ', '9 giờ', '10 giờ'], answer: 2 },
+  { category: 'Listening simulation', question: 'Bạn nghe thấy câu nào?', audio: 'My name is Mia.', options: ['Close the door.', 'My name is Mia.', 'Turn left.', 'See you yesterday.'], answer: 1 },
+  { category: 'Vocabulary', question: 'Select the opposite of “difficult”.', options: ['heavy', 'easy', 'slow', 'long'], answer: 1 },
+  { category: 'Grammar', question: 'I ___ here since 2022.', options: ['live', 'lived', 'have lived', 'am live'], answer: 2 },
+  { category: 'Reading', question: '“Although it rained, we went out.” What happened?', options: ['They stayed home', 'They went out', 'It was sunny', 'They slept'], answer: 1 },
+  { category: 'Vocabulary', question: '“Reliable” describes someone who…', options: ['can be trusted', 'is always late', 'speaks loudly', 'feels hungry'], answer: 0 },
+  { category: 'Grammar', question: 'If I ___ more time, I would travel.', options: ['have', 'had', 'will have', 'having'], answer: 1 },
+  { category: 'Reading', question: '“The meeting was postponed.” Nghĩa là cuộc họp…', options: ['bị hủy vĩnh viễn', 'được tổ chức sớm', 'bị hoãn', 'đang diễn ra'], answer: 2 },
+  { category: 'Listening simulation', question: 'Which phrase did you hear?', audio: 'Could you say that again?', options: ['Never mind.', 'Could you say that again?', 'Go away.', 'I disagree.'], answer: 1 },
+  { category: 'Vocabulary', question: 'A “deadline” is…', options: ['a starting point', 'a final time limit', 'a lunch break', 'a job title'], answer: 1 },
+  { category: 'Grammar', question: 'The report ___ by Friday.', options: ['will finish', 'will be finished', 'finished', 'finishing'], answer: 1 },
+  { category: 'Reading', question: '“Demand has declined gradually.” Demand has…', options: ['risen quickly', 'stayed equal', 'fallen slowly', 'disappeared'], answer: 2 },
+  { category: 'Grammar', question: 'Rarely ___ such a beautiful view.', options: ['I have seen', 'have I seen', 'I saw have', 'seen I have'], answer: 1 },
+]
+
+export const mockQuestions = placementQuestions.slice(0, 10)

@@ -1,0 +1,17 @@
+import { ArrowRight, BookOpen, CheckCircle2, Layers3, Volume2 } from 'lucide-react'
+import { Link } from 'react-router-dom'
+import Breadcrumbs from '../components/common/Breadcrumbs'
+import { englishLevels } from '../data/levels'
+import { grammarPath, vocabularyPath } from '../utils/routes'
+
+export default function ResourceLanding({ type }) {
+  const vocabulary = type === 'vocabulary'
+  return <div className="inner-page section-shell seo-landing resource-landing">
+    <Breadcrumbs items={[{ label:'Trang chủ', to:'/' }, { label:'Học tiếng Anh', to:'/learn-english' }, { label:vocabulary ? 'English Vocabulary' : 'English Grammar' }]}/>
+    <header className="seo-hero resource-hero"><div><span className="overline">{vocabulary ? 'ENGLISH VOCABULARY' : 'ENGLISH GRAMMAR'}</span><h1>{vocabulary ? 'Học từ vựng tiếng Anh theo cấp độ và ngữ cảnh' : 'Học ngữ pháp tiếng Anh từ A1 đến C2'}</h1><p>{vocabulary ? 'Tra nghĩa tiếng Việt, nghe phát âm, đọc ví dụ và luyện lại từ bằng nhiều dạng câu hỏi. Kho từ được chia theo CEFR, chủ đề và mục tiêu TOEIC, IELTS.' : 'Mỗi chủ điểm có cấu trúc, giải thích cách dùng, ví dụ, lỗi thường gặp và câu hỏi luyện tập để bạn hiểu rồi vận dụng.'}</p><Link className="btn large" to={vocabulary ? vocabularyPath('english','A1') : grammarPath('english','A1')}>Bắt đầu từ A1 <ArrowRight/></Link></div><div className="resource-symbol" aria-hidden="true">{vocabulary ? 'Aa' : 'S + V'}</div></header>
+    <section className="content-section"><div className="section-intro left"><span className="overline">CÁCH HỌC</span><h2>{vocabulary ? 'Từ mới đi cùng cách dùng' : 'Cấu trúc đi cùng thực hành'}</h2></div><div className="content-card-grid three">{(vocabulary ? [[Volume2,'Phát âm','Nghe từ ở tốc độ phù hợp và đọc theo.'],[BookOpen,'Ví dụ thật','Xem từ trong câu và bản dịch khi dữ liệu nguồn có sẵn.'],[Layers3,'Ôn đúng lúc','Đánh giá mức nhớ để tạo lịch flashcard cá nhân.']] : [[BookOpen,'Giải thích rõ','Hiểu mục đích và hoàn cảnh dùng của từng cấu trúc.'],[CheckCircle2,'Lỗi thường gặp','Nhận biết lỗi điển hình trước khi làm bài luyện.'],[Layers3,'Liên kết bài học','Mở phần ngữ pháp trong lesson để luyện cùng kỹ năng khác.']]).map(([Icon,title,text]) => <article key={title}><Icon/><h3>{title}</h3><p>{text}</p></article>)}</div></section>
+    <section className="content-section"><div className="section-intro left"><span className="overline">CEFR A1–C2</span><h2>Chọn nội dung theo level</h2><p>Mỗi cấp độ có trang riêng để công cụ tìm kiếm và người học truy cập trực tiếp.</p></div><div className="resource-level-grid">{Object.entries(englishLevels).map(([level, meta]) => <article key={level}><span>{level}</span><div><h3>{meta.name}</h3><p>{meta.description}</p><small>{vocabulary ? `${meta.vocabulary.length}+ nhóm từ nền tảng trong lesson` : `${meta.grammar.length} nhóm cấu trúc trọng tâm`}</small></div><Link aria-label={`${vocabulary ? 'Từ vựng' : 'Ngữ pháp'} ${level}`} to={vocabulary ? vocabularyPath('english',level) : grammarPath('english',level)}><ArrowRight/></Link></article>)}</div></section>
+    <section className="related-links"><h2>Tiếp tục theo mục tiêu</h2><div><Link to="/toeic">TOEIC Listening & Reading</Link><Link to="/ielts">IELTS bốn kỹ năng</Link><Link to="/learn-english">Lộ trình học tiếng Anh</Link><Link to={vocabulary ? '/english-grammar' : '/english-vocabulary'}>{vocabulary ? 'English Grammar' : 'English Vocabulary'}</Link></div></section>
+  </div>
+}
+
