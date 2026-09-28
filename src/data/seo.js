@@ -6,6 +6,9 @@ export const DEFAULT_SITE_URL = 'https://ngoctam169.github.io/iloveyou'
 export const DEFAULT_OG_IMAGE = '/og-image.png'
 export const PERSONAL_SEO_KEYWORDS = [
   'Nguyễn Ngọc Tâm developer',
+  'Nguyễn Ngọc Tâm Ninh Thuận',
+  'Nguyễn Ngọc Tâm developer Ninh Thuận',
+  'Ngọc Tâm Dev Ninh Thuận',
   'Nguyen Ngoc Tam developer',
   'Ngọc Tâm Dev',
   'Tâm Dev',
@@ -40,13 +43,13 @@ const personalIndexRoutes = ['/', '/about', '/blog']
 const staticMeta = {
   '/': {
     title: 'Nguyễn Ngọc Tâm (Ngọc Tâm Dev) | Full-stack Developer',
-    description: 'Website của Nguyễn Ngọc Tâm (Ngọc Tâm Dev), Full-stack Developer tại TP.HCM chuyên PHP, Laravel, MongoDB, Redis, WebSocket, WebRTC, REST API và hệ thống realtime.',
+    description: 'Website của Nguyễn Ngọc Tâm (Ngọc Tâm Dev), Full-stack Developer quê Ninh Thuận, hiện làm việc tại TP.HCM với PHP, Laravel, MongoDB, Redis, WebSocket, WebRTC và hệ thống realtime.',
     keywords: PERSONAL_SEO_KEYWORDS,
     pageType:'person-home',
   },
   '/about': {
-    title: 'Nguyễn Ngọc Tâm – Full-stack PHP Developer | Ngọc Tâm Dev',
-    description: 'Hồ sơ Nguyễn Ngọc Tâm (Ngọc Tâm Dev), Full-stack Developer tại South Telecom từ 07/2022, chuyên PHP, Laravel, MongoDB, Redis, WebSocket, WebRTC và backend/realtime.',
+    title: 'Nguyễn Ngọc Tâm Ninh Thuận | Full-stack Developer – Ngọc Tâm Dev',
+    description: 'Hồ sơ Nguyễn Ngọc Tâm (Ngọc Tâm Dev), Full-stack Developer quê Ninh Thuận, làm việc tại South Telecom ở TP.HCM từ 07/2022, chuyên PHP, Laravel, MongoDB, Redis, WebSocket và WebRTC.',
     keywords: PERSONAL_SEO_KEYWORDS,
     pageType:'profile',
   },
