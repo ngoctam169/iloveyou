@@ -1,6 +1,6 @@
 # Vocabulary data attribution
 
-The generated vocabulary files in this directory combine open lexical sources. The hand edited vocabulary already present in NT takes precedence when the same word and level occur in both datasets.
+The bulk vocabulary is generated into `public/vocabulary-data/` at build time and fetched lazily by language + level. It is intentionally not bundled into the React source. Hand-edited lesson vocabulary remains a compact fallback and takes precedence when the same word and level occur in both datasets.
 
 ## English
 
@@ -25,6 +25,8 @@ The generated vocabulary files in this directory combine open lexical sources. T
 - [NIKL TOPIK Vocabulary derived data](https://topikvocab.foldalpha.com/download/), provided under the Korea Open Government License Type 1. The generated data uses the Vietnamese export.
 
 ## Scope note
+
+NT targets about **1,000 study words per app level**. Some source lists are smaller than 1,000 (for example early HSK 3.0 and JLPT bands), so the build may supplement a band with words from a neighboring harder source band. Every generated item keeps `officialLevel`, `levelBasis`, and `source` so the UI/data can distinguish source classification from the NT learning band.
 
 Level labels support study and filtering inside this application. They do not constitute official exam certification or an official vocabulary prescription by CEFR, HSK, JLPT, TOPIK, or their governing organizations.
 
