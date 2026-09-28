@@ -1,5 +1,4 @@
 import { vocabularyCatalog } from '../data/vocabulary/catalog.js'
-import { wordKey } from '../utils/srs.js'
 
 const memoryCache = new Map()
 const pending = new Map()
@@ -46,10 +45,15 @@ export function mergeVocabularySources(state, remoteWords = [], languageId = nul
   const allowedLevels = new Set(levels.filter(Boolean))
   const inScope = (word) => (!languageId || word.languageId === languageId) && (!allowedLevels.size || allowedLevels.has(word.level))
   const merged = new Map()
+  const semanticKey = (word) => `${word.languageId || 'english'}:${word.level}:${String(word.word).normalize('NFKC').trim().toLocaleLowerCase()}`
 
-  for (const word of remoteWords.filter(inScope)) merged.set(wordKey(word), word)
-  for (const word of vocabularyCatalog.filter(inScope)) merged.set(wordKey(word), { ...merged.get(wordKey(word)), ...word })
-  for (const word of (state?.personalVocabulary || []).filter(inScope)) merged.set(wordKey(word), word)
+  for (const word of remoteWords.filter(inScope)) merged.set(semanticKey(word), word)
+  for (const word of vocabularyCatalog.filter(inScope)) {
+    const key = semanticKey(word)
+    const remote = merged.get(key)
+    merged.set(key, remote ? { ...remote, ...word, id:remote.id } : word)
+  }
+  for (const word of (state?.personalVocabulary || []).filter(inScope)) merged.set(semanticKey(word), word)
 
   return [...merged.values()]
 }
