@@ -25,7 +25,7 @@ assert(profilePage?.mainEntity?.['@id'] === `${DEFAULT_SITE_URL}/#person`,'Profi
 assert(person?.['@id'] === `${DEFAULT_SITE_URL}/#person` && person.name === AUTHOR.name,'About page has an invalid Person entity')
 assert(AUTHOR.alternateNames.every((name) => person.alternateName.includes(name)),'Person alternate names are incomplete')
 assert(AUTHOR.sameAs.every((url) => person.sameAs.includes(url)),'Person sameAs links are incomplete')
-assert(aboutHtml.includes('<h1>Nguyễn Ngọc Tâm – Full-stack Developer</h1>'),'About prerender is missing the required H1')
+assert(aboutHtml.includes('<h1>Nguyễn Ngọc Tâm (Ngọc Tâm Dev) – Full-stack Developer</h1>'),'About prerender is missing the personal identity H1')
 
 const titles = new Set()
 for (const post of blogPosts) {
@@ -58,7 +58,16 @@ assert(robots.includes(`Sitemap: ${DEFAULT_SITE_URL}/sitemap.xml`) && !/Disallow
 const notFound = read('dist/404.html')
 assert(notFound.includes('noindex, follow'),'404 output is indexable')
 const builtHome = read('dist/index.html')
-assert(builtHome.includes('/iloveyou/assets/') && builtHome.includes('Nguyễn Ngọc Tâm'),'Production base path or homepage author signal is missing')
+assert(builtHome.includes('/iloveyou/assets/') && builtHome.includes('Nguyễn Ngọc Tâm') && builtHome.includes('Ngọc Tâm Dev'),'Production base path or homepage personal identity signal is missing')
+assert(builtHome.includes('<title>Nguyễn Ngọc Tâm (Ngọc Tâm Dev) | Full-stack Developer</title>'),'Homepage title is not personal-first')
+const homeGraph = jsonLd(builtHome)['@graph']
+const homeWebsite = homeGraph.find((item) => item['@type'] === 'WebSite')
+const homePerson = homeGraph.find((item) => item['@type'] === 'Person')
+assert(homeWebsite?.creator?.['@id'] === `${DEFAULT_SITE_URL}/#person` && homeWebsite?.about?.['@id'] === `${DEFAULT_SITE_URL}/#person`,'WebSite does not identify Nguyễn Ngọc Tâm as creator/about entity')
+assert(homePerson?.name === AUTHOR.name && homePerson?.worksFor?.name === 'South Telecom','Homepage Person entity is incomplete')
+assert(!sitemap.includes(`<loc>${DEFAULT_SITE_URL}/learn-english</loc>`),'Language-learning routes should not be in the personal SEO sitemap')
+const languageHtml = read('dist/learn-english/index.html')
+assert(languageHtml.includes('noindex, follow'),'Language-learning landing page should remain functional but noindex')
 for (const output of [builtHome,aboutHtml,sitemap,robots]) assert(!output.includes('nt-learning.example.com') && !output.includes('https://DOMAIN'),'Placeholder domain remains in production output')
 
 console.log(`SEO PASS: ProfilePage, Person and ${blogPosts.length} BlogPosting graphs validated; sitemap and GitHub Pages output are ready`)
