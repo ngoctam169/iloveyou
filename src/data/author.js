@@ -9,7 +9,8 @@ export const AUTHOR = {
   jobTitle: 'Full-stack Developer',
   roles: ['Full-stack Developer', 'PHP Developer', 'Backend Developer'],
   location: 'Ho Chi Minh City, Vietnam',
-  description: 'Nguyễn Ngọc Tâm (Ngọc Tâm Dev) là Full-stack Developer tại South Telecom ở TP.HCM, tập trung vào PHP, Laravel, MongoDB, Redis, WebSocket, WebRTC, REST API và các hệ thống backend/realtime.',
+  origin: 'Ninh Thuận, Vietnam',
+  description: 'Nguyễn Ngọc Tâm (Ngọc Tâm Dev) là Full-stack Developer quê Ninh Thuận, hiện làm việc tại South Telecom ở TP.HCM, tập trung vào PHP, Laravel, MongoDB, Redis, WebSocket, WebRTC, REST API và các hệ thống backend/realtime.',
   knowsAbout: [
     'PHP', 'Laravel', 'CodeIgniter', 'JavaScript', 'TypeScript', 'MongoDB',
     'PostgreSQL', 'SQL Server', 'Redis', 'WebSocket', 'WebRTC', 'REST API',
@@ -44,6 +45,7 @@ export function personEntity(siteUrl) {
     alternateName: AUTHOR.alternateNames,
     jobTitle: AUTHOR.jobTitle,
     description: AUTHOR.description,
+    disambiguatingDescription: 'Nguyễn Ngọc Tâm (Ngọc Tâm Dev), Full-stack Developer quê Ninh Thuận, hiện làm việc tại TP.HCM và South Telecom.',
     url: `${siteUrl}/about`,
     mainEntityOfPage: { '@id': `${siteUrl}/about#profilepage` },
     address: {
@@ -69,6 +71,11 @@ export function personEntity(siteUrl) {
       },
     },
     knowsAbout: AUTHOR.knowsAbout,
+    subjectOf: {
+      '@type': 'Article',
+      name: 'Nguyễn Ngọc Tâm Ninh Thuận – hành trình từ quê nhà đến Full-stack Developer tại Sài Gòn',
+      url: `${siteUrl}/blog/nguyen-ngoc-tam-ninh-thuan`,
+    },
     sameAs: AUTHOR.sameAs,
   }
 }
