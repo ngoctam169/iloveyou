@@ -99,8 +99,8 @@ try {
   await page.locator('footer').getByRole('link',{ name:'Đọc bài hành trình' }).click()
   await page.waitForURL('**/blog#nguyen-ngoc-tam-ninh-thuan')
   await page.locator('#nguyen-ngoc-tam-ninh-thuan').waitFor()
-  await page.waitForTimeout(180)
-  assert(await page.locator('#nguyen-ngoc-tam-ninh-thuan').evaluate((node) => Math.abs(node.getBoundingClientRect().top) < 220),'Footer blog hash link did not scroll to the personal story')
+  await page.waitForFunction(() => { const node=document.getElementById('nguyen-ngoc-tam-ninh-thuan'); return node && Math.abs(node.getBoundingClientRect().top) < 220 })
+  assert(true,'Footer blog hash link scrolled to the personal story')
   console.log('PLATFORM checkpoint: footer hash link scrolls to blog story')
 
   await page.goto(`${origin}/review`)
