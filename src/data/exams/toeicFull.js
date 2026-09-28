@@ -270,8 +270,17 @@ const part7 = part7Sets.flatMap(([title,text,items],setIndex)=>items.map(([quest
   `t7-${String(setIndex*3+itemIndex+1).padStart(2,'0')}`,7,'Reading Comprehension',question,options,answer,{ passageTitle:title, passage:text }
 )))
 
-const listeningQuestions = [...part1,...part2,...part3,...part4]
-const readingQuestions = [...part5,...part6,...part7]
+const balanceChoicePositions = (items) => items.map((item,index) => {
+  if (!item.options?.length || !Number.isInteger(item.answer)) return item
+  const shift = index % item.options.length
+  if (!shift) return item
+  const options = [...item.options.slice(shift),...item.options.slice(0,shift)]
+  const answer = (item.answer - shift + item.options.length) % item.options.length
+  return { ...item,options,answer }
+})
+
+const listeningQuestions = balanceChoicePositions([...part1,...part2,...part3,...part4])
+const readingQuestions = balanceChoicePositions([...part5,...part6,...part7])
 
 export const toeicFullSections = [
   { id:'toeic-listening', label:'Listening', duration:45*60, questions:listeningQuestions },
