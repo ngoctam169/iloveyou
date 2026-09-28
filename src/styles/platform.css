@@ -35,3 +35,27 @@
 .exam-audio-once{display:flex;align-items:center;gap:12px;padding:14px 16px;margin:0 0 18px;border:1px solid var(--line);border-radius:13px;background:var(--surface-2)}
 .exam-audio-once .btn{flex:0 0 auto}.exam-audio-once small{color:var(--muted);font-size:.64rem;line-height:1.5}
 @media(max-width:560px){.exam-audio-once{align-items:flex-start;flex-direction:column}}
+
+
+/* Compact grouped navigation on tablet/mobile */
+@media(max-width:1080px){
+  .grouped-mobile-menu{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;padding-block:14px 18px}
+  .grouped-mobile-menu section{padding:12px;border:1px solid var(--line);border-radius:12px;background:var(--surface-2)}
+  .grouped-mobile-menu section>strong{display:block;padding:2px 8px 7px;color:var(--muted);font-size:.62rem;text-transform:uppercase;letter-spacing:.08em}
+  .grouped-mobile-menu section>div{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:2px}
+  .grouped-mobile-menu a{min-width:0}
+  .mobile-dashboard-link{grid-column:1/-1;color:var(--primary);font-weight:800!important}
+}
+@media(max-width:760px){
+  .grouped-mobile-menu{grid-template-columns:1fr;gap:8px}
+  .grouped-mobile-menu section>div{grid-template-columns:1fr 1fr}
+  .product-hero{padding-block:42px 52px}
+  .product-hero .hero-visual{min-height:360px}
+}
+@media(max-width:560px){
+  .audio-player-modern{align-items:flex-start}
+  .audio-player-modern .audio-main{width:calc(100% - 68px)}
+  .audio-player-modern .rate-buttons{width:100%;margin-left:65px}
+  .audio-player-modern .rate-buttons button{flex:1}
+  .grouped-mobile-menu section>div{grid-template-columns:1fr}
+}
