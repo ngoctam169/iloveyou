@@ -1,4 +1,4 @@
-import { readFileSync, readdirSync } from 'node:fs'
+import { existsSync, readFileSync, readdirSync } from 'node:fs'
 import { extname, join } from 'node:path'
 import { allSearchItems, getLesson, getRoadmap } from '../src/data/courses.js'
 import { englishLevels } from '../src/data/levels.js'
@@ -74,15 +74,37 @@ assert(getLevelProgress(independent, 'english', 'B2').completedLessons.length ==
 assert(getLevelProgress(independent, 'english', 'A1').completedLessons.length === 0, 'Progress leaked between levels')
 assert(averageSkillScores({ one: { Listening: 60 }, two: { Listening: 100 } }).Listening === 80, 'Skill average is incorrect')
 
-assert(vocabularyCatalog.length >= 150, 'Vocabulary catalogue did not include lesson words')
-assert(new Set(vocabularyCatalog.map(wordKey)).size === vocabularyCatalog.length, 'Vocabulary catalogue contains duplicate schedule keys')
-assert(vocabularyCatalog.every((word) => word.word && word.meaningVi && word.level && word.languageId), 'Vocabulary catalogue contains incomplete core fields')
-assert(vocabularyCatalog.every((word) => word.example), 'Vocabulary catalogue contains words without a sourced example')
-for (const [language, minimum, translatedShare] of [['english', 1000, .7], ['chinese', 300, .9], ['japanese', 300, .9], ['korean', 300, .9]]) {
-  const entries = vocabularyCatalog.filter((word) => word.languageId === language)
-  assert(entries.length >= minimum, `${language} has fewer than ${minimum} vocabulary entries`)
-  assert(entries.filter((word) => word.translation).length / entries.length >= translatedShare, `${language} has insufficient translated examples`)
+assert(vocabularyCatalog.length >= 100, 'Compact authored vocabulary fallback is unexpectedly small')
+assert(new Set(vocabularyCatalog.map(wordKey)).size === vocabularyCatalog.length, 'Compact vocabulary fallback contains duplicate schedule keys')
+assert(vocabularyCatalog.every((word) => word.word && word.meaningVi && word.level && word.languageId), 'Compact vocabulary fallback contains incomplete core fields')
+
+const vocabularyDataRoot = new URL('../public/vocabulary-data/', import.meta.url)
+const vocabularyManifestUrl = new URL('manifest.json', vocabularyDataRoot)
+assert(existsSync(vocabularyManifestUrl), 'Generated vocabulary manifest is missing; run npm run build:vocabulary')
+const vocabularyManifest = JSON.parse(readFileSync(vocabularyManifestUrl, 'utf8'))
+assert(vocabularyManifest.targetPerLevel === 1000, 'Vocabulary target must remain 1000 words per level')
+const expectedVocabularyLevels = {
+  english:['A1','A2','B1','B2','C1','C2'],
+  chinese:['HSK 1','HSK 2','HSK 3','HSK 4','HSK 5','HSK 6'],
+  japanese:['N5','N4','N3','N2','N1'],
+  korean:['TOPIK 1','TOPIK 2','TOPIK 3','TOPIK 4','TOPIK 5','TOPIK 6'],
 }
+const generatedSamples = {}
+let generatedVocabularyCount = 0
+for (const [languageId, levels] of Object.entries(expectedVocabularyLevels)) {
+  for (const level of levels) {
+    const meta = vocabularyManifest.languages?.[languageId]?.[level]
+    assert(meta?.count === 1000, `${languageId} ${level} must contain exactly 1000 generated words`)
+    const words = JSON.parse(readFileSync(new URL(meta.file, vocabularyDataRoot), 'utf8'))
+    assert(words.length === 1000, `${languageId} ${level} file does not contain 1000 words`)
+    assert(words.every((word) => word.languageId === languageId && word.level === level && word.word && word.meaningVi && word.source && word.officialLevel && word.levelBasis), `${languageId} ${level} contains incomplete generated words`)
+    assert(new Set(words.map((word) => word.word.normalize('NFKC').toLocaleLowerCase())).size === words.length, `${languageId} ${level} repeats a word inside the level`)
+    generatedSamples[`${languageId}:${level}`] = words
+    generatedVocabularyCount += words.length
+  }
+}
+assert(generatedVocabularyCount === 23000, `Expected 23,000 lazy vocabulary records, got ${generatedVocabularyCount}`)
+
 assert(grammarEntries.length >= 50 && grammarEntries.every((item) => item.name && item.structure && item.explanation && item.examples.length >= 2 && item.mistake), 'Grammar library has incomplete topics')
 for (const language of ['english','chinese','japanese','korean']) for (const [level] of getLanguage(language).levels) assert(grammarEntries.some((item) => item.languageId === language && item.level === level), `${language} ${level} has no grammar topic`)
 for (const [level, minimum] of Object.entries({ A1:50, A2:50, B1:50, B2:50, C1:30, C2:30 })) {
@@ -95,11 +117,9 @@ const combined = { personalVocabulary:[custom] }
 assert(vocabularyForState(combined, 'japanese', 'N3').some((word) => word.id === custom.id), 'Personal vocabulary is missing from its selected level')
 assert(allVocabulary(combined).length === vocabularyCatalog.length + 1, 'Personal vocabulary did not join the catalogue')
 for (const language of ['english', 'chinese', 'japanese', 'korean']) {
-  assert(vocabularyCatalog.some((word) => word.languageId === language), `${language} vocabulary is missing`)
+  assert(vocabularyCatalog.some((word) => word.languageId === language), `${language} compact fallback vocabulary is missing`)
 }
-for (const language of ['chinese', 'japanese', 'korean']) assert(new Set(vocabularyCatalog.filter((word) => word.languageId === language).map((word) => word.word)).size === vocabularyCatalog.filter((word) => word.languageId === language).length, `${language} starter words were duplicated into advanced levels`)
-for (const language of ['chinese', 'japanese', 'korean']) for (const [level] of getLanguage(language).levels) assert(vocabularyCatalog.filter((word) => word.languageId === language && word.level === level).length >= 5, `${language} ${level} needs a level-specific practice set`)
-assert(getVocabularyByLanguage({}, 'english').length >= 1000, 'Language vocabulary helper returned too few words')
+assert(generatedSamples['english:A1'].length === 1000 && generatedSamples['korean:TOPIK 6'].length === 1000, 'Generated edge levels are incomplete')
 assert(getVocabularyByLevel({}, 'chinese', 'HSK 1').every((word) => word.languageId === 'chinese' && word.level === 'HSK 1'), 'Level vocabulary helper leaked another scope')
 const topicSample = vocabularyCatalog.find((word) => word.languageId === 'english' && word.topic)
 assert(getVocabularyByTopic({}, 'english', topicSample.topic).every((word) => word.topic === topicSample.topic), 'Topic vocabulary helper returned a wrong topic')
@@ -107,8 +127,9 @@ assert(searchVocabulary(vocabularyCatalog, topicSample.meaningVi).some((word) =>
 assert(getRandomVocabulary(vocabularyCatalog, { languageId:'japanese' }, 7).length === 7, 'Random vocabulary helper returned the wrong batch size')
 const dueWord = vocabularyCatalog.find((word) => word.languageId === 'korean')
 assert(getReviewVocabulary({ flashcardProgress:{ [wordKey(dueWord)]:{ nextReview:'2000-01-01T00:00:00.000Z' } } }, 'korean', dueWord.level).some((word) => wordKey(word) === wordKey(dueWord)), 'Review vocabulary helper omitted a due word')
-const practiceWord = vocabularyCatalog.find((word) => word.languageId === 'english' && word.level === 'B1' && word.word === 'adapt')
-const practice = buildVocabularyPractice(Array(11).fill(practiceWord), vocabularyCatalog)
+const practiceCatalogue = generatedSamples['english:B1']
+const practiceWord = practiceCatalogue[0]
+const practice = buildVocabularyPractice(Array(11).fill(practiceWord), practiceCatalogue)
 assert(new Set(practice.map((question) => question.kind)).size === 11, 'Unified vocabulary practice is missing a question type')
 assert(practice.every((question) => question.kind === 'match' ? question.pairs.length === 3 && question.pairs.every((word) => question.options.includes(word.meaningVi)) : question.options ? checkVocabularyAnswer(question, question.answer) : checkVocabularyAnswer(question, question.correct)), 'Vocabulary practice has an invalid answer')
 const hard = nextSchedule(nextSchedule({}, 'hard'), 'hard')
