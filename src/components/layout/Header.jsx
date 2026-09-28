@@ -20,7 +20,6 @@ const practiceItems = [
   ['/review','Review'],
   ['/flashcards','Flashcards'],
   ['/mistakes','Mistakes'],
-  ['/mock-tests','Mock Tests'],
 ]
 
 const examItems = [
@@ -30,7 +29,6 @@ const examItems = [
 
 const moreItems = [
   ['/progress','Progress'],
-  ['/history','History'],
   ['/saved','Saved'],
   ['/blog','Blog'],
   ['/about','About'],
@@ -110,7 +108,7 @@ export default function Header() {
         <div className="header-session-slot">
           {publicLanding
             ? <Link to="/languages" className="btn small">Start Learning</Link>
-            : <><span className="stat-chip flame"><Flame size={17}/>{state.streak}</span><span className="stat-chip"><Star size={17}/>{state.xp.toLocaleString()} XP</span><Link className="avatar small-avatar" to="/profile" aria-label="Hồ sơ">{initials}</Link></>}
+            : <><span className="stat-chip flame"><Flame size={17}/>{state.streak}</span><span className="stat-chip"><Star size={17}/>{state.xp.toLocaleString()} XP</span><Link className="avatar small-avatar" to="/settings#profile" aria-label="Hồ sơ">{initials}</Link></>}
         </div>
         <button className="icon-btn menu-toggle" onClick={() => setMenuOpen(!menuOpen)} aria-label={menuOpen ? 'Đóng menu' : 'Mở menu'} aria-expanded={menuOpen} aria-controls="mobile-menu">{menuOpen ? <X/> : <Menu/>}</button>
       </div>
