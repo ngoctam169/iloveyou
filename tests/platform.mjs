@@ -45,7 +45,11 @@ try {
   await page.getByLabel('Ngôn ngữ').selectOption('chinese')
   assert(await page.locator('.vocabulary-index button').count() > 0, 'Chinese vocabulary is missing from library')
   await page.getByLabel('Level').selectOption('HSK 4')
-  assert(await page.locator('.vocabulary-index button').count() >= 5, 'HSK 4 vocabulary set is missing')
+  await page.waitForFunction(() => {
+    const text = document.querySelector('.vocabulary-index > p')?.textContent || ''
+    return Number.parseInt(text, 10) >= 1000
+  })
+  assert(Number.parseInt(await page.locator('.vocabulary-index > p').innerText(), 10) >= 1000, 'HSK 4 must expose about 1000 vocabulary words')
   assert(!(await page.locator('.vocabulary-index').innerText()).includes('你好'), 'Starter words were incorrectly labelled HSK 4')
   await page.goto(`${origin}/vocabulary?language=chinese&level=HSK%201&word=%E4%BD%A0%E5%A5%BD`)
   await page.locator('.detailed-face.front h2').getByText('你好').waitFor()

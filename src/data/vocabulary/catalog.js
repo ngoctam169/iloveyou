@@ -3,7 +3,6 @@ import { languages, levelSlug } from '../languages.js'
 import { vocabulary as editorialWords } from './index.js'
 import { extendedVocabulary } from './extended.js'
 import { multilingualVocabulary } from './multilingual.js'
-import { generatedVocabulary } from './generated/index.js'
 import { topicVocabulary } from './topics.js'
 
 export const vocabularyId = (word) => String(word).normalize('NFKC').trim().toLocaleLowerCase().replace(/\s+/g, '-')
@@ -18,11 +17,6 @@ const setAuthoredWord = (key, word) => {
     if (!word[field] && generated[field]) merged[field] = generated[field]
   }
   catalogue.set(key, merged)
-}
-for (const word of generatedVocabulary) {
-  if (word.languageId !== 'english' && multilingualAuthoredWords.has(`${word.languageId}:${vocabularyId(word.word)}`)) continue
-  const key = `${word.languageId}:${word.level}:${vocabularyId(word.word)}`
-  catalogue.set(key, word)
 }
 for (const word of editorialWords) {
   const languageId = 'english'
