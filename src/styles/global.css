@@ -33,3 +33,22 @@
 .hero-maker{margin:16px 0 0!important;color:var(--muted)!important;font-size:.72rem!important}
 .hero-maker a{color:var(--primary);font-weight:750}
 .product-hero+.stats-strip{padding-block:20px}
+
+
+/* Stable header: route changes only update active state, never the layout */
+.site-header.stable-header{display:grid;grid-template-columns:110px minmax(0,1fr) 280px;gap:18px}
+.stable-header .brand{min-width:0}
+.stable-header .desktop-nav{width:100%;justify-content:flex-start}
+.stable-header .header-actions{margin-left:0;min-width:0;justify-content:flex-end}
+.header-session-slot{display:flex;align-items:center;justify-content:flex-end;gap:9px;width:190px;min-width:190px}
+@media(max-width:1200px){
+  .site-header.stable-header{grid-template-columns:110px minmax(0,1fr) 170px}
+  .header-session-slot{width:90px;min-width:90px}
+}
+@media(max-width:1080px){
+  .site-header.stable-header{grid-template-columns:110px minmax(0,1fr) 170px}
+}
+@media(max-width:760px){
+  .site-header.stable-header{grid-template-columns:92px minmax(0,1fr) auto}
+  .header-session-slot{display:none}
+}
