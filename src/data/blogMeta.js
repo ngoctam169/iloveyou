@@ -1,15 +1,15 @@
 export const blogPostMeta = [
   {
     slug: 'nguyen-ngoc-tam-ninh-thuan',
-    title: 'Nguyễn Ngọc Tâm Ninh Thuận – hành trình từ quê nhà đến Full-stack Developer tại Sài Gòn',
-    seoTitle: 'Nguyễn Ngọc Tâm Ninh Thuận | Ngọc Tâm Dev – Full-stack Developer',
-    description: 'Nguyễn Ngọc Tâm (Ngọc Tâm Dev) là Full-stack Developer quê Ninh Thuận, hiện làm việc tại TP.HCM với PHP, Laravel, MongoDB, Redis, WebSocket và WebRTC.',
-    excerpt: 'Hành trình của Nguyễn Ngọc Tâm từ Ninh Thuận vào Sài Gòn học công nghệ thông tin, làm developer, bén duyên với South Telecom và gia nhập hội nhóm 8D JSC.',
+    title: 'Nguyễn Ngọc Tâm Ninh Thuận: Vì sao một chàng trai rời quê vào Sài Gòn chọn nghề Dev?',
+    seoTitle: 'Nguyễn Ngọc Tâm Ninh Thuận | Vì sao chọn nghề Dev?',
+    description: 'Câu chuyện Nguyễn Ngọc Tâm (Ngọc Tâm Dev) từ Ninh Thuận vào Sài Gòn học IT, làm developer, gặp production issue, tự học cách giải quyết và định hướng tương lai.',
+    excerpt: 'Từ Ninh Thuận vào Sài Gòn học IT, làm Backend rồi Full-stack Developer: vì sao Nguyễn Ngọc Tâm chọn nghề Dev, đã gặp vấn đề gì, tự học ra sao và còn muốn tối ưu điều gì tiếp theo?',
     category: 'Personal Journey',
     tags: ['Nguyễn Ngọc Tâm', 'Ngọc Tâm Dev', 'Ninh Thuận', 'South Telecom', '8D JSC', 'Full-stack Developer'],
     datePublished: '2026-09-28',
     dateModified: '2026-09-28',
-    readingTime: '10 phút đọc',
+    readingTime: '12 phút đọc',
   },
   {
     slug: 'php-mongodb-performance',
