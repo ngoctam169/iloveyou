@@ -52,6 +52,8 @@ try {
   console.log('PLATFORM checkpoint: vocabulary SRS and quiz')
 
   await page.goto(`${origin}/toeic`)
+  await page.getByRole('tab',{ name:'Listening Practice' }).click()
+  await page.getByRole('progressbar',{ name:'Tiến độ audio' }).waitFor()
   await page.getByRole('tab',{ name:'Reading Practice' }).click()
   for (let question=0; question<15; question+=1) {
     await page.locator('.quiz-question .answer-list button').first().click()
@@ -102,6 +104,24 @@ try {
   await page.waitForFunction(() => { const node=document.getElementById('nguyen-ngoc-tam-ninh-thuan'); return node && Math.abs(node.getBoundingClientRect().top) < 220 })
   assert(true,'Footer blog hash link scrolled to the personal story')
   console.log('PLATFORM checkpoint: footer hash link scrolls to blog story')
+
+  await page.setViewportSize({ width:1440,height:900 })
+  await page.goto(`${origin}/dashboard`)
+  await page.getByRole('button',{ name:'Học', exact:true }).click()
+  await page.getByRole('menuitem',{ name:'My Vocabulary' }).waitFor()
+  await page.getByRole('button',{ name:'Học', exact:true }).click()
+  assert(await page.locator('.desktop-nav').getByText('Dashboard',{ exact:true }).count() === 1,'Desktop nav is missing Dashboard')
+  console.log('PLATFORM checkpoint: grouped desktop navigation opens without a long flat menu')
+
+  await page.goto(`${origin}/contact`)
+  const contactText=await page.locator('main.page').innerText()
+  assert(!contactText.includes('VITE_CONTACT_EMAIL'),'Contact page leaked VITE_CONTACT_EMAIL')
+  await page.getByRole('link',{ name:'GitHub' }).waitFor()
+  await page.goto(`${origin}/privacy`)
+  const privacyText=await page.locator('main.page').innerText()
+  assert(!privacyText.includes('VITE_GA_ID'),'Privacy page leaked VITE_GA_ID')
+  assert(privacyText.includes('Google Analytics'),'Privacy page is missing analytics status')
+  console.log('PLATFORM checkpoint: contact and privacy hide deployment variable names')
 
   await page.goto(`${origin}/review`)
   await page.getByRole('heading',{ name:'Gợi ý hôm nay' }).waitFor()
