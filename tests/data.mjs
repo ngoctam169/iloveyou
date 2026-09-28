@@ -8,6 +8,8 @@ import { ieltsListening, ieltsReading, ieltsSpeaking, ieltsWriting } from '../sr
 import { vocabulary } from '../src/data/vocabulary/index.js'
 import { vocabularyCatalog } from '../src/data/vocabulary/catalog.js'
 import { toeicListeningQuestions, toeicMiniTest, toeicReading } from '../src/data/toeic/index.js'
+import { toeicFullSections, toeicFullStats } from '../src/data/exams/toeicFull.js'
+import { ieltsFullListening, ieltsFullReading, ieltsFullSections, ieltsAcademicWritingTasks } from '../src/data/exams/ieltsFull.js'
 import { buildVocabularyPractice, checkVocabularyAnswer } from '../src/utils/vocabularyPractice.js'
 import { isWeakVocabulary, nextSchedule, vocabularyStatus, wordKey } from '../src/utils/srs.js'
 import { allVocabulary, getRandomVocabulary, getReviewVocabulary, getVocabularyByLanguage, getVocabularyByLevel, getVocabularyByTopic, normalizePersonalWord, searchVocabulary, vocabularyForState } from '../src/services/vocabularyService.js'
@@ -38,6 +40,14 @@ assert(toeicListeningQuestions.every((item) => item.audio && item.transcript && 
 assert(toeicReading.every((item) => item.grammarPoint && item.whyWrong), 'TOEIC Reading explanation is incomplete')
 assert(ieltsListening.length >= 10 && ieltsReading.length >= 2 && ieltsWriting.length >= 3 && ieltsSpeaking.length >= 10, 'IELTS demo data is incomplete')
 assert(ieltsReading.every((passage) => passage.questions.every((item) => item.paragraph && item.questionKeyword && item.passageKeyword)), 'IELTS Reading evidence is incomplete')
+
+assert(toeicFullStats.total === 200 && toeicFullStats.listening === 100 && toeicFullStats.reading === 100, 'TOEIC full mock must contain 200 questions split 100/100')
+assert(JSON.stringify(toeicFullStats.parts) === JSON.stringify({ 1:6,2:25,3:39,4:30,5:30,6:16,7:54 }), 'TOEIC full mock part distribution is incorrect')
+assert(toeicFullSections[0].duration === 45*60 && toeicFullSections[1].duration === 75*60, 'TOEIC full mock timing is incorrect')
+assert(ieltsFullListening.length === 40 && ieltsFullReading.length === 40, 'IELTS full mock must have 40 Listening and 40 Reading questions')
+assert(ieltsFullSections[0].duration === 30*60 && ieltsFullSections[1].duration === 60*60, 'IELTS objective timing is incorrect')
+assert(ieltsAcademicWritingTasks.length === 2 && ieltsAcademicWritingTasks[0].minWords === 150 && ieltsAcademicWritingTasks[1].minWords === 250, 'IELTS Writing full mock must contain Task 1 and Task 2')
+assert(new Set([...toeicFullSections.flatMap((section)=>section.questions),...ieltsFullListening,...ieltsFullReading].map((item)=>item.id)).size === 280, 'Full exam question ids must be unique')
 
 for (const level of Object.keys(expectedTopics)) {
   assert(englishLevels[level], `Missing English metadata for ${level}`)
