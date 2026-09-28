@@ -9,3 +9,13 @@
 @media(max-width:950px){.framework-grid{grid-template-columns:1fr 1fr}.seo-hero{padding:40px}.footer-inner{grid-template-columns:1fr}.level-learning-grid{grid-template-columns:1fr}.level-outcomes{grid-template-columns:1fr}}
 @media(max-width:760px){.footer{padding-bottom:90px}.footer-groups{grid-template-columns:1fr 1fr}.skill-home-grid,.content-card-grid.three,.exam-home-grid{grid-template-columns:1fr}.learning-statistics>.section-shell{grid-template-columns:1fr;gap:35px}.final-home-cta,.seo-final-cta{align-items:flex-start;flex-direction:column}.seo-hero{grid-template-columns:1fr;padding:30px 24px}.seo-hero-badge,.resource-symbol{width:150px;min-width:150px;height:150px}.skill-content-grid{grid-template-columns:1fr}.seo-final-cta>div:last-child{flex-wrap:wrap}.lesson-related>div{align-items:flex-start;flex-direction:column}.resource-level-grid article{grid-template-columns:55px 1fr}.resource-level-grid article>a{grid-column:2}.info-page>header{padding:32px 25px}}
 @media(max-width:480px){.framework-grid,.stat-preview,.footer-groups{grid-template-columns:1fr}.trust-row{flex-direction:column;align-items:center;gap:8px}.footer-bottom{flex-direction:column}.final-home-cta{padding:32px 25px}.seo-final-cta{padding:30px 24px}.resource-level-grid article{grid-template-columns:1fr}.resource-level-grid article>a{grid-column:1}.level-outcomes{display:block}.level-outcomes section+section{margin-top:12px}}
+
+.contact-section>p{max-width:720px}
+.contact-channels{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:18px}
+.contact-channels a{display:grid;gap:4px;padding:17px;border:1px solid var(--line);border-radius:13px;background:var(--surface);transition:.18s}
+.contact-channels a:hover{transform:translateY(-2px);border-color:var(--primary)}
+.contact-channels strong{font-size:.78rem}.contact-channels span{overflow:hidden;color:var(--muted);font-size:.7rem;text-overflow:ellipsis;white-space:nowrap}
+.analytics-status{padding:18px;border:1px solid var(--line);border-radius:14px;background:var(--surface-2)}
+.analytics-status.enabled{border-color:color-mix(in srgb,var(--green) 35%,var(--line));background:color-mix(in srgb,var(--green) 7%,var(--surface))}
+.analytics-status strong{font-size:.82rem}.analytics-status p{margin:5px 0 0!important;font-size:.76rem;line-height:1.65}
+@media(max-width:700px){.contact-channels{grid-template-columns:1fr}}
