@@ -17,7 +17,7 @@
 .nav-group{position:relative;display:flex;align-items:stretch}
 .nav-group-button{display:flex;align-items:center;gap:5px;padding:0 10px;border:0;color:var(--muted);background:transparent;cursor:pointer;font-size:.91rem;font-weight:650;white-space:nowrap}
 .nav-group-button svg{width:14px;transition:transform .18s ease}
-.nav-group:has(.nav-group-button[aria-expanded='true']) .nav-group-button svg{transform:rotate(180deg)}
+.nav-group.open .nav-group-button svg{transform:rotate(180deg)}
 .nav-group-button:hover,.nav-group.active>.nav-group-button{color:var(--text)}
 .nav-group.active:after{content:'';position:absolute;bottom:-1px;left:10px;right:10px;height:2px;background:var(--primary)}
 .nav-popover{position:absolute;z-index:80;top:calc(100% - 5px);left:0;display:grid;min-width:210px;padding:7px;border:1px solid var(--line);border-radius:14px;background:var(--surface);box-shadow:0 18px 55px rgba(38,29,54,.16)}
