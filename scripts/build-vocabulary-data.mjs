@@ -63,7 +63,7 @@ const baseWord = (languageId, level, index, data) => ({
   lessonIds: [], lessons: [], source: data.source,
   levelBasis: data.levelBasis || 'source vocabulary level',
   sourceLevel: data.sourceLevel || level,
-}))
+})
 
 function uniqueByWord(items) {
   const seen = new Set()
