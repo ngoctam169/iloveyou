@@ -25,7 +25,9 @@ assert(profilePage?.mainEntity?.['@id'] === `${DEFAULT_SITE_URL}/#person`,'Profi
 assert(person?.['@id'] === `${DEFAULT_SITE_URL}/#person` && person.name === AUTHOR.name,'About page has an invalid Person entity')
 assert(AUTHOR.alternateNames.every((name) => person.alternateName.includes(name)),'Person alternate names are incomplete')
 assert(AUTHOR.sameAs.every((url) => person.sameAs.includes(url)),'Person sameAs links are incomplete')
+assert(person.disambiguatingDescription?.includes('Ninh Thuận'),'Person entity is missing Ninh Thuận disambiguation')
 assert(aboutHtml.includes('<h1>Nguyễn Ngọc Tâm (Ngọc Tâm Dev) – Full-stack Developer</h1>'),'About prerender is missing the personal identity H1')
+assert(aboutHtml.includes('Ninh Thuận'),'About page is missing the Ninh Thuận identity signal')
 
 const titles = new Set()
 for (const post of blogPosts) {
@@ -47,6 +49,7 @@ for (const post of blogPosts) {
   assert(posting?.author?.['@id'] === `${DEFAULT_SITE_URL}/#person`,`BlogPosting author is wrong for ${post.slug}`)
   assert(posting?.mainEntityOfPage?.['@id'] === `${DEFAULT_SITE_URL}/blog/${post.slug}#webpage`,`BlogPosting mainEntityOfPage is wrong for ${post.slug}`)
   assert(articlePerson?.['@id'] === person['@id'],`Article uses a different Person entity: ${post.slug}`)
+  if (post.slug === 'nguyen-ngoc-tam-ninh-thuan') assert(posting?.about?.['@id'] === `${DEFAULT_SITE_URL}/#person`,'Personal journey article is not explicitly about the Person entity')
   const words = post.content.flatMap((block) => block.text ? [block.text] : block.items || []).join(' ').split(' ').filter(Boolean).length
   assert(words >= 1000 && words <= 2000,`Article ${post.slug} has ${words} words; expected 1000–2000`)
 }
@@ -65,6 +68,7 @@ const homeWebsite = homeGraph.find((item) => item['@type'] === 'WebSite')
 const homePerson = homeGraph.find((item) => item['@type'] === 'Person')
 assert(homeWebsite?.creator?.['@id'] === `${DEFAULT_SITE_URL}/#person` && homeWebsite?.about?.['@id'] === `${DEFAULT_SITE_URL}/#person`,'WebSite does not identify Nguyễn Ngọc Tâm as creator/about entity')
 assert(homePerson?.name === AUTHOR.name && homePerson?.worksFor?.name === 'South Telecom','Homepage Person entity is incomplete')
+assert(builtHome.includes('Ninh Thuận'),'Homepage is missing the Ninh Thuận identity signal')
 assert(!sitemap.includes(`<loc>${DEFAULT_SITE_URL}/learn-english</loc>`),'Language-learning routes should not be in the personal SEO sitemap')
 const languageHtml = read('dist/learn-english/index.html')
 assert(languageHtml.includes('noindex, follow'),'Language-learning landing page should remain functional but noindex')
