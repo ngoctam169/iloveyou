@@ -54,9 +54,9 @@ const staticMeta = {
     pageType:'profile',
   },
   '/blog': {
-    title: 'Blog Nguyễn Ngọc Tâm Ninh Thuận | Ngọc Tâm Dev & Backend',
-    description: 'Blog của Nguyễn Ngọc Tâm (Ngọc Tâm Dev), Full-stack Developer quê Ninh Thuận: hành trình vào Sài Gòn làm Dev và các bài về PHP, Laravel, MongoDB, Redis, WebSocket, WebRTC.',
-    keywords: `Nguyễn Ngọc Tâm Ninh Thuận, blog Nguyễn Ngọc Tâm, Ngọc Tâm Dev, South Telecom, PHP, Laravel, MongoDB, Redis, WebSocket, WebRTC, backend developer`,
+    title: 'Blog Nguyễn Ngọc Tâm Ninh Thuận | Hành trình làm Developer',
+    description: 'Blog của Nguyễn Ngọc Tâm, Full-stack Developer quê Ninh Thuận: hành trình vào Sài Gòn làm nghề và các bài viết về PHP, Laravel, MongoDB, Redis, WebSocket, WebRTC.',
+    keywords: `Nguyễn Ngọc Tâm Ninh Thuận, blog Nguyễn Ngọc Tâm, South Telecom, PHP, Laravel, MongoDB, Redis, WebSocket, WebRTC, backend developer`,
     pageType:'blog',
   },
   '/languages': appMeta({ title: 'Khóa học ngôn ngữ online | NT', description: 'Khám phá lộ trình học tiếng Anh, Trung, Nhật và Hàn theo các khung CEFR, HSK, JLPT và TOPIK tại NT.' }),
@@ -109,12 +109,12 @@ export function getSeoForPath(pathname, search = '') {
       title:post.seoTitle,
       ogTitle:post.title,
       description:post.description,
-      keywords:`${post.tags.join(', ')}, Nguyễn Ngọc Tâm, Ngọc Tâm Dev, Full-stack Developer`,
+      keywords:`${post.tags.join(', ')}, Nguyễn Ngọc Tâm, Full-stack Developer`,
       path,
       pageType:'article',
       article:post,
     }
-    return { title:'Không tìm thấy bài viết | Ngọc Tâm Dev', description:'Bài viết bạn tìm kiếm không tồn tại hoặc đường dẫn chưa chính xác.', path, robots:noindex }
+    return { title:'Không tìm thấy bài viết | Blog Nguyễn Ngọc Tâm', description:'Bài viết bạn tìm kiếm không tồn tại hoặc đường dẫn chưa chính xác.', path, robots:noindex }
   }
 
   const languageLanding = path.match(/^\/learn-(english|chinese|japanese|korean)$/)
