@@ -249,7 +249,7 @@ function IELTSSpeaking() {
   const canRecord=topic.part==='Part 2' ? phase==='ready' : phase==='idle'
 
   return <section className="speaking-studio">
-    <div className="filter-bar mini"><label><span>Part</span><select value={part} onChange={(event)=>{setPart(event.target.value);setIndex(0);resetAttempt()}}>{['All parts','Part 1','Part 2','Part 3'].map((item)=><option key={item}>{item}</option>)}</select></label><span className="filter-result">{filtered.length} topics</span></div>
+    <div className="filter-bar mini"><label><span>Part</span><select value={part} disabled={recording} onChange={(event)=>{setPart(event.target.value);setIndex(0);resetAttempt()}}>{['All parts','Part 1','Part 2','Part 3'].map((item)=><option key={item}>{item}</option>)}</select></label><span className="filter-result">{filtered.length} topics</span></div>
     <div className="speaking-topic"><span className="type-tag">{topic.part} · {topic.topic}</span><h2>{topic.question}</h2>{topic.part==='Part 2'&&<div className="cue-card"><strong>You should say:</strong>{topic.bullets.map((item)=><p key={item}>• {item}</p>)}</div>}</div>
     <div className="speaking-console">
       <div className={`mic-circle ${recording?'recording':''}`}><Mic/></div>
@@ -258,7 +258,7 @@ function IELTSSpeaking() {
       {audioUrl&&<audio className="recording-player" controls src={audioUrl}/>}
       {transcript&&<div className="speech-transcript"><strong>SpeechRecognition transcript</strong><p>{transcript}</p><small>Transcript tự động chỉ để tự kiểm tra độ rõ; không phải IELTS Speaking score.</small></div>}
     </div>
-    <div className="practice-actions spread"><button className="btn ghost" disabled={index===0} onClick={()=>{resetAttempt();setIndex((value)=>Math.max(0,value-1))}}><ChevronLeft/> Previous</button><button className="btn ghost" disabled={index===filtered.length-1} onClick={()=>{resetAttempt();setIndex((value)=>Math.min(filtered.length-1,value+1))}}>Next <ChevronRight/></button></div>
+    <div className="practice-actions spread"><button className="btn ghost" disabled={recording||index===0} onClick={()=>{resetAttempt();setIndex((value)=>Math.max(0,value-1))}}><ChevronLeft/> Previous</button><button className="btn ghost" disabled={recording||index===filtered.length-1} onClick={()=>{resetAttempt();setIndex((value)=>Math.min(filtered.length-1,value+1))}}>Next <ChevronRight/></button></div>
   </section>
 }
 
