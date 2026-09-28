@@ -6,7 +6,7 @@ export default function Roadmap({ language, level, units, completedLessons }) {
   let foundCurrent = false
   return <div className="roadmap">
     {units.map((unit) => <section className="roadmap-unit" key={unit.unit}>
-      <div className="unit-heading"><span>Unit {unit.unit}</span><h2>{unit.title}</h2><small>{unit.lessons.length} bài học · {unit.unit === 10 ? 'Tổng ôn' : '8–12 phút/bài'}</small></div>
+      <div className="unit-heading"><span>Unit {unit.unit}</span><h2>{unit.title}</h2><small>{unit.lessons.length} bài học · {unit.unit === 10 ? 'Tổng ôn' : '20–30 phút/bài'}</small></div>
       <div className="lesson-path">
         {unit.lessons.map((lesson, index) => {
           const done = completedLessons.includes(lesson.id)
