@@ -4,3 +4,6 @@ dist
 .env.local
 .DS_Store
 *.log
+
+# Generated at build time; served lazily per level
+public/vocabulary-data/
