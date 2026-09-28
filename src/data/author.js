@@ -1,11 +1,15 @@
 export const AUTHOR = {
   name: 'Nguyễn Ngọc Tâm',
+  givenName: 'Tâm',
+  additionalName: 'Ngọc',
+  familyName: 'Nguyễn',
   alternateNames: ['Nguyen Ngoc Tam', 'Ngọc Tâm Dev', 'Tâm Dev', 'Nguyen Ngoc Tam Dev'],
   brandName: 'Ngọc Tâm Dev',
+  identifier: 'ngoc-tam-dev',
   jobTitle: 'Full-stack Developer',
   roles: ['Full-stack Developer', 'PHP Developer', 'Backend Developer'],
   location: 'Ho Chi Minh City, Vietnam',
-  description: 'Nguyễn Ngọc Tâm là Full-stack Developer tại TP.HCM, tập trung vào PHP, Laravel, MongoDB, Redis, WebSocket, WebRTC và các hệ thống backend, realtime.',
+  description: 'Nguyễn Ngọc Tâm (Ngọc Tâm Dev) là Full-stack Developer tại South Telecom ở TP.HCM, tập trung vào PHP, Laravel, MongoDB, Redis, WebSocket, WebRTC, REST API và các hệ thống backend/realtime.',
   knowsAbout: [
     'PHP', 'Laravel', 'CodeIgniter', 'JavaScript', 'TypeScript', 'MongoDB',
     'PostgreSQL', 'SQL Server', 'Redis', 'WebSocket', 'WebRTC', 'REST API',
@@ -32,11 +36,16 @@ export function personEntity(siteUrl) {
   return {
     '@type': 'Person',
     '@id': `${siteUrl}/#person`,
+    identifier: AUTHOR.identifier,
     name: AUTHOR.name,
+    givenName: AUTHOR.givenName,
+    additionalName: AUTHOR.additionalName,
+    familyName: AUTHOR.familyName,
     alternateName: AUTHOR.alternateNames,
     jobTitle: AUTHOR.jobTitle,
     description: AUTHOR.description,
     url: `${siteUrl}/about`,
+    mainEntityOfPage: { '@id': `${siteUrl}/about#profilepage` },
     address: {
       '@type': 'PostalAddress',
       addressLocality: 'Ho Chi Minh City',
@@ -49,6 +58,15 @@ export function personEntity(siteUrl) {
     alumniOf: {
       '@type': 'CollegeOrUniversity',
       name: AUTHOR.education.organization,
+    },
+    hasOccupation: {
+      '@type': 'Occupation',
+      name: AUTHOR.jobTitle,
+      skills: AUTHOR.knowsAbout.join(', '),
+      occupationLocation: {
+        '@type': 'City',
+        name: 'Ho Chi Minh City',
+      },
     },
     knowsAbout: AUTHOR.knowsAbout,
     sameAs: AUTHOR.sameAs,
