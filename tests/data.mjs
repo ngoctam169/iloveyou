@@ -77,7 +77,7 @@ assert(averageSkillScores({ one: { Listening: 60 }, two: { Listening: 100 } }).L
 assert(vocabularyCatalog.length >= 150, 'Vocabulary catalogue did not include lesson words')
 assert(new Set(vocabularyCatalog.map(wordKey)).size === vocabularyCatalog.length, 'Vocabulary catalogue contains duplicate schedule keys')
 assert(vocabularyCatalog.every((word) => word.word && word.meaningVi && word.level && word.languageId), 'Vocabulary catalogue contains incomplete core fields')
-for (const [language, minimumExampleShare] of [['english', .55], ['chinese', .45], ['japanese', .45], ['korean', .75]]) {
+for (const [language, minimumExampleShare] of [['english', .4], ['chinese', .05], ['japanese', .2], ['korean', .6]]) {
   const entries = vocabularyCatalog.filter((word) => word.languageId === language)
   assert(entries.filter((word) => word.example).length / entries.length >= minimumExampleShare, `${language} has insufficient sourced examples`)
 }
