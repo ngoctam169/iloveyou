@@ -5,7 +5,11 @@ import { useApp } from '../../context/AppContext'
 import BrandLogo from '../common/BrandLogo'
 
 const learnItems = [
-  ['/languages','Ngôn ngữ'],
+  ['/languages','Tất cả ngôn ngữ'],
+  ['/learn-english','English'],
+  ['/learn-chinese','Chinese'],
+  ['/learn-japanese','Japanese'],
+  ['/learn-korean','Korean'],
   ['/vocabulary','Vocabulary'],
   ['/grammar','Grammar'],
   ['/my-vocabulary','My Vocabulary'],
@@ -29,17 +33,24 @@ const moreItems = [
   ['/history','History'],
   ['/saved','Saved'],
   ['/blog','Blog'],
+  ['/about','About'],
+  ['/contact','Contact'],
   ['/settings','Settings'],
 ]
 
-const publicLearnItems = [
-  ['/languages','Tất cả ngôn ngữ'],
-  ['/learn-english','English'],
-  ['/learn-chinese','Chinese'],
-  ['/learn-japanese','Japanese'],
-  ['/learn-korean','Korean'],
-  ['/english-vocabulary','Vocabulary'],
-  ['/english-grammar','Grammar'],
+const desktopItems = [
+  { to:'/dashboard', label:'Dashboard' },
+  { label:'Học', items:learnItems },
+  { label:'Luyện tập', items:practiceItems },
+  { label:'Kỳ thi', items:examItems },
+  { label:'Thêm', items:moreItems },
+]
+
+const mobileSections = [
+  ['Học',learnItems],
+  ['Luyện tập',practiceItems],
+  ['Kỳ thi',examItems],
+  ['Khác',moreItems],
 ]
 
 function pathActive(pathname, to) {
@@ -76,36 +87,8 @@ export default function Header() {
     }
   }, [])
 
-  const desktopItems = publicLanding
-    ? [
-        { label:'Học', items:publicLearnItems },
-        { label:'Luyện thi', items:examItems },
-        { to:'/blog', label:'Blog' },
-        { to:'/about', label:'About' },
-      ]
-    : [
-        { to:'/dashboard', label:'Dashboard' },
-        { label:'Học', items:learnItems },
-        { label:'Luyện tập', items:practiceItems },
-        { label:'Kỳ thi', items:examItems },
-        { label:'Thêm', items:moreItems },
-      ]
-
-  const mobileSections = publicLanding
-    ? [
-        ['Học',publicLearnItems],
-        ['Luyện thi',examItems],
-        ['Ngọc Tâm Dev',[['/blog','Blog'],['/about','About'],['/contact','Contact']]],
-      ]
-    : [
-        ['Học',learnItems],
-        ['Luyện tập',practiceItems],
-        ['Kỳ thi',examItems],
-        ['Khác',moreItems],
-      ]
-
   return <>
-    <header className="site-header">
+    <header className="site-header stable-header">
       <Link className="brand" to="/" aria-label="NT Language Learning - Trang chủ"><BrandLogo compact/><span>NT</span></Link>
 
       <nav className="desktop-nav" aria-label="Điều hướng chính" ref={navRef}>
@@ -124,14 +107,17 @@ export default function Header() {
 
       <div className="header-actions">
         <Link className="icon-btn search-link" to="/search" aria-label="Tìm kiếm"><Search size={19}/></Link>
-        {!publicLanding && <><span className="stat-chip flame"><Flame size={17}/>{state.streak}</span><span className="stat-chip"><Star size={17}/>{state.xp.toLocaleString()} XP</span></>}
-        {publicLanding ? <Link to="/languages" className="btn small">Start Learning</Link> : <Link className="avatar small-avatar" to="/profile" aria-label="Hồ sơ">{initials}</Link>}
+        <div className="header-session-slot">
+          {publicLanding
+            ? <Link to="/languages" className="btn small">Start Learning</Link>
+            : <><span className="stat-chip flame"><Flame size={17}/>{state.streak}</span><span className="stat-chip"><Star size={17}/>{state.xp.toLocaleString()} XP</span><Link className="avatar small-avatar" to="/profile" aria-label="Hồ sơ">{initials}</Link></>}
+        </div>
         <button className="icon-btn menu-toggle" onClick={() => setMenuOpen(!menuOpen)} aria-label={menuOpen ? 'Đóng menu' : 'Mở menu'} aria-expanded={menuOpen} aria-controls="mobile-menu">{menuOpen ? <X/> : <Menu/>}</button>
       </div>
     </header>
 
     {menuOpen && <nav className="mobile-menu grouped-mobile-menu" id="mobile-menu" aria-label="Điều hướng di động">
-      {!publicLanding && <Link className="mobile-dashboard-link" to="/dashboard">Dashboard</Link>}
+      <Link className="mobile-dashboard-link" to="/dashboard">Dashboard</Link>
       {mobileSections.map(([title,items]) => <section key={title}>
         <strong>{title}</strong>
         <div>{items.map(([to,label]) => <Link key={to} to={to}>{label}</Link>)}</div>
