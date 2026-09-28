@@ -5,10 +5,10 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build && node scripts/prerender.mjs",
+    "build": "npm run build:vocabulary && npm run build:app",
     "build:vocabulary": "node --no-warnings scripts/build-vocabulary-data.mjs",
     "build:brand": "node scripts/build-brand-assets.mjs",
-    "test": "npm run test:data && npm run build && npm run test:seo && npm run test:deploy && npm run test:blog && npm run test:e2e && npm run test:platform",
+    "test": "npm run build:vocabulary && npm run test:data && npm run build:app && npm run test:seo && npm run test:deploy && npm run test:blog && npm run test:e2e && npm run test:platform",
     "test:data": "node tests/data.mjs",
     "test:seo": "node tests/seo.mjs",
     "test:deploy": "node tests/deploy.mjs",
@@ -17,7 +17,8 @@
     "test:platform": "node tests/platform.mjs",
     "preview": "vite preview",
     "predeploy": "npm run build",
-    "deploy": "gh-pages -d dist"
+    "deploy": "gh-pages -d dist",
+    "build:app": "vite build && node scripts/prerender.mjs"
   },
   "dependencies": {
     "@vitejs/plugin-react": "latest",
