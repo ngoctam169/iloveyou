@@ -113,7 +113,7 @@ const readingPassages = [
       makeQuestion('irf-09','Sentence Completion','Modern lighting systems can use _____ to dim lights when streets are empty.','sensors'),
       makeQuestion('irf-10','True / False / Not Given','LED systems are always cheaper to install than older lighting.',2,['True','False','Not Given']),
       makeQuestion('irf-11','Multiple Choice','What is the main idea of paragraph G?',2,['Cities should become completely dark','Lighting should be brighter in every district','Lighting should be used more precisely','Only environmental concerns matter']),
-      makeQuestion('irf-12','Matching Heading','Choose the best heading for paragraph D.',['Wildlife migration','Possible effects on human sleep','The history of LEDs','Public transport at night'],1),
+      makeQuestion('irf-12','Matching Heading','Choose the best heading for paragraph D.',1,['Wildlife migration','Possible effects on human sleep','The history of LEDs','Public transport at night']),
       makeQuestion('irf-13','Short Answer','What problem can very bright lamps cause for pedestrians?','glare'),
       makeQuestion('irf-14','Multiple Choice','What overall position does the passage take?',0,['Good lighting design balances several needs','All night lighting is harmful','Safety always requires more light','Cities should use one lighting standard']),
     ],
