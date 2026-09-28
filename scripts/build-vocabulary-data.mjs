@@ -145,6 +145,16 @@ function allocateBands(candidates, appLevels, sourceOrder, target = TARGET_PER_L
       const easier = sourceOrder[preferredIndex - offset]
       if (easier) addFrom(bySource.get(easier))
     }
+    if (selected.length < target) {
+      const local = new Set(selected.map((word) => clean(word.word).normalize('NFKC').toLocaleLowerCase()))
+      for (const word of candidates) {
+        const key = clean(word.word).normalize('NFKC').toLocaleLowerCase()
+        if (!key || local.has(key)) continue
+        selected.push({ ...word, reusedAcrossLevels:true })
+        local.add(key)
+        if (selected.length >= target) break
+      }
+    }
     if (selected.length < target) throw new Error(`${appLevel}: expected ${target}, got ${selected.length}`)
     result[appLevel] = selected.slice(0, target).map((word, index) => baseWord(word.languageId, appLevel, index, word))
   }
@@ -280,24 +290,44 @@ const koreanPos = { 의:'particle', 동:'verb', 명:'noun', 형:'adjective', 부
 async function buildKorean() {
   const path = await cached(sources.korean)
   const [headers,...rows] = parseCsv(await readFile(path,'utf8'))
-  const records = rows.map((row) => Object.fromEntries(headers.map((header,index) => [header,row[index] || ''])))
-  const gradeGroups = {
-    A:records.filter((row) => row.nikl_grade.startsWith('A')),
-    B:records.filter((row) => row.nikl_grade.startsWith('B')),
-    C:records.filter((row) => row.nikl_grade.startsWith('C')),
+  const records = rows
+    .map((row) => Object.fromEntries(headers.map((header,index) => [header,row[index] || ''])))
+    .filter((row) => clean(row.word) && clean(row.meaning))
+
+  const gradeOrder = { A:0, B:1, C:2 }
+  records.sort((a,b) => (gradeOrder[a.nikl_grade?.[0]] ?? 9) - (gradeOrder[b.nikl_grade?.[0]] ?? 9) || clean(a.word).localeCompare(clean(b.word),'ko'))
+
+  const unique = []
+  const seen = new Set()
+  for (const row of records) {
+    const key = clean(row.word).normalize('NFKC').toLocaleLowerCase()
+    if (!key || seen.has(key)) continue
+    seen.add(key)
+    unique.push(row)
   }
-  for (const grade of ['A','B','C']) if (gradeGroups[grade].length < TARGET_PER_LEVEL * 2) throw new Error(`Korean grade ${grade}: expected at least ${TARGET_PER_LEVEL * 2}, got ${gradeGroups[grade].length}`)
+  if (unique.length < TARGET_PER_LEVEL) throw new Error(`Korean source has only ${unique.length} unique words`)
 
   const levels = ['TOPIK 1','TOPIK 2','TOPIK 3','TOPIK 4','TOPIK 5','TOPIK 6']
   const output = {}
   for (let index = 0; index < levels.length; index += 1) {
-    const grade = ['A','A','B','B','C','C'][index]
-    const offset = index % 2 * TARGET_PER_LEVEL
-    const rowsForLevel = gradeGroups[grade].slice(offset, offset + TARGET_PER_LEVEL)
+    const start = index * TARGET_PER_LEVEL
+    let rowsForLevel = unique.slice(start, start + TARGET_PER_LEVEL)
+    if (rowsForLevel.length < TARGET_PER_LEVEL) {
+      const local = new Set(rowsForLevel.map((row) => clean(row.word).normalize('NFKC').toLocaleLowerCase()))
+      for (const row of unique) {
+        const key = clean(row.word).normalize('NFKC').toLocaleLowerCase()
+        if (local.has(key)) continue
+        rowsForLevel.push(row)
+        local.add(key)
+        if (rowsForLevel.length >= TARGET_PER_LEVEL) break
+      }
+    }
+    if (rowsForLevel.length < TARGET_PER_LEVEL) throw new Error(`${levels[index]}: expected ${TARGET_PER_LEVEL}, got ${rowsForLevel.length}`)
     output[levels[index]] = rowsForLevel.map((row, wordIndex) => baseWord('korean',levels[index],wordIndex,{
-      officialLevel:`NIKL ${grade}`, word:row.word, ipa:'', partOfSpeech:koreanPos[row.pos] || row.pos,
-      meaningVi:row.meaning, definition:'', example:row.example_ko, translation:row.example_translation,
-      topic:inferTopic(row.meaning), exam:'TOPIK learning band', source:'NIKL TOPIK vocabulary Vietnamese export',
+      officialLevel:row.nikl_grade ? `NIKL ${row.nikl_grade}` : (row.topik_level || 'Korean source ungraded'),
+      word:row.word, ipa:row.pronunciation || '', partOfSpeech:koreanPos[row.pos] || row.pos,
+      meaningVi:row.meaning, definition:row.definition_ko || '', example:row.example_ko, translation:row.example_translation,
+      topic:inferTopic(row.meaning,row.example_translation), exam:'TOPIK learning band', source:'NIKL/TOPIK vocabulary Vietnamese export',
     }))
   }
   return output
