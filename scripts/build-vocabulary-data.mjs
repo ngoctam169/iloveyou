@@ -93,7 +93,7 @@ function chooseDictionaryRow(rows, preferredPos = '') {
 }
 
 const baseWord = (languageId, level, index, data) => ({
-  id: `${languageId}-${levelFile(level)}-${String(index + 1).padStart(4, '0')}-${slug(data.word)}`,
+  id: `${languageId}-${levelFile(level)}-${slug(data.word)}`,
   languageId,
   level,
   officialLevel: data.officialLevel || level,
