@@ -1,7 +1,7 @@
 import { findLevel, getLanguage, languages, levelSlug } from './languages.js'
 import { blogPostMeta, findBlogMeta } from './blogMeta.js'
 
-export const SITE_NAME = 'NT'
+export const SITE_NAME = 'Ngọc Tâm Dev'
 export const DEFAULT_SITE_URL = 'https://ngoctam169.github.io/iloveyou'
 export const DEFAULT_OG_IMAGE = '/og-image.png'
 
@@ -18,14 +18,14 @@ export const coreSeoRoutes = [
 ]
 
 const staticMeta = {
-  '/': { title: 'NT – Learn Languages Smarter', description: 'Học tiếng Anh, Trung, Nhật và Hàn theo lộ trình CEFR, HSK, JLPT và TOPIK. Luyện từ vựng, ngữ pháp và đủ bốn kỹ năng trên NT.', keywords: 'học ngoại ngữ online, learn English online, học tiếng Trung HSK, học tiếng Nhật N5, học tiếng Hàn TOPIK' },
+  '/': { title: 'Nguyễn Ngọc Tâm (Ngọc Tâm Dev) | Full-stack Developer', description: 'Nguyễn Ngọc Tâm (Ngọc Tâm Dev) là Full-stack Developer tại South Telecom ở TP.HCM, tập trung vào PHP, Laravel, MongoDB, Redis, WebSocket, WebRTC và hệ thống backend/realtime.', keywords: 'Nguyễn Ngọc Tâm developer, Nguyen Ngoc Tam developer, Ngọc Tâm Dev, Tâm Dev, Nguyễn Ngọc Tâm South Telecom, PHP Developer, Laravel Developer, WebRTC Developer, WebSocket Developer' },
   '/languages': { title: 'Khóa học ngôn ngữ online | NT', description: 'Khám phá lộ trình học tiếng Anh, Trung, Nhật và Hàn theo các khung CEFR, HSK, JLPT và TOPIK tại NT.', keywords: 'khóa học ngoại ngữ, học ngôn ngữ online, CEFR, HSK, JLPT, TOPIK' },
   '/english-vocabulary': { title: 'English Vocabulary theo cấp độ | NT', description: 'Học English vocabulary theo CEFR A1–C2 với nghĩa tiếng Việt, phát âm, ví dụ, chủ đề và bài luyện ghi nhớ.', keywords: 'English vocabulary, English A1 vocabulary, TOEIC vocabulary, IELTS vocabulary' },
   '/english-grammar': { title: 'English Grammar từ A1 đến C2 | NT', description: 'Hệ thống English grammar theo CEFR, có cấu trúc, cách dùng, ví dụ, lỗi thường gặp và bài luyện.', keywords: 'English grammar, ngữ pháp tiếng Anh, grammar A1, present perfect' },
   '/toeic': { title: 'Luyện thi TOEIC Listening & Reading | NT', description: 'Luyện TOEIC Listening và Reading theo dạng câu hỏi, xem giải thích, từ vựng và theo dõi kết quả mini test.', keywords: 'luyện thi TOEIC, TOEIC vocabulary, TOEIC Listening, TOEIC Reading' },
   '/ielts': { title: 'Luyện IELTS đủ bốn kỹ năng | NT', description: 'Luyện IELTS Listening, Reading, Writing và Speaking với bài tập theo dạng, checklist rõ ràng và lịch sử luyện tập.', keywords: 'luyện IELTS online, IELTS vocabulary, IELTS Writing, IELTS Speaking' },
-  '/about': { title: 'Nguyễn Ngọc Tâm | Full-stack Developer | Ngọc Tâm Dev', description: 'Nguyễn Ngọc Tâm là Full-stack Developer tại TP.HCM, chuyên PHP, Laravel, MongoDB, Redis, WebSocket, WebRTC, REST API và tích hợp CRM.', keywords: 'Nguyễn Ngọc Tâm developer, Nguyen Ngoc Tam dev, Ngọc Tâm Dev, PHP Developer Ho Chi Minh, Full-stack Developer Vietnam', pageType:'profile' },
-  '/blog': { title: 'Blog | Nguyễn Ngọc Tâm – Full-stack Developer', description: 'Blog kỹ thuật của Nguyễn Ngọc Tâm về PHP, Laravel, MongoDB, Redis, WebSocket, WebRTC và backend, với ví dụ, trade-off và lỗi production.', keywords: 'blog Nguyễn Ngọc Tâm, PHP backend, Laravel, MongoDB, WebSocket, WebRTC', pageType:'blog' },
+  '/about': { title: 'Nguyễn Ngọc Tâm – Full-stack Developer | Ngọc Tâm Dev', description: 'Hồ sơ Nguyễn Ngọc Tâm (Ngọc Tâm Dev), Full-stack Developer tại South Telecom: PHP, Laravel, MongoDB, Redis, WebSocket, WebRTC, REST API, CRM integration và realtime systems.', keywords: 'Nguyễn Ngọc Tâm developer, Nguyen Ngoc Tam developer, Ngọc Tâm Dev, Tâm Dev, Nguyễn Ngọc Tâm South Telecom, PHP Developer Ho Chi Minh, Full-stack Developer Vietnam', pageType:'profile' },
+  '/blog': { title: 'Blog Nguyễn Ngọc Tâm (Ngọc Tâm Dev) | PHP & Realtime', description: 'Blog kỹ thuật của Nguyễn Ngọc Tâm (Ngọc Tâm Dev) về PHP, Laravel, MongoDB, Redis, WebSocket, WebRTC, backend và các bài toán production.', keywords: 'blog Nguyễn Ngọc Tâm, Ngọc Tâm Dev, PHP backend, Laravel, MongoDB, Redis, WebSocket, WebRTC', pageType:'blog' },
   '/contact': { title: 'Liên hệ NT', description: 'Thông tin liên hệ, góp ý nội dung và hỗ trợ sử dụng nền tảng học ngôn ngữ NT.' },
   '/privacy': { title: 'Chính sách quyền riêng tư | NT', description: 'Cách NT lưu tiến độ học tập trên thiết bị và bảo vệ quyền riêng tư của người học.' },
   '/terms': { title: 'Điều khoản sử dụng | NT', description: 'Điều khoản sử dụng nội dung, tính năng và dữ liệu học tập trên website NT.' },
