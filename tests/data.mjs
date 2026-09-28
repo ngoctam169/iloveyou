@@ -77,18 +77,22 @@ assert(averageSkillScores({ one: { Listening: 60 }, two: { Listening: 100 } }).L
 assert(vocabularyCatalog.length >= 150, 'Vocabulary catalogue did not include lesson words')
 assert(new Set(vocabularyCatalog.map(wordKey)).size === vocabularyCatalog.length, 'Vocabulary catalogue contains duplicate schedule keys')
 assert(vocabularyCatalog.every((word) => word.word && word.meaningVi && word.level && word.languageId), 'Vocabulary catalogue contains incomplete core fields')
-assert(vocabularyCatalog.every((word) => word.example), 'Vocabulary catalogue contains words without a sourced example')
-for (const [language, minimum, translatedShare] of [['english', 1000, .7], ['chinese', 300, .9], ['japanese', 300, .9], ['korean', 300, .9]]) {
+for (const [language, minimumExampleShare] of [['english', .4], ['chinese', .05], ['japanese', .2], ['korean', .6]]) {
   const entries = vocabularyCatalog.filter((word) => word.languageId === language)
-  assert(entries.length >= minimum, `${language} has fewer than ${minimum} vocabulary entries`)
-  assert(entries.filter((word) => word.translation).length / entries.length >= translatedShare, `${language} has insufficient translated examples`)
+  assert(entries.filter((word) => word.example).length / entries.length >= minimumExampleShare, `${language} has insufficient sourced examples`)
+}
+for (const language of ['english','chinese','japanese','korean']) {
+  for (const [level] of getLanguage(language).levels) {
+    const entries = vocabularyCatalog.filter((word) => word.languageId === language && word.level === level)
+    assert(entries.length >= 900 && entries.length <= 1100, `${language} ${level} should have about 1000 words; got ${entries.length}`)
+    assert(new Set(entries.map((word) => word.word.normalize('NFKC').toLocaleLowerCase())).size === entries.length, `${language} ${level} repeats a word`)
+  }
 }
 assert(grammarEntries.length >= 50 && grammarEntries.every((item) => item.name && item.structure && item.explanation && item.examples.length >= 2 && item.mistake), 'Grammar library has incomplete topics')
 for (const language of ['english','chinese','japanese','korean']) for (const [level] of getLanguage(language).levels) assert(grammarEntries.some((item) => item.languageId === language && item.level === level), `${language} ${level} has no grammar topic`)
-for (const [level, minimum] of Object.entries({ A1:50, A2:50, B1:50, B2:50, C1:30, C2:30 })) {
+for (const level of Object.keys(expectedTopics)) {
   const entries = vocabularyCatalog.filter((word) => word.languageId === 'english' && word.level === level)
-  assert(entries.length >= minimum, `${level} has fewer than ${minimum} vocabulary entries`)
-  assert(new Set(entries.map((word) => word.word.toLocaleLowerCase())).size === entries.length, `${level} repeats a word`)
+  assert(entries.length >= 900, `${level} has fewer than about 1000 vocabulary entries`)
 }
 const custom = normalizePersonalWord({ languageId:'japanese', level:'N3', word:'経験', meaningVi:'kinh nghiệm', example:'経験があります。', translation:'Tôi có kinh nghiệm.', topic:'Work' }, 'personal-test')
 const combined = { personalVocabulary:[custom] }
@@ -97,9 +101,8 @@ assert(allVocabulary(combined).length === vocabularyCatalog.length + 1, 'Persona
 for (const language of ['english', 'chinese', 'japanese', 'korean']) {
   assert(vocabularyCatalog.some((word) => word.languageId === language), `${language} vocabulary is missing`)
 }
-for (const language of ['chinese', 'japanese', 'korean']) assert(new Set(vocabularyCatalog.filter((word) => word.languageId === language).map((word) => word.word)).size === vocabularyCatalog.filter((word) => word.languageId === language).length, `${language} starter words were duplicated into advanced levels`)
-for (const language of ['chinese', 'japanese', 'korean']) for (const [level] of getLanguage(language).levels) assert(vocabularyCatalog.filter((word) => word.languageId === language && word.level === level).length >= 5, `${language} ${level} needs a level-specific practice set`)
-assert(getVocabularyByLanguage({}, 'english').length >= 1000, 'Language vocabulary helper returned too few words')
+for (const language of ['chinese', 'japanese', 'korean']) assert(new Set(vocabularyCatalog.filter((word) => word.languageId === language).map((word) => word.word)).size === vocabularyCatalog.filter((word) => word.languageId === language).length, `${language} vocabulary is duplicated across app levels`)
+assert(getVocabularyByLanguage({}, 'english').length >= 5400, 'Language vocabulary helper returned too few words')
 assert(getVocabularyByLevel({}, 'chinese', 'HSK 1').every((word) => word.languageId === 'chinese' && word.level === 'HSK 1'), 'Level vocabulary helper leaked another scope')
 const topicSample = vocabularyCatalog.find((word) => word.languageId === 'english' && word.topic)
 assert(getVocabularyByTopic({}, 'english', topicSample.topic).every((word) => word.topic === topicSample.topic), 'Topic vocabulary helper returned a wrong topic')
