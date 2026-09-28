@@ -428,10 +428,18 @@ async function buildKorean() {
   const path = await cached(sources.korean)
   const [headers, ...rows] = parseCsv(await readFile(path, 'utf8'))
   const records = rows.map((row) => Object.fromEntries(headers.map((header, index) => [header, row[index] || ''])))
+  const uniqueRecords = []
+  const seenWords = new Set()
+  for (const row of records) {
+    const key = clean(row.word).normalize('NFKC')
+    if (!key || seenWords.has(key)) continue
+    seenWords.add(key)
+    uniqueRecords.push(row)
+  }
   const byGrade = {
-    A: records.filter((row) => row.nikl_grade.startsWith('A')),
-    B: records.filter((row) => row.nikl_grade.startsWith('B')),
-    C: records.filter((row) => row.nikl_grade.startsWith('C')),
+    A: uniqueRecords.filter((row) => row.nikl_grade.startsWith('A')),
+    B: uniqueRecords.filter((row) => row.nikl_grade.startsWith('B')),
+    C: uniqueRecords.filter((row) => row.nikl_grade.startsWith('C')),
   }
   const split = (items, parts) => Array.from({ length: parts }, (_, index) => {
     const start = Math.round(items.length * index / parts)
