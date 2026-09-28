@@ -1,11 +1,14 @@
 import { DatabaseSync } from 'node:sqlite'
-import { mkdir, readFile, readdir, writeFile } from 'node:fs/promises'
+import { mkdir, readFile, readdir, rm, writeFile } from 'node:fs/promises'
 import { existsSync } from 'node:fs'
 import { join } from 'node:path'
 import { tmpdir } from 'node:os'
+import { fileURLToPath } from 'node:url'
 
-const cacheDir = tmpdir()
-const outputDir = new URL('../src/data/vocabulary/generated/', import.meta.url)
+const TARGET_PER_LEVEL = 1000
+const cacheDir = join(tmpdir(), 'nt-vocabulary-cache')
+const outputDir = new URL('../public/vocabulary-data/', import.meta.url)
+const outputPath = fileURLToPath(outputDir)
 
 const sources = {
   dictionary: ['nt-en-vi.db', 'https://raw.githubusercontent.com/skypediacode/english-vietnamese-dictionary/main/dictionary_en_vi.db'],
@@ -14,6 +17,8 @@ const sources = {
   cvdict: ['CVDICT.u8', 'https://raw.githubusercontent.com/ph0ngp/CVDICT/master/CVDICT.u8'],
   korean: ['topik-vocab-vi.csv', 'https://topikvocab.foldalpha.com/download/topik-vocab-vi.csv'],
 }
+
+await mkdir(cacheDir, { recursive:true })
 
 async function cached([name, url]) {
   const path = join(cacheDir, name)
@@ -46,19 +51,9 @@ function parseCsv(text) {
 }
 
 const clean = (value = '') => String(value).replace(/\s+/g, ' ').trim()
-const compact = (value = '', max = 190) => clean(value).replace(/^[-–—•]+\s*/, '').slice(0, max)
+const compact = (value = '', max = 220) => clean(value).replace(/^[-–—•]+\s*/, '').slice(0, max)
 const slug = (value) => clean(value).normalize('NFKD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[^a-z0-9\p{L}\p{N}]+/gu, '-').replace(/^-|-$/g, '')
-
-const baseWord = (languageId, level, index, data) => ({
-  id: `${languageId}-${level.toLowerCase()}-${String(index + 1).padStart(3, '0')}-${slug(data.word)}`,
-  languageId, level,
-  word: clean(data.word), ipa: clean(data.ipa), partOfSpeech: clean(data.partOfSpeech),
-  meaningVi: compact(data.meaningVi), definition: compact(data.definition),
-  example: compact(data.example, 260), translation: compact(data.translation, 260),
-  topic: clean(data.topic) || 'General', exam: data.exam || 'General',
-  collocations: data.collocations || [], synonyms: [], antonyms: [], wordFamily: [], phrases: [],
-  lessonIds: [], lessons: [], source: data.source,
-})
+const levelFile = (level) => slug(level)
 
 const topicRules = [
   ['Travel', /travel|journey|airport|train|bus|hotel|tour|flight|passport|trip|transport|đi lại|du lịch|khách sạn/i],
@@ -73,137 +68,104 @@ const topicRules = [
   ['Society & Culture', /society|culture|government|law|public|community|history|art|xã hội|văn hóa/i],
   ['Communication', /speak|say|tell|write|read|language|question|answer|nói|viết|đọc|ngôn ngữ/i],
 ]
-function inferTopic(...parts) {
-  const text = parts.filter(Boolean).join(' ')
-  return topicRules.find(([, pattern]) => pattern.test(text))?.[0] || 'General'
-}
+const inferTopic = (...parts) => topicRules.find(([, pattern]) => pattern.test(parts.filter(Boolean).join(' ')))?.[0] || 'General'
 
-const posNames = { n: 'noun', v: 'verb', a: 'adjective', r: 'adverb', d: 'adverb', p: 'preposition', c: 'conjunction', u: 'particle', m: 'number', t: 'time expression', q: 'classifier', e: 'interjection' }
+const posNames = { n:'noun', v:'verb', a:'adjective', r:'adverb', d:'adverb', p:'preposition', c:'conjunction', u:'particle', m:'number', t:'time expression', q:'classifier', e:'interjection' }
 const normalizePos = (value = '') => posNames[String(value).split(/[;,/]/)[0].toLowerCase()] || clean(value).toLowerCase()
+
 const dictionaryPos = {
-  noun: ['N'], verb: ['V'], 'be-verb': ['V'], 'do-verb': ['V'], 'have-verb': ['V'],
-  'modal auxiliary': ['V'], adjective: ['A'], adverb: ['D', 'adv'], pronoun: ['P'],
-  preposition: ['E'], 'infinitive-to': ['E'], conjunction: ['C'], determiner: ['X'],
-  interjection: ['O'], number: ['A', 'N'],
-}
-const sourcePos = {
-  noun: ['n'], verb: ['v'], 'be-verb': ['v'], 'do-verb': ['v'], 'have-verb': ['v'],
-  'modal auxiliary': ['v'], adjective: ['a'], adverb: ['r', 'adv'], pronoun: ['p'],
-  preposition: ['prep'], conjunction: ['c'], determiner: ['det'], interjection: ['e'], number: ['m', 'num'],
+  noun:['N'], verb:['V'], 'be-verb':['V'], 'do-verb':['V'], 'have-verb':['V'], 'modal auxiliary':['V'],
+  adjective:['A'], adverb:['D','adv'], pronoun:['P'], preposition:['E'], 'infinitive-to':['E'],
+  conjunction:['C'], determiner:['X'], interjection:['O'], number:['A','N'],
 }
 
-async function loadFrequencyWords() {
-  const map = new Map()
-  for (let tier = 1; tier <= 4; tier += 1) {
-    const local = join(cacheDir, `nt-freq-0${tier}.jsonl`)
-    if (!existsSync(local)) continue
-    for (const line of (await readFile(local, 'utf8')).split(/\r?\n/)) {
-      if (!line.trim()) continue
-      const item = JSON.parse(line)
-      if (!item.headword || map.has(item.headword.toLowerCase())) continue
-      map.set(item.headword.toLowerCase(), item)
+function chooseDictionaryRow(rows, preferredPos = '') {
+  const expected = dictionaryPos[clean(preferredPos).toLowerCase()] || []
+  return rows
+    .map((row) => {
+      const definition = compact(row.definition)
+      const posMatch = expected.includes(row.pos) || normalizePos(row.pos) === normalizePos(preferredPos)
+      const cleanSense = definition && !/[\[\]{}<>]|(^|\s)(tục|thô tục|xem |viết tắt)/i.test(definition)
+      return { ...row, definition, score:(posMatch ? 100 : 0) + (cleanSense ? 10 : 0) + (definition.length >= 3 && definition.length <= 180 ? 5 : 0) + (row.ipa ? 1 : 0) }
+    })
+    .filter((row) => row.definition)
+    .sort((a, b) => b.score - a.score || (a.definitionId || 0) - (b.definitionId || 0))[0]
+}
+
+const baseWord = (languageId, level, index, data) => ({
+  id: `${languageId}-${levelFile(level)}-${String(index + 1).padStart(4, '0')}-${slug(data.word)}`,
+  languageId,
+  level,
+  officialLevel: data.officialLevel || level,
+  levelBasis: data.officialLevel && data.officialLevel !== level ? 'NT expanded learning band' : 'source level',
+  word: clean(data.word),
+  ipa: clean(data.ipa),
+  partOfSpeech: clean(data.partOfSpeech),
+  meaningVi: compact(data.meaningVi),
+  definition: compact(data.definition),
+  example: compact(data.example, 280),
+  translation: compact(data.translation, 280),
+  translationLanguage: data.translationLanguage || 'vi',
+  topic: clean(data.topic) || 'General',
+  exam: data.exam || 'General',
+  collocations: data.collocations || [],
+  synonyms: [],
+  antonyms: [],
+  wordFamily: [],
+  phrases: [],
+  lessonIds: [],
+  lessons: [],
+  source: data.source,
+})
+
+function allocateBands(candidates, appLevels, sourceOrder, target = TARGET_PER_LEVEL) {
+  const used = new Set()
+  const result = {}
+  const bySource = new Map(sourceOrder.map((level) => [level, candidates.filter((word) => word.officialLevel === level)]))
+
+  for (const appLevel of appLevels) {
+    const preferredIndex = sourceOrder.indexOf(appLevel)
+    const selected = []
+    const addFrom = (pool) => {
+      for (const word of pool || []) {
+        const key = clean(word.word).normalize('NFKC').toLocaleLowerCase()
+        if (!key || used.has(key)) continue
+        selected.push(word)
+        used.add(key)
+        if (selected.length >= target) break
+      }
     }
+
+    addFrom(bySource.get(appLevel))
+    for (let offset = 1; selected.length < target && offset < sourceOrder.length; offset += 1) {
+      const harder = sourceOrder[preferredIndex + offset]
+      if (harder) addFrom(bySource.get(harder))
+    }
+    for (let offset = 1; selected.length < target && offset < sourceOrder.length; offset += 1) {
+      const easier = sourceOrder[preferredIndex - offset]
+      if (easier) addFrom(bySource.get(easier))
+    }
+    if (selected.length < target) throw new Error(`${appLevel}: expected ${target}, got ${selected.length}`)
+    result[appLevel] = selected.slice(0, target).map((word, index) => baseWord(word.languageId, appLevel, index, word))
   }
-  return map
+  return result
 }
 
-async function loadTatoeba() {
-  const folder = join(cacheDir, 'opus-tatoeba-en-vi')
-  const enPath = join(folder, 'Tatoeba.en-vi.en')
-  const viPath = join(folder, 'Tatoeba.en-vi.vi')
+async function loadTatoebaEnglish() {
+  const pairs = JSON.parse(await readFile(new URL('./vocabulary-sources/tatoeba-en-vi.json', import.meta.url), 'utf8'))
   const index = new Map()
-  let en, vi
-  if (existsSync(enPath) && existsSync(viPath)) {
-    en = (await readFile(enPath, 'utf8')).split(/\r?\n/)
-    vi = (await readFile(viPath, 'utf8')).split(/\r?\n/)
-  } else {
-    const pairs = JSON.parse(await readFile(new URL('./vocabulary-sources/tatoeba-en-vi.json', import.meta.url), 'utf8'))
-    en = pairs.map(([source]) => source); vi = pairs.map(([, target]) => target)
-  }
-  for (let i = 0; i < Math.min(en.length, vi.length); i += 1) {
-    const sentence = clean(en[i]), translation = clean(vi[i])
-    if (!sentence || !translation || sentence.length > 150 || translation.length > 190) continue
-    const tokens = new Set(sentence.toLowerCase().match(/[a-z]+(?:'[a-z]+)?/g) || [])
-    for (const token of tokens) {
-      const old = index.get(token)
-      if (!old || sentence.length < old.example.length) index.set(token, { example: sentence, translation })
-    }
+  for (const [example, translation] of pairs) {
+    if (!example || !translation) continue
+    const tokens = new Set(String(example).toLowerCase().match(/[a-z]+(?:'[a-z]+)?/g) || [])
+    for (const token of tokens) if (!index.has(token)) index.set(token, { example, translation })
   }
   return index
 }
 
-async function loadParallelCorpus(folderName, sourceSuffix, targetSuffix, label = 'parallel corpus') {
-  const folder = join(cacheDir, folderName)
-  if (!existsSync(folder)) return null
-  const files = await readdir(folder)
-  const sourceFile = files.find((name) => name.endsWith(sourceSuffix))
-  const targetFile = files.find((name) => name.endsWith(targetSuffix))
-  if (!sourceFile || !targetFile) return null
-  return {
-    label,
-    source: (await readFile(join(folder, sourceFile), 'utf8')).split(/\r?\n/),
-    target: (await readFile(join(folder, targetFile), 'utf8')).split(/\r?\n/),
-  }
-}
-
-async function loadBundledParallel(fileName, label) {
-  const pairs = JSON.parse(await readFile(new URL(`./vocabulary-sources/${fileName}`, import.meta.url), 'utf8'))
-  return { label, source: pairs.map(([source]) => source), target: pairs.map(([, target]) => target) }
-}
-
-function addParallelExamples(words, corpus) {
-  if (!corpus || !words.length) return words
-  const uniqueWords = [...new Set(words.map((word) => word.word))].sort((a, b) => b.length - a.length)
-  const byFirstCharacter = new Map()
-  for (const word of uniqueWords) {
-    const first = [...word][0]
-    byFirstCharacter.set(first, [...(byFirstCharacter.get(first) || []), word])
-  }
-  const found = new Map()
-  for (let index = 0; index < Math.min(corpus.source.length, corpus.target.length); index += 1) {
-    const example = clean(corpus.source[index]).replace(/<[^>]+>/g, '')
-    const translation = clean(corpus.target[index]).replace(/<[^>]+>/g, '')
-    if (example.length < 5 || example.length > 120 || translation.length < 4 || translation.length > 180 || /https?:|www\.|[{}<>]/i.test(`${example} ${translation}`)) continue
-    const matches = new Set()
-    for (let offset = 0; offset < example.length; offset += 1) {
-      const options = byFirstCharacter.get(example[offset])
-      if (!options) continue
-      for (const word of options) if (example.startsWith(word, offset)) matches.add(word)
-    }
-    for (const word of matches) {
-      const score = Math.abs(example.length - 32) + Math.abs(translation.length - 50) / 3
-      if (!found.has(word) || score < found.get(word).score) found.set(word, { example, translation, score })
-    }
-  }
-  return words.map((word) => {
-    const pair = found.get(word.word)
-    return pair ? { ...word, ...pair, source: `${word.source} + ${corpus.label}` } : word
-  })
-}
-
-const primarySensePatterns = {
-  a: /^Một;/i, an: /^Một;/i, i: /^Tôi,/i, it: /^Cái đó/i, he: /^Nó, anh ấy/i,
-  she: /^Nó, bà ấy/i, we: /^Chúng tôi/i, they: /^Chúng nó|^Họ[,;.]/i,
-  be: /^Thì, là/i, have: /^Có\./i, do: /^Làm[,;.]/i, can: /^Có thể[,;]/i,
-  in: /^Ở, tại, trong/i, at: /^Ở, tại/i, on: /^Trên[,;.]/i,
-}
-function chooseDictionaryRow(rows, preferredPos, headword = '') {
-  const expected = dictionaryPos[clean(preferredPos).toLowerCase()] || []
-  const preferredSense = primarySensePatterns[clean(headword).toLowerCase()]
-  const scored = rows.map((row) => {
-    const definition = compact(row.definition)
-    const posMatch = expected.includes(row.pos) || normalizePos(row.pos) === normalizePos(preferredPos)
-    const cleanSense = definition && !/[\[\]{}<>]|(^|\s)(tục|thô tục|xem |viết tắt)/i.test(definition)
-    return { ...row, definition, posMatch, score: (posMatch ? 100 : 0) + (preferredSense?.test(definition) ? 50 : 0) + (cleanSense ? 5 : 0) + (definition.length >= 4 && definition.length <= 160 ? 3 : 0) + (row.ipa ? 1 : 0) }
-  }).filter((row) => row.definition).sort((a, b) => b.score - a.score || (a.definitionId || 0) - (b.definitionId || 0))
-  return scored[0]
-}
-
-async function buildEnglish(db, freq, tatoeba) {
-  const [cefrPath, advancedPath] = await Promise.all([cached(sources.cefr), cached(sources.advanced)])
+async function buildEnglish(db) {
+  const [cefrPath, advancedPath, examples] = await Promise.all([cached(sources.cefr), cached(sources.advanced), loadTatoebaEnglish()])
   const profiles = [...parseCsv(await readFile(cefrPath, 'utf8')).slice(1), ...parseCsv(await readFile(advancedPath, 'utf8')).slice(1)]
-  const target = { A1: 210, A2: 210, B1: 230, B2: 230, C1: 130, C2: 90 }
-  const byLevel = Object.fromEntries(Object.keys(target).map((level) => [level, []]))
+  const levels = ['A1','A2','B1','B2','C1','C2']
   const lookup = db.prepare(`
     SELECT DISTINCT d.id AS definitionId, p.ipa, d.definition, d.pos, wd.example
     FROM words w
@@ -212,37 +174,31 @@ async function buildEnglish(db, freq, tatoeba) {
     JOIN definitions d ON d.id = wd.definition_id
     WHERE w.word = ? COLLATE NOCASE AND d.definition_lang = 'vi'
   `)
+  const byLevel = Object.fromEntries(levels.map((level) => [level, []]))
+
   for (const row of profiles) {
     const [headword, profilePos, level, ...tags] = row
-    if (!target[level] || byLevel[level].some((item) => item.word.toLowerCase() === clean(headword).toLowerCase())) continue
-    if (!/^[A-Za-z][A-Za-z' -]{0,34}$/.test(clean(headword))) continue
-    const dictionary = chooseDictionaryRow(lookup.all(clean(headword)), profilePos, headword)
+    const word = clean(headword)
+    if (!levels.includes(level) || !/^[A-Za-z][A-Za-z' -]{0,40}$/.test(word)) continue
+    if (byLevel[level].some((item) => item.word.toLowerCase() === word.toLowerCase())) continue
+    const dictionary = chooseDictionaryRow(lookup.all(word), profilePos)
     if (!dictionary?.definition) continue
-    const common = freq.get(clean(headword).toLowerCase())
-    const expectedSourcePos = sourcePos[clean(profilePos).toLowerCase()] || []
-    const commonMatches = common && expectedSourcePos.includes(clean(common.pos).toLowerCase())
-    const parallel = !headword.includes(' ') ? tatoeba.get(clean(headword).toLowerCase()) : undefined
+    const sample = !word.includes(' ') ? examples.get(word.toLowerCase()) : null
     byLevel[level].push({
-      word: headword,
-      ipa: common?.pron || dictionary.ipa || '',
-      partOfSpeech: normalizePos(profilePos || common?.pos || dictionary.pos),
-      meaningVi: dictionary.definition,
-      definition: commonMatches ? (common.gloss_en?.[0] || common.senses_en?.[0] || '') : '',
-      example: parallel?.example || dictionary.example || '',
-      translation: parallel?.translation || '',
-      topic: inferTopic(tags.join(' '), common?.gloss_en?.join(' '), dictionary.definition),
-      exam: 'CEFR',
-      source: level === 'C1' || level === 'C2' ? 'Octanove C1/C2 + Skypedia EN–VI' : 'CEFR-J + Skypedia EN–VI',
-      rank: common?.freq || 0,
+      languageId:'english', officialLevel:level, word, ipa:dictionary.ipa || '', partOfSpeech:normalizePos(profilePos || dictionary.pos),
+      meaningVi:dictionary.definition, definition:'', example:sample?.example || dictionary.example || '', translation:sample?.translation || '',
+      topic:inferTopic(tags.join(' '), dictionary.definition), exam:'CEFR',
+      source:level === 'C1' || level === 'C2' ? 'Octanove Vocabulary Profile + EN–VI dictionary' : 'CEFR-J Vocabulary Profile + EN–VI dictionary',
     })
   }
-  const output = []
-  for (const [level, count] of Object.entries(target)) {
-    const selected = byLevel[level].sort((a, b) => b.rank - a.rank || a.word.localeCompare(b.word, 'en')).slice(0, count)
-    if (selected.length < count) throw new Error(`English ${level}: expected ${count}, got ${selected.length}`)
-    output.push(...selected.map((word, index) => baseWord('english', level, index, word)))
+
+  const result = {}
+  for (const level of levels) {
+    const selected = byLevel[level].sort((a,b) => a.word.localeCompare(b.word,'en')).slice(0,TARGET_PER_LEVEL)
+    if (selected.length < TARGET_PER_LEVEL) throw new Error(`English ${level}: expected ${TARGET_PER_LEVEL}, got ${selected.length}`)
+    result[level] = selected.map((word,index) => baseWord('english',level,index,word))
   }
-  return output
+  return result
 }
 
 async function loadCvdict() {
@@ -260,53 +216,34 @@ async function loadCvdict() {
 
 async function buildChinese() {
   const dictionary = await loadCvdict()
+  const sourceLevels = ['HSK 1','HSK 2','HSK 3','HSK 4','HSK 5','HSK 6','HSK 7']
+  const appLevels = sourceLevels.slice(0,6)
   const candidates = []
-  for (let number = 1; number <= 6; number += 1) {
-    const path = await cached([`hsk-old-${number}.json`, `https://raw.githubusercontent.com/jelleverheyen/hsk-vocabulary/main/wordlists/exclusive/old/${number}.min.json`])
-    const level = `HSK ${number}`
-    const rows = JSON.parse(await readFile(path, 'utf8')).sort((a, b) => (a.q || 999999) - (b.q || 999999))
-    const selected = []
+
+  for (let number = 1; number <= 7; number += 1) {
+    const path = await cached([`hsk-new-${number}.json`, `https://raw.githubusercontent.com/jelleverheyen/hsk-vocabulary/main/wordlists/exclusive/new/${number}.min.json`])
+    const rows = JSON.parse(await readFile(path,'utf8')).sort((a,b) => (a.q || 999999) - (b.q || 999999))
     for (const row of rows) {
       const translation = dictionary.get(row.s)
       const form = row.f?.[0]
-      if (!translation?.meanings?.[0] || !form?.m?.length || selected.some((item) => item.word === row.s)) continue
-      selected.push({
-        word: row.s, ipa: form.i?.y || translation.pinyin, partOfSpeech: normalizePos(row.p?.[0]),
-        meaningVi: translation.meanings[0], definition: form.m.join('; '), example: '', translation: '',
-        topic: inferTopic(form.m.join(' '), translation.meanings.join(' ')), exam: 'HSK',
-        source: 'HSK Vocabulary + CVDICT', collocations: row.f?.[0]?.c || [],
+      if (!row.s || !translation?.meanings?.[0]) continue
+      candidates.push({
+        languageId:'chinese', officialLevel:`HSK ${number}`, word:row.s, ipa:form?.i?.y || translation.pinyin || '',
+        partOfSpeech:normalizePos(row.p?.[0]), meaningVi:translation.meanings[0], definition:form?.m?.join('; ') || '',
+        example:'', translation:'', topic:inferTopic(form?.m?.join(' '), translation.meanings.join(' ')), exam:'HSK',
+        collocations:form?.c || [], source:'HSK 3.0 vocabulary + CVDICT',
       })
     }
-    candidates.push(...selected.map((word) => ({ ...word, level })))
   }
-  const corpus = await loadParallelCorpus('opus-tatoeba-cmn-vi', '.cmn', '.vi', 'Tatoeba ZH–VI')
-    || await loadBundledParallel('tatoeba-cmn-vi.json', 'Tatoeba ZH–VI')
-  const enriched = addParallelExamples(candidates, corpus)
-  const output = []
-  const used = new Set()
-  for (let number = 1; number <= 6; number += 1) {
-    const level = `HSK ${number}`
-    const selected = enriched.filter((word) => word.level === level && !used.has(word.word)).sort((a, b) => Number(Boolean(b.translation)) - Number(Boolean(a.translation))).slice(0, 50)
-    if (selected.length < 50) throw new Error(`${level}: expected 50 words, got ${selected.length}`)
-    selected.forEach((word) => used.add(word.word))
-    output.push(...selected.map((word, index) => baseWord('chinese', level, index, word)))
-  }
-  return output
+  return allocateBands(candidates, appLevels, sourceLevels)
 }
 
-function englishGlossCandidates(meanings) {
-  const candidates = []
-  for (const raw of meanings || []) {
-    const cleaned = clean(raw).replace(/^to\s+/i, '').replace(/^(a|an|the)\s+/i, '')
-    for (const part of cleaned.split(/[;,/]|\s+\(/)) {
-      const value = clean(part).replace(/\.$/, '')
-      if (/^[a-z][a-z' -]{1,34}$/i.test(value)) candidates.push(value)
-    }
-  }
-  return [...new Set(candidates)]
+function glossCandidates(value = '') {
+  return [...new Set(clean(value).replace(/^to\s+/i,'').split(/[;,/]|\s+\(/).map((part) => clean(part).replace(/\.$/,'')).filter((part) => /^[a-z][a-z' -]{1,40}$/i.test(part)))]
 }
 
 async function buildJapanese(db) {
+  const levels = ['N5','N4','N3','N2','N1']
   const lookup = db.prepare(`
     SELECT DISTINCT d.id AS definitionId, p.ipa, d.definition, d.pos
     FROM words w
@@ -316,82 +253,102 @@ async function buildJapanese(db) {
     WHERE w.word = ? COLLATE NOCASE AND d.definition_lang = 'vi'
   `)
   const candidates = []
-  for (const level of ['N5', 'N4', 'N3', 'N2', 'N1']) {
-    const path = await cached([`openjlpt-${level.toLowerCase()}.json`, `https://raw.githubusercontent.com/evanclan/OpenJLPT/main/data/json/vocab/${level.toLowerCase()}.json`])
-    const rows = JSON.parse(await readFile(path, 'utf8'))
-    const selected = []
+
+  for (const level of levels) {
+    const path = await cached([`openjlpt-${level.toLowerCase()}.csv`, `https://raw.githubusercontent.com/evanclan/OpenJLPT/main/data/csv/vocab-${level.toLowerCase()}.csv`])
+    const [headers,...rows] = parseCsv(await readFile(path,'utf8'))
     for (const row of rows) {
+      const item = Object.fromEntries(headers.map((header,index) => [header,row[index] || '']))
+      if (!item.word) continue
       let dictionary
-      for (const gloss of englishGlossCandidates(row.meanings)) {
-        dictionary = chooseDictionaryRow(lookup.all(gloss), '')
+      for (const gloss of glossCandidates(item.meanings)) {
+        dictionary = chooseDictionaryRow(lookup.all(gloss))
         if (dictionary?.definition) break
       }
-      if (!dictionary?.definition || !row.word || selected.some((item) => item.word === row.word)) continue
-      selected.push({
-        word: row.word, ipa: row.reading || '', partOfSpeech: normalizePos(dictionary.pos),
-        meaningVi: dictionary.definition, definition: (row.meanings || []).join('; '),
-        example: row.examples?.[0]?.ja || '', translation: '',
-        topic: inferTopic((row.meanings || []).join(' '), dictionary.definition), exam: 'JLPT', source: 'OpenJLPT + Skypedia EN–VI',
+      const vietnamese = dictionary?.definition || `[EN] ${compact(item.meanings)}`
+      candidates.push({
+        languageId:'japanese', officialLevel:level, word:item.word, ipa:item.reading || '', partOfSpeech:normalizePos(dictionary?.pos || ''),
+        meaningVi:vietnamese, definition:compact(item.meanings), example:item.example_ja || '', translation:item.example_en || '',
+        translationLanguage:'en', topic:inferTopic(item.meanings,vietnamese), exam:'JLPT', source:'OpenJLPT + EN–VI dictionary',
       })
     }
-    candidates.push(...selected.map((word) => ({ ...word, level })))
   }
-  const corpus = await loadParallelCorpus('opus-tatoeba-ja-vi', '.ja', '.vi', 'Tatoeba JA–VI')
-    || await loadBundledParallel('tatoeba-ja-vi.json', 'Tatoeba JA–VI')
-  const enriched = addParallelExamples(candidates, corpus)
-  const output = []
-  const used = new Set()
-  for (const level of ['N5', 'N4', 'N3', 'N2', 'N1']) {
-    const selected = enriched.filter((word) => word.level === level && word.example && !used.has(word.word)).sort((a, b) => Number(Boolean(b.translation)) - Number(Boolean(a.translation))).slice(0, 60)
-    if (selected.length < 60) throw new Error(`${level}: expected 60 words, got ${selected.length}`)
-    selected.forEach((word) => used.add(word.word))
-    output.push(...selected.map((word, index) => baseWord('japanese', level, index, word)))
-  }
-  return output
+  return allocateBands(candidates, levels, levels)
 }
 
-const koreanPos = { 의: 'particle', 동: 'verb', 명: 'noun', 형: 'adjective', 부: 'adverb', 보: 'auxiliary verb', 대: 'pronoun', 관: 'determiner', 수: 'number', 감: 'interjection', 접: 'affix' }
+const koreanPos = { 의:'particle', 동:'verb', 명:'noun', 형:'adjective', 부:'adverb', 보:'auxiliary verb', 대:'pronoun', 관:'determiner', 수:'number', 감:'interjection', 접:'affix' }
 async function buildKorean() {
   const path = await cached(sources.korean)
-  const [headers, ...rows] = parseCsv(await readFile(path, 'utf8'))
-  const records = rows.map((row) => Object.fromEntries(headers.map((header, index) => [header, row[index] || ''])))
-  const groups = {
-    'TOPIK 1': records.filter((row) => row.nikl_grade.startsWith('A')).slice(0, 50),
-    'TOPIK 2': records.filter((row) => row.nikl_grade.startsWith('A')).slice(50, 100),
-    'TOPIK 3': records.filter((row) => row.nikl_grade.startsWith('B')).slice(0, 50),
-    'TOPIK 4': records.filter((row) => row.nikl_grade.startsWith('B')).slice(50, 100),
-    'TOPIK 5': records.filter((row) => row.nikl_grade.startsWith('C')).slice(0, 50),
-    'TOPIK 6': records.filter((row) => row.nikl_grade.startsWith('C')).slice(50, 100),
+  const [headers,...rows] = parseCsv(await readFile(path,'utf8'))
+  const records = rows.map((row) => Object.fromEntries(headers.map((header,index) => [header,row[index] || ''])))
+  const gradeGroups = {
+    A:records.filter((row) => row.nikl_grade.startsWith('A')),
+    B:records.filter((row) => row.nikl_grade.startsWith('B')),
+    C:records.filter((row) => row.nikl_grade.startsWith('C')),
   }
-  const output = []
-  for (const [level, recordsForLevel] of Object.entries(groups)) {
-    if (recordsForLevel.length < 50) throw new Error(`${level}: expected 50, got ${recordsForLevel.length}`)
-    output.push(...recordsForLevel.map((row, index) => baseWord('korean', level, index, {
-      word: row.word, ipa: '', partOfSpeech: koreanPos[row.pos] || row.pos,
-      meaningVi: row.meaning, definition: '', example: row.example_ko, translation: row.example_translation,
-      topic: inferTopic(row.meaning), exam: 'TOPIK', source: 'NIKL TOPIK Vocabulary (Vietnamese)',
-    })))
+  for (const grade of ['A','B','C']) if (gradeGroups[grade].length < TARGET_PER_LEVEL * 2) throw new Error(`Korean grade ${grade}: expected at least ${TARGET_PER_LEVEL * 2}, got ${gradeGroups[grade].length}`)
+
+  const levels = ['TOPIK 1','TOPIK 2','TOPIK 3','TOPIK 4','TOPIK 5','TOPIK 6']
+  const output = {}
+  for (let index = 0; index < levels.length; index += 1) {
+    const grade = ['A','A','B','B','C','C'][index]
+    const offset = index % 2 * TARGET_PER_LEVEL
+    const rowsForLevel = gradeGroups[grade].slice(offset, offset + TARGET_PER_LEVEL)
+    output[levels[index]] = rowsForLevel.map((row, wordIndex) => baseWord('korean',levels[index],wordIndex,{
+      officialLevel:`NIKL ${grade}`, word:row.word, ipa:'', partOfSpeech:koreanPos[row.pos] || row.pos,
+      meaningVi:row.meaning, definition:'', example:row.example_ko, translation:row.example_translation,
+      topic:inferTopic(row.meaning), exam:'TOPIK learning band', source:'NIKL TOPIK vocabulary Vietnamese export',
+    }))
   }
   return output
 }
 
-await mkdir(outputDir, { recursive: true })
+async function writeDatasets(datasets) {
+  await rm(outputPath,{ recursive:true, force:true })
+  await mkdir(outputPath,{ recursive:true })
+  const manifest = {
+    version:2,
+    targetPerLevel:TARGET_PER_LEVEL,
+    generatedAt:new Date().toISOString(),
+    note:'NT learning bands target about 1000 words per app level. officialLevel and levelBasis preserve source-level provenance when a source list is smaller than 1000.',
+    languages:{},
+  }
+
+  for (const [languageId, levels] of Object.entries(datasets)) {
+    const languageDir = join(outputPath,languageId)
+    await mkdir(languageDir,{ recursive:true })
+    manifest.languages[languageId] = {}
+    for (const [level, words] of Object.entries(levels)) {
+      const file = `${levelFile(level)}.json`
+      await writeFile(join(languageDir,file),`${JSON.stringify(words)}\n`)
+      manifest.languages[languageId][level] = { count:words.length, file:`${languageId}/${file}` }
+      console.log(`${languageId} ${level}: ${words.length}`)
+    }
+  }
+  await writeFile(join(outputPath,'manifest.json'),`${JSON.stringify(manifest,null,2)}\n`)
+  return manifest
+}
+
+const manifestPath = join(outputPath,'manifest.json')
+if (process.env.VOCAB_REFRESH !== '1' && existsSync(manifestPath)) {
+  try {
+    const previous = JSON.parse(await readFile(manifestPath,'utf8'))
+    const counts = Object.values(previous.languages || {}).flatMap((levels) => Object.values(levels).map((item) => item.count))
+    if (previous.targetPerLevel === TARGET_PER_LEVEL && counts.length === 23 && counts.every((count) => count >= TARGET_PER_LEVEL)) {
+      console.log(`Vocabulary data already built: ${counts.length} levels × ${TARGET_PER_LEVEL}. Set VOCAB_REFRESH=1 to rebuild.`)
+      process.exit(0)
+    }
+  } catch { /* rebuild invalid cache */ }
+}
+
 const dbPath = await cached(sources.dictionary)
-const db = new DatabaseSync(dbPath, { readOnly: true })
-const [frequency, tatoeba] = await Promise.all([loadFrequencyWords(), loadTatoeba()])
+const db = new DatabaseSync(dbPath,{ readOnly:true })
 const datasets = {
-  english: await buildEnglish(db, frequency, tatoeba),
-  chinese: await buildChinese(),
-  japanese: await buildJapanese(db),
-  korean: await buildKorean(),
+  english:await buildEnglish(db),
+  chinese:await buildChinese(),
+  japanese:await buildJapanese(db),
+  korean:await buildKorean(),
 }
 db.close()
-
-for (const [language, words] of Object.entries(datasets)) {
-  await writeFile(new URL(`${language}.json`, outputDir), `${JSON.stringify(words, null, 2)}\n`)
-  console.log(`${language}: ${words.length}`)
-}
-
-await writeFile(new URL('index.js', outputDir), `import english from './english.json' with { type: 'json' }\nimport chinese from './chinese.json' with { type: 'json' }\nimport japanese from './japanese.json' with { type: 'json' }\nimport korean from './korean.json' with { type: 'json' }\n\nexport const generatedVocabulary = [...english, ...chinese, ...japanese, ...korean]\n`)
-console.log(`total: ${Object.values(datasets).flat().length}`)
-
+await writeDatasets(datasets)
+console.log(`Vocabulary build complete: ${Object.values(datasets).flatMap((levels) => Object.values(levels)).reduce((sum,words) => sum + words.length,0)} words across 23 app levels.`)
