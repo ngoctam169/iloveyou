@@ -436,38 +436,29 @@ async function buildKorean() {
     seenWords.add(key)
     uniqueRecords.push(row)
   }
-  const byGrade = {
-    A: uniqueRecords.filter((row) => row.nikl_grade.startsWith('A')),
-    B: uniqueRecords.filter((row) => row.nikl_grade.startsWith('B')),
-    C: uniqueRecords.filter((row) => row.nikl_grade.startsWith('C')),
-  }
-  const split = (items, parts) => Array.from({ length: parts }, (_, index) => {
-    const start = Math.round(items.length * index / parts)
-    const end = Math.round(items.length * (index + 1) / parts)
-    return items.slice(start, end)
+  const gradeOrder = { A: 0, B: 1, C: 2 }
+  const ordered = [...uniqueRecords].sort((a, b) => {
+    const aGrade = gradeOrder[a.nikl_grade?.[0]] ?? 99
+    const bGrade = gradeOrder[b.nikl_grade?.[0]] ?? 99
+    return aGrade - bGrade || clean(a.word).localeCompare(clean(b.word), 'ko')
   })
-  const [b1, b2] = split(byGrade.B, 2)
-  const [c1, c2, c3] = split(byGrade.C, 3)
-  const groups = {
-    'TOPIK 1': byGrade.A,
-    'TOPIK 2': b1,
-    'TOPIK 3': b2,
-    'TOPIK 4': c1,
-    'TOPIK 5': c2,
-    'TOPIK 6': c3,
-  }
+  const levels = ['TOPIK 1', 'TOPIK 2', 'TOPIK 3', 'TOPIK 4', 'TOPIK 5', 'TOPIK 6']
   const output = []
-  for (const [level, recordsForLevel] of Object.entries(groups)) {
+  for (let index = 0; index < levels.length; index += 1) {
+    const start = Math.round(ordered.length * index / levels.length)
+    const end = Math.round(ordered.length * (index + 1) / levels.length)
+    const recordsForLevel = ordered.slice(start, end)
+    const level = levels[index]
     const normalized = uniqueByWord(recordsForLevel.map((row) => ({
       word: row.word, ipa: '', partOfSpeech: koreanPos[row.pos] || row.pos,
       meaningVi: row.meaning, definition: '', example: row.example_ko, translation: row.example_translation,
       topic: inferTopic(row.meaning), exam: 'TOPIK',
       source: 'NIKL Korean learner vocabulary (Vietnamese)',
       sourceLevel: row.nikl_grade,
-      levelBasis: 'app mapping from NIKL A/B/C teaching grade; not an official TOPIK 1–6 word list',
+      levelBasis: 'balanced app study band ordered by NIKL A/B/C grade; not an official TOPIK 1–6 word list',
     })))
     assertApproxLevel('Korean', level, normalized)
-    output.push(...normalized.map((word, index) => baseWord('korean', level, index, word)))
+    output.push(...normalized.map((word, wordIndex) => baseWord('korean', level, wordIndex, word)))
   }
   return output
 }
