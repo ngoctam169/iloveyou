@@ -73,11 +73,20 @@ const listeningSections = [
   },
 ]
 
-export const ieltsFullListening = listeningSections.flatMap((section) => section.questions.map((question) => ({
+const balanceChoicePositions = (items) => items.map((item,index) => {
+  if (!item.options?.length || !Number.isInteger(item.answer)) return item
+  const shift = index % item.options.length
+  if (!shift) return item
+  const options = [...item.options.slice(shift),...item.options.slice(0,shift)]
+  const answer = (item.answer - shift + item.options.length) % item.options.length
+  return { ...item,options,answer }
+})
+
+export const ieltsFullListening = balanceChoicePositions(listeningSections.flatMap((section) => section.questions.map((question) => ({
   ...question,
   section:section.label,
   audio:section.audio,
-})))
+}))))
 
 const readingPassages = [
   {
@@ -168,11 +177,11 @@ const readingPassages = [
   },
 ]
 
-export const ieltsFullReading = readingPassages.flatMap((passage) => passage.questions.map((question) => ({
+export const ieltsFullReading = balanceChoicePositions(readingPassages.flatMap((passage) => passage.questions.map((question) => ({
   ...question,
   passageTitle:passage.title,
   passage:passage.paragraphs,
-})))
+}))))
 
 export const ieltsAcademicWritingTasks = [
   {
