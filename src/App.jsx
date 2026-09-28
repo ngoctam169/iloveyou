@@ -22,8 +22,6 @@ const Mistakes = lazy(() => import('./pages/Mistakes'))
 const Saved = lazy(() => import('./pages/Saved'))
 const Progress = lazy(() => import('./pages/Progress'))
 const PlacementTest = lazy(() => import('./pages/PlacementTest'))
-const MockTests = lazy(() => import('./pages/MockTests'))
-const Profile = lazy(() => import('./pages/Profile'))
 const Settings = lazy(() => import('./pages/Settings'))
 const Search = lazy(() => import('./pages/Search'))
 const Vocabulary = lazy(() => import('./pages/Vocabulary'))
@@ -32,7 +30,6 @@ const Grammar = lazy(() => import('./pages/Grammar'))
 const TOEIC = lazy(() => import('./pages/TOEIC'))
 const IELTS = lazy(() => import('./pages/IELTS'))
 const Review = lazy(() => import('./pages/Review'))
-const History = lazy(() => import('./pages/History'))
 const SelfStudy = lazy(() => import('./pages/SelfStudy'))
 const NotFound = lazy(() => import('./pages/NotFound'))
 
@@ -74,14 +71,14 @@ export default function App() {
       <Route path="/toeic" element={<TOEIC/>}/>
       <Route path="/ielts" element={<IELTS/>}/>
       <Route path="/review" element={<Review/>}/>
-      <Route path="/history" element={<History/>}/>
+      <Route path="/history" element={<Navigate replace to="/progress#history"/>}/>
       <Route path="/self-study" element={<SelfStudy/>}/>
       <Route path="/mistakes" element={<Mistakes/>}/>
       <Route path="/saved" element={<Saved/>}/>
       <Route path="/progress" element={<Progress/>}/>
       <Route path="/placement-test" element={<PlacementTest/>}/>
-      <Route path="/mock-tests" element={<MockTests/>}/>
-      <Route path="/profile" element={<Profile/>}/>
+      <Route path="/mock-tests" element={<Navigate replace to="/toeic"/>}/>
+      <Route path="/profile" element={<Navigate replace to="/settings#profile"/>}/>
       <Route path="/settings" element={<Settings/>}/>
       <Route path="/search" element={<Search/>}/>
       <Route path="*" element={<NotFound/>}/>

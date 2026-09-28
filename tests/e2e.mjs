@@ -150,15 +150,15 @@ try {
 
   console.log('E2E checkpoint: placement test')
   await page.goto(`${origin}/mock-tests`)
-  await page.getByRole('button', { name: 'Bắt đầu luyện tập' }).click()
-  await page.locator('.answer-list button').first().click()
-  await page.locator('.question-nav button').nth(9).click()
-  await page.locator('.answer-list button').first().click()
-  await page.getByRole('button', { name: 'Nộp bài', exact: true }).click()
-  await page.getByRole('dialog').getByRole('button', { name: 'Nộp bài', exact: true }).click()
-  await page.getByText('PRACTICE RESULT').waitFor()
+  await page.waitForURL('**/toeic')
+  await page.goto(`${origin}/profile`)
+  await page.waitForURL('**/settings#profile')
+  await page.getByRole('heading', { name:'Hồ sơ người học' }).waitFor()
+  await page.goto(`${origin}/history`)
+  await page.waitForURL('**/progress#history')
+  await page.getByRole('heading', { name:'Lịch sử học tập' }).waitFor()
 
-  console.log('E2E checkpoint: mock test')
+  console.log('E2E checkpoint: retired routes redirect into core modules')
   for (const route of ['/languages', '/progress', '/profile']) {
     await page.goto(`${origin}${route}`)
     await page.locator('main.page').waitFor()

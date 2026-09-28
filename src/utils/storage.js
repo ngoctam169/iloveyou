@@ -84,7 +84,7 @@ export function loadState() {
       longestStreak: Math.max(0, Number(parsed.longestStreak) || 0),
       toeicTarget: [450, 550, 650, 750, 850, 900].includes(Number(parsed.toeicTarget)) ? Number(parsed.toeicTarget) : defaultState.toeicTarget,
       toeicHistory: Array.isArray(parsed.toeicHistory) ? parsed.toeicHistory.slice(-20) : [],
-      ieltsTarget: [4, 5, 5.5, 6, 6.5, 7, 7.5, 8].includes(Number(parsed.ieltsTarget)) ? Number(parsed.ieltsTarget) : defaultState.ieltsTarget,
+      ieltsTarget: [4, 5, 5.5, 6, 6.5, 7, 7.5, 8, 8.5, 9].includes(Number(parsed.ieltsTarget)) ? Number(parsed.ieltsTarget) : defaultState.ieltsTarget,
       ieltsHistory: Array.isArray(parsed.ieltsHistory) ? parsed.ieltsHistory.slice(-20) : [],
       activityHistory: Array.isArray(parsed.activityHistory) ? parsed.activityHistory.slice(-28).map((minutes) => Math.max(0, Number(minutes) || 0)) : defaultState.activityHistory,
     }

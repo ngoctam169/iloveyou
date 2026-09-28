@@ -4,9 +4,9 @@ import { useApp } from '../../context/AppContext'
 
 const langCodes = { english:'en-US', chinese:'zh-CN', japanese:'ja-JP', korean:'ko-KR' }
 
-export default function AudioPlayer({ text, languageId = 'english', label = 'Phát audio' }) {
+export default function AudioPlayer({ text, languageId = 'english', label = 'Phát audio', initialRate = 1 }) {
   const { setToast } = useApp()
-  const [rate, setRate] = useState(1)
+  const [rate, setRate] = useState(initialRate)
   const [status, setStatus] = useState('idle')
   const [progress, setProgress] = useState(0)
   const utteranceRef = useRef(null)
@@ -55,12 +55,13 @@ export default function AudioPlayer({ text, languageId = 'english', label = 'Ph�
     elapsedRef.current = 0
     boundaryProgressRef.current = 0
     setProgress(0)
+    setRate(initialRate)
     setStatus('idle')
     return () => {
       clearTimer()
       if (typeof window !== 'undefined' && window.speechSynthesis && utteranceRef.current) window.speechSynthesis.cancel()
     }
-  }, [text])
+  }, [text, initialRate])
 
   const start = () => {
     if (typeof window === 'undefined' || !('speechSynthesis' in window) || typeof window.SpeechSynthesisUtterance !== 'function') {
