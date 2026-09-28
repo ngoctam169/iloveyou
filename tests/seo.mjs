@@ -29,8 +29,12 @@ assert(person.disambiguatingDescription?.includes('Ninh Thuận'),'Person entity
 assert(aboutHtml.includes('<h1>Nguyễn Ngọc Tâm (Ngọc Tâm Dev) – Full-stack Developer</h1>'),'About prerender is missing the personal identity H1')
 assert(aboutHtml.includes('Ninh Thuận'),'About page is missing the Ninh Thuận identity signal')
 
+const inlineStory = blogPosts.find((post) => post.inline)
+const standaloneBlogPosts = blogPosts.filter((post) => !post.inline)
+assert(inlineStory,'Inline personal story is missing')
+
 const titles = new Set()
-for (const post of blogPosts) {
+for (const post of standaloneBlogPosts) {
   const path = `dist/blog/${post.slug}/index.html`
   assert(existsSync(join(root,path)),`Article was not prerendered: ${post.slug}`)
   const html = read(path)
@@ -49,13 +53,22 @@ for (const post of blogPosts) {
   assert(posting?.author?.['@id'] === `${DEFAULT_SITE_URL}/#person`,`BlogPosting author is wrong for ${post.slug}`)
   assert(posting?.mainEntityOfPage?.['@id'] === `${DEFAULT_SITE_URL}/blog/${post.slug}#webpage`,`BlogPosting mainEntityOfPage is wrong for ${post.slug}`)
   assert(articlePerson?.['@id'] === person['@id'],`Article uses a different Person entity: ${post.slug}`)
-  if (post.slug === 'nguyen-ngoc-tam-ninh-thuan') assert(posting?.about?.['@id'] === `${DEFAULT_SITE_URL}/#person`,'Personal journey article is not explicitly about the Person entity')
   const words = post.content.flatMap((block) => block.text ? [block.text] : block.items || []).join(' ').split(' ').filter(Boolean).length
   assert(words >= 1000 && words <= 2000,`Article ${post.slug} has ${words} words; expected 1000–2000`)
 }
 
+const blogHtml = read('dist/blog/index.html')
+assert(blogHtml.includes(inlineStory.title),'Main blog page is missing the inline personal journey')
+assert(blogHtml.includes('Quá khứ: từ Ninh Thuận vào Sài Gòn'),'Inline personal journey content was not prerendered')
+const blogGraph = jsonLd(blogHtml)['@graph']
+const inlinePosting = blogGraph.find((item) => item['@type'] === 'BlogPosting' && item.url === `${DEFAULT_SITE_URL}/blog#${inlineStory.anchor}`)
+assert(inlinePosting?.about?.['@id'] === `${DEFAULT_SITE_URL}/#person`,'Inline personal story schema is not connected to the Person entity')
+const inlineWords = inlineStory.content.flatMap((block) => block.text ? [block.text] : block.items || []).join(' ').split(' ').filter(Boolean).length
+assert(inlineWords >= 1000 && inlineWords <= 2000,`Inline personal story has ${inlineWords} words; expected 1000–2000`)
+
 const sitemap = read('dist/sitemap.xml')
-for (const path of ['/about','/blog',...blogPosts.map((post) => `/blog/${post.slug}`)]) assert(sitemap.includes(`<loc>${DEFAULT_SITE_URL}${path}</loc>`),`Sitemap is missing ${path}`)
+for (const path of ['/about','/blog',...standaloneBlogPosts.map((post) => `/blog/${post.slug}`)]) assert(sitemap.includes(`<loc>${DEFAULT_SITE_URL}${path}</loc>`),`Sitemap is missing ${path}`)
+assert(!sitemap.includes(`<loc>${DEFAULT_SITE_URL}/blog/${inlineStory.slug}</loc>`),'Inline personal story should not be a separate sitemap URL')
 const robots = read('dist/robots.txt')
 assert(robots.includes(`Sitemap: ${DEFAULT_SITE_URL}/sitemap.xml`) && !/Disallow:\s*\//.test(robots),'robots.txt blocks crawling or has a wrong sitemap')
 const notFound = read('dist/404.html')
@@ -74,4 +87,4 @@ const languageHtml = read('dist/learn-english/index.html')
 assert(languageHtml.includes('noindex, follow'),'Language-learning landing page should remain functional but noindex')
 for (const output of [builtHome,aboutHtml,sitemap,robots]) assert(!output.includes('nt-learning.example.com') && !output.includes('https://DOMAIN'),'Placeholder domain remains in production output')
 
-console.log(`SEO PASS: ProfilePage, Person and ${blogPosts.length} BlogPosting graphs validated; sitemap and GitHub Pages output are ready`)
+console.log(`SEO PASS: ProfilePage, Person, inline personal story and ${standaloneBlogPosts.length} standalone BlogPosting graphs validated; sitemap and GitHub Pages output are ready`)
