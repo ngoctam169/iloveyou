@@ -1,5 +1,5 @@
 import { ArrowLeft, CalendarDays, Clock3 } from 'lucide-react'
-import { Link, useParams } from 'react-router-dom'
+import { Link, Navigate, useParams } from 'react-router-dom'
 import AuthorBox from '../components/blog/AuthorBox'
 import BlogCard from '../components/blog/BlogCard'
 import CodeBlock from '../components/blog/CodeBlock'
@@ -20,8 +20,9 @@ function ArticleBlock({ block }) {
 export default function BlogPost() {
   const { slug } = useParams()
   const post = findBlogPost(slug)
+  if (slug === 'nguyen-ngoc-tam-ninh-thuan') return <Navigate replace to="/blog#nguyen-ngoc-tam-ninh-thuan"/>
   if (!post) return <NotFound compact/>
-  const related = blogPosts.filter((item) => item.slug !== post.slug).sort((a,b) => Number(b.category === post.category) - Number(a.category === post.category)).slice(0,2)
+  const related = blogPosts.filter((item) => !item.inline && item.slug !== post.slug).sort((a,b) => Number(b.category === post.category) - Number(a.category === post.category)).slice(0,2)
   const formattedDate = new Intl.DateTimeFormat('vi-VN',{ dateStyle:'long' }).format(new Date(`${post.datePublished}T00:00:00`))
   return <article className="inner-page section-shell article-page">
     <Breadcrumbs items={[{ label:'Trang chủ',to:'/' },{ label:'Blog',to:'/blog' },{ label:post.category },{ label:post.title }]}/>

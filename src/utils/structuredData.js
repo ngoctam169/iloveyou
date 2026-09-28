@@ -18,6 +18,7 @@ export function buildStructuredData({ siteUrl, meta, path, breadcrumbs = default
   const canonical = `${siteUrl}${path}`
   const websiteId = `${siteUrl}/#website`
   const personId = `${siteUrl}/#person`
+  const inlineStory = blogPostMeta.find((post) => post.inline)
   const graph = [
     {
       '@type':'WebSite',
@@ -77,7 +78,26 @@ export function buildStructuredData({ siteUrl, meta, path, breadcrumbs = default
       creator:{ '@id':personId },
       publisher:{ '@id':personId },
       isPartOf:{ '@id':websiteId },
-      blogPost:blogPostMeta.map((post) => ({ '@id':`${siteUrl}/blog/${post.slug}#article` })),
+      blogPost:blogPostMeta.map((post) => ({ '@id':post.inline ? `${siteUrl}/blog#${post.anchor}-article` : `${siteUrl}/blog/${post.slug}#article` })),
+      inLanguage:'vi',
+    })
+    if (inlineStory) graph.push({
+      '@type':'BlogPosting',
+      '@id':`${siteUrl}/blog#${inlineStory.anchor}-article`,
+      headline:inlineStory.title,
+      description:inlineStory.description,
+      image:`${siteUrl}${DEFAULT_OG_IMAGE}`,
+      datePublished:inlineStory.datePublished,
+      dateModified:inlineStory.dateModified,
+      mainEntityOfPage:{ '@id':`${canonical}#webpage` },
+      url:`${siteUrl}/blog#${inlineStory.anchor}`,
+      keywords:[...inlineStory.tags, AUTHOR.name, AUTHOR.brandName],
+      articleSection:inlineStory.category,
+      about:{ '@id':personId },
+      author:{ '@id':personId },
+      creator:{ '@id':personId },
+      publisher:{ '@id':personId },
+      isPartOf:{ '@id':`${canonical}#blog` },
       inLanguage:'vi',
     })
   }

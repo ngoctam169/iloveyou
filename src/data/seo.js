@@ -54,9 +54,9 @@ const staticMeta = {
     pageType:'profile',
   },
   '/blog': {
-    title: 'Blog Nguyễn Ngọc Tâm | PHP, Laravel, MongoDB, Realtime',
-    description: 'Blog kỹ thuật của Nguyễn Ngọc Tâm (Ngọc Tâm Dev) về PHP, Laravel, MongoDB, Redis, WebSocket, WebRTC, backend và hệ thống realtime production.',
-    keywords: `blog Nguyễn Ngọc Tâm, Ngọc Tâm Dev, PHP, Laravel, MongoDB, Redis, WebSocket, WebRTC, backend developer`,
+    title: 'Blog Nguyễn Ngọc Tâm Ninh Thuận | Ngọc Tâm Dev & Backend',
+    description: 'Blog của Nguyễn Ngọc Tâm (Ngọc Tâm Dev), Full-stack Developer quê Ninh Thuận: hành trình vào Sài Gòn làm Dev và các bài về PHP, Laravel, MongoDB, Redis, WebSocket, WebRTC.',
+    keywords: `Nguyễn Ngọc Tâm Ninh Thuận, blog Nguyễn Ngọc Tâm, Ngọc Tâm Dev, South Telecom, PHP, Laravel, MongoDB, Redis, WebSocket, WebRTC, backend developer`,
     pageType:'blog',
   },
   '/languages': appMeta({ title: 'Khóa học ngôn ngữ online | NT', description: 'Khám phá lộ trình học tiếng Anh, Trung, Nhật và Hàn theo các khung CEFR, HSK, JLPT và TOPIK tại NT.' }),
@@ -146,7 +146,7 @@ export function getSeoForPath(pathname, search = '') {
 export function publicSeoPaths() {
   return [
     ...coreSeoRoutes,
-    ...blogPostMeta.map((post) => `/blog/${post.slug}`),
+    ...blogPostMeta.filter((post) => !post.inline).map((post) => `/blog/${post.slug}`),
     ...languages.flatMap((language) => language.levels.flatMap(([level]) => [
       `/${language.id}/${levelSlug(level)}`,
       `/${language.id}/${levelSlug(level)}/vocabulary`,
@@ -158,6 +158,6 @@ export function publicSeoPaths() {
 export function indexableSeoPaths() {
   return [
     ...personalIndexRoutes,
-    ...blogPostMeta.map((post) => `/blog/${post.slug}`),
+    ...blogPostMeta.filter((post) => !post.inline).map((post) => `/blog/${post.slug}`),
   ]
 }

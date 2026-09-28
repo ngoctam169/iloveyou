@@ -26,7 +26,9 @@ try {
 
   await page.goto(`${origin}/blog`)
   await page.getByRole('heading',{ name:'Blog của Nguyễn Ngọc Tâm',exact:true }).waitFor()
-  assert(await page.locator('.blog-list .blog-card').count()===4,'Blog listing must contain four initial articles')
+  await page.getByRole('heading',{ name:/Vì sao một chàng trai rời quê vào Sài Gòn chọn nghề Dev/,level:2 }).waitFor()
+  assert(await page.locator('#nguyen-ngoc-tam-ninh-thuan .article-content').count()===1,'Personal journey must be rendered inline inside /blog')
+  assert(await page.locator('.blog-list .blog-card').count()===4,'Blog listing must contain four technical articles')
   await page.locator('.blog-list .blog-card').first().locator('h3 a').click()
   await page.waitForURL('**/blog/php-mongodb-performance')
   await page.getByRole('heading',{ name:/Tối ưu hiệu năng PHP và MongoDB/,level:1 }).waitFor()
@@ -56,6 +58,10 @@ try {
       assert(overflow<=1,`${route} overflows at ${width}px by ${overflow}px`)
     }
   }
+
+  await page.goto(`${origin}/blog/nguyen-ngoc-tam-ninh-thuan`)
+  await page.waitForURL('**/blog#nguyen-ngoc-tam-ninh-thuan')
+  assert(await page.locator('#nguyen-ngoc-tam-ninh-thuan').count()===1,'Legacy personal story URL must redirect into the Blog section')
 
   await page.goto(`${origin}/blog/bai-viet-khong-ton-tai`)
   await page.getByRole('heading',{ name:/Lối này chưa có bài học/ }).waitFor()

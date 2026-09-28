@@ -10,6 +10,8 @@ export const blogPostMeta = [
     datePublished: '2026-09-28',
     dateModified: '2026-09-28',
     readingTime: '12 phút đọc',
+    inline: true,
+    anchor: 'nguyen-ngoc-tam-ninh-thuan',
   },
   {
     slug: 'php-mongodb-performance',
@@ -61,7 +63,8 @@ export const blogPostMeta = [
   },
 ]
 
-export const latestBlogPosts = [...blogPostMeta]
+export const latestBlogPosts = blogPostMeta
+  .filter((post) => !post.inline)
   .sort((a, b) => b.datePublished.localeCompare(a.datePublished))
 
 export const findBlogMeta = (slug) => blogPostMeta.find((post) => post.slug === slug)
