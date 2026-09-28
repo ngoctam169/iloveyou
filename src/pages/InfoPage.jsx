@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom'
 import Breadcrumbs from '../components/common/Breadcrumbs'
+import { AUTHOR } from '../data/author'
 
 const pages = {
   about: {
@@ -11,11 +12,10 @@ const pages = {
     ],
   },
   contact: {
-    eyebrow:'LIÊN HỆ', title:'Góp ý để NT tốt hơn', lead:'Bạn có thể gửi phản hồi về lỗi nội dung, trải nghiệm sử dụng, quyền riêng tư hoặc đề xuất hợp tác.',
+    eyebrow:'LIÊN HỆ', title:'Góp ý để NT tốt hơn', lead:'Báo lỗi nội dung, góp ý trải nghiệm học tập hoặc trao đổi trực tiếp với người phát triển NT.',
     sections:[
       ['Hỗ trợ sử dụng','Khi báo lỗi, hãy gửi đường dẫn trang, thiết bị, trình duyệt và mô tả ngắn các bước đã thực hiện.'],
-      ['Góp ý học liệu','Nếu phát hiện nghĩa, ví dụ hoặc đáp án chưa chính xác, hãy ghi rõ ngôn ngữ, level và tên bài để đội ngũ kiểm tra.'],
-      ['Kênh liên hệ','Email được cấu hình bằng biến VITE_CONTACT_EMAIL khi triển khai domain chính thức.'],
+      ['Góp ý học liệu','Nếu phát hiện nghĩa, ví dụ hoặc đáp án chưa chính xác, hãy ghi rõ ngôn ngữ, level và tên bài để dễ kiểm tra.'],
     ],
   },
   privacy: {
@@ -23,7 +23,6 @@ const pages = {
     sections:[
       ['Dữ liệu lưu trên thiết bị','Tiến độ bài học, lịch ôn, mục tiêu, từ cá nhân và cài đặt được lưu trong localStorage của trình duyệt. Xóa dữ liệu trình duyệt hoặc dùng chức năng Reset Progress sẽ xóa phần dữ liệu này.'],
       ['Microphone và giọng nói','Tính năng luyện nói chỉ yêu cầu microphone sau thao tác của người dùng. Bản ghi được tạo trong phiên trình duyệt; NT không có backend để tải bản ghi lên máy chủ. Nhận dạng giọng nói phụ thuộc dịch vụ của trình duyệt.'],
-      ['Đo lường truy cập','Google Analytics chỉ được tải khi chủ website cấu hình VITE_GA_ID. Khi được bật, dịch vụ có thể xử lý dữ liệu kỹ thuật theo chính sách của Google.'],
       ['Lựa chọn của bạn','Bạn có thể chặn quyền microphone, tắt JavaScript của bên thứ ba hoặc xóa tiến độ bất kỳ lúc nào trong phần Cài đặt.'],
     ],
   },
@@ -41,10 +40,41 @@ const pages = {
 export default function InfoPage({ page }) {
   const content = pages[page]
   const configuredEmail = import.meta.env.VITE_CONTACT_EMAIL
+  const analyticsEnabled = Boolean(import.meta.env.VITE_GA_ID)
+  const linkedIn = AUTHOR.sameAs.find((item) => item.includes('linkedin.com'))
+  const github = AUTHOR.sameAs.find((item) => item.includes('github.com'))
+
   return <article className="inner-page section-shell info-page">
     <Breadcrumbs items={[{ label:'Trang chủ', to:'/' }, { label:content.title }]}/>
-    <header><span className="overline">{content.eyebrow}</span><h1>{content.title}</h1><p>{content.lead}</p>{page === 'contact' && configuredEmail && <a className="btn" href={`mailto:${configuredEmail}`}>Gửi email đến {configuredEmail}</a>}</header>
-    <div className="legal-content">{content.sections.map(([title,text]) => <section key={title}><h2>{title}</h2><p>{text}</p></section>)}</div>
+    <header>
+      <span className="overline">{content.eyebrow}</span>
+      <h1>{content.title}</h1>
+      <p>{content.lead}</p>
+      {page === 'contact' && configuredEmail && <a className="btn" href={`mailto:${configuredEmail}`}>Gửi email</a>}
+    </header>
+
+    <div className="legal-content">
+      {content.sections.map(([title,text]) => <section key={title}><h2>{title}</h2><p>{text}</p></section>)}
+
+      {page === 'contact' && <section className="contact-section">
+        <h2>Kênh liên hệ</h2>
+        <p>{configuredEmail ? 'Chọn kênh phù hợp để gửi phản hồi hoặc trao đổi.' : 'Email công khai chưa được cấu hình. Hiện có thể liên hệ qua GitHub hoặc LinkedIn.'}</p>
+        <div className="contact-channels">
+          {configuredEmail && <a href={`mailto:${configuredEmail}`}><strong>Email</strong><span>{configuredEmail}</span></a>}
+          {github && <a href={github} target="_blank" rel="noreferrer"><strong>GitHub</strong><span>@ngoctam169</span></a>}
+          {linkedIn && <a href={linkedIn} target="_blank" rel="noreferrer"><strong>LinkedIn</strong><span>Nguyễn Ngọc Tâm</span></a>}
+        </div>
+      </section>}
+
+      {page === 'privacy' && <section>
+        <h2>Đo lường truy cập</h2>
+        <div className={`analytics-status ${analyticsEnabled ? 'enabled' : ''}`}>
+          <strong>{analyticsEnabled ? 'Google Analytics đang được bật' : 'Google Analytics hiện chưa được bật'}</strong>
+          <p>{analyticsEnabled ? 'Website dùng Google Analytics để hiểu cách các trang được sử dụng. Dữ liệu kỹ thuật có thể được xử lý theo chính sách của Google.' : 'Hiện website không tải Google Analytics. Khi chủ website bật đo lường, mục này sẽ tự cập nhật trạng thái.'}</p>
+        </div>
+      </section>}
+    </div>
+
     <aside className="info-cta"><h2>Bắt đầu học cùng NT</h2><p>Chọn ngôn ngữ và mở level phù hợp với mục tiêu của bạn.</p><Link className="btn" to="/languages">Khám phá ngôn ngữ</Link></aside>
   </article>
 }
