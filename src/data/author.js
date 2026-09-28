@@ -74,7 +74,7 @@ export function personEntity(siteUrl) {
     subjectOf: {
       '@type': 'Article',
       name: 'Nguyễn Ngọc Tâm Ninh Thuận: Vì sao một chàng trai rời quê vào Sài Gòn chọn nghề Dev?',
-      url: `${siteUrl}/blog/nguyen-ngoc-tam-ninh-thuan`,
+      url: `${siteUrl}/blog#nguyen-ngoc-tam-ninh-thuan`,
     },
     sameAs: AUTHOR.sameAs,
   }
