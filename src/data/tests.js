@@ -15,5 +15,3 @@ export const placementQuestions = [
   { category: 'Reading', question: '“Demand has declined gradually.” Demand has…', options: ['risen quickly', 'stayed equal', 'fallen slowly', 'disappeared'], answer: 2 },
   { category: 'Grammar', question: 'Rarely ___ such a beautiful view.', options: ['I have seen', 'have I seen', 'I saw have', 'seen I have'], answer: 1 },
 ]
-
-export const mockQuestions = placementQuestions.slice(0, 10)
