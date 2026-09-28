@@ -9,27 +9,25 @@ export default function Layout() {
   const focusedLesson = /\/lessons\//.test(location.pathname)
 
   useEffect(() => {
-    const scroll = () => {
-      if (location.hash) {
-        const id = decodeURIComponent(location.hash.slice(1))
-        const target = document.getElementById(id)
-        if (target) {
-          target.scrollIntoView({ behavior:'smooth', block:'start' })
-          return true
-        }
-        return false
-      }
+    if (!location.hash) {
       window.scrollTo({ top:0, behavior:'auto' })
-      return true
+      return undefined
     }
 
-    if (scroll()) return undefined
-    const frame = window.requestAnimationFrame(scroll)
-    const timer = window.setTimeout(scroll,120)
-    return () => {
-      window.cancelAnimationFrame(frame)
-      window.clearTimeout(timer)
+    const id = decodeURIComponent(location.hash.slice(1))
+    let frame = 0
+    let attempts = 0
+    const scrollWhenReady = () => {
+      const target = document.getElementById(id)
+      if (target) {
+        target.scrollIntoView({ behavior:'smooth', block:'start' })
+        return
+      }
+      attempts += 1
+      if (attempts < 180) frame = window.requestAnimationFrame(scrollWhenReady)
     }
+    scrollWhenReady()
+    return () => window.cancelAnimationFrame(frame)
   }, [location.pathname, location.hash])
 
   return <div className="app-shell"><Header /><main className="page" key={location.pathname}><Outlet /></main>{!focusedLesson && <Footer />}<Toast /></div>
