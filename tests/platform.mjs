@@ -205,6 +205,27 @@ try {
   await page.getByRole('button',{ name:'Đã thêm vào kho cá nhân' }).waitFor()
   console.log('PLATFORM checkpoint: reading vocabulary lookup and personal save')
 
+  await page.goto(`${origin}/settings#profile`)
+  await page.getByLabel('Tên hiển thị').fill('NT Learner')
+  await page.getByLabel('Mục tiêu học').fill('IELTS 7.0')
+  await page.getByRole('button',{ name:'Lưu hồ sơ' }).click()
+  assert((await page.evaluate(() => JSON.parse(localStorage.getItem('nt_state_v1')).profile.displayName)) === 'NT Learner','Merged profile settings did not persist')
+
+  await page.goto(`${origin}/ielts`)
+  await page.getByLabel('Target band').selectOption('9')
+  await page.reload()
+  assert((await page.evaluate(() => JSON.parse(localStorage.getItem('nt_state_v1')).ieltsTarget)) === 9,'IELTS target 9 did not persist')
+
+  await page.goto(`${origin}/english/b1`)
+  await page.getByLabel('Hoạt động').selectOption('Vocabulary Lab')
+  assert(await page.locator('.lesson-node').count() > 0,'Expanded course activity filter returned no lessons')
+  await page.getByLabel('Hoạt động').selectOption('Listening & Speaking')
+  assert(await page.locator('.lesson-node').count() > 0,'Listening & Speaking filter returned no lessons')
+
+  await page.goto(`${origin}/english/b1/lessons/english-b1-1-1?section=listening`)
+  await page.getByRole('progressbar',{ name:'Tiến độ audio' }).waitFor()
+  console.log('PLATFORM checkpoint: merged profile, IELTS target, course filters and lesson audio')
+
   await page.goto(`${origin}/settings`)
   await page.getByLabel('Ngôn ngữ').selectOption('korean')
   await page.getByLabel('Level').selectOption('TOPIK 6')
