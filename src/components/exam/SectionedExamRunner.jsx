@@ -1,9 +1,10 @@
-import { ChevronLeft, ChevronRight, Flag, TimerReset } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Flag, TimerReset, Volume2 } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import ExamTimer from '../common/ExamTimer'
 import ProgressBar from '../common/ProgressBar'
 import QuizQuestion, { hasAnswer } from '../common/QuizQuestion'
-import AudioPlayer from '../common/AudioPlayer'
+import { useApp } from '../../context/AppContext'
+import { speak } from '../../utils/speech'
 
 export default function SectionedExamRunner({
   title,
@@ -14,6 +15,7 @@ export default function SectionedExamRunner({
   renderResult,
   onComplete,
 }) {
+  const { setToast } = useApp()
   const [started, setStarted] = useState(false)
   const [sectionIndex, setSectionIndex] = useState(0)
   const [questionIndex, setQuestionIndex] = useState(0)
@@ -23,6 +25,7 @@ export default function SectionedExamRunner({
   const [elapsed, setElapsed] = useState({})
   const [result, setResult] = useState(null)
   const [flagged, setFlagged] = useState({})
+  const [playedAudio, setPlayedAudio] = useState({})
 
   const section = sections[sectionIndex]
   const questions = section?.questions || []
@@ -38,6 +41,7 @@ export default function SectionedExamRunner({
     setQuestionIndex(0)
     setAnswers({})
     setFlagged({})
+    setPlayedAudio({})
     setElapsed({})
     setResult(null)
     setRemaining(duration)
@@ -97,6 +101,13 @@ export default function SectionedExamRunner({
   const atLastSection = sectionIndex === sections.length - 1
   const globalBefore = sections.slice(0, sectionIndex).reduce((sum, item) => sum + item.questions.length, 0)
   const globalNumber = globalBefore + questionIndex + 1
+  const audioKey = question?.audio || ''
+  const audioPlayed = Boolean(audioKey && playedAudio[audioKey])
+  const playExamAudio = () => {
+    if (!audioKey || audioPlayed) return
+    const startedPlayback = speak(audioKey,'english',1,setToast)
+    if (startedPlayback) setPlayedAudio((current) => ({ ...current,[audioKey]:true }))
+  }
 
   return <section className="full-exam-runner">
     <header className="full-exam-topbar">
@@ -146,7 +157,7 @@ export default function SectionedExamRunner({
         </div>
 
         {question.passage && <article className="exam-passage"><h3>{question.passageTitle || 'Passage'}</h3>{Array.isArray(question.passage) ? question.passage.map((p) => <p key={p}>{p}</p>) : <p>{question.passage}</p>}</article>}
-        {question.audio && <AudioPlayer text={question.audio} label="Phát audio mô phỏng"/>}
+        {question.audio && <div className="exam-audio-once"><button className="btn secondary" disabled={audioPlayed} onClick={playExamAudio}><Volume2/> {audioPlayed ? 'Audio đã phát' : 'Phát audio · 1 lần'}</button><small>Tốc độ cố định 1× · Full Test không cho replay.</small></div>}
 
         <QuizQuestion
           question={question}
