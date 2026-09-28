@@ -47,7 +47,20 @@ export default function AudioPlayer({ text, languageId = 'english', label = 'PhÃ
     setStatus('idle')
   }
 
-  useEffect(() => resetPlayback, [text])
+  useEffect(() => {
+    clearTimer()
+    if (typeof window !== 'undefined' && window.speechSynthesis) window.speechSynthesis.cancel()
+    utteranceRef.current = null
+    startedAtRef.current = 0
+    elapsedRef.current = 0
+    boundaryProgressRef.current = 0
+    setProgress(0)
+    setStatus('idle')
+    return () => {
+      clearTimer()
+      if (typeof window !== 'undefined' && window.speechSynthesis && utteranceRef.current) window.speechSynthesis.cancel()
+    }
+  }, [text])
 
   const start = () => {
     if (typeof window === 'undefined' || !('speechSynthesis' in window) || typeof window.SpeechSynthesisUtterance !== 'function') {
