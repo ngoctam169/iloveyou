@@ -31,7 +31,7 @@ export default function Lesson() {
   const location = useLocation()
   const sectionIndex = sections.findIndex(([name]) => name.toLowerCase() === new URLSearchParams(location.search).get('section')?.toLowerCase())
   const [step, setStep] = useState(() => sectionIndex >= 0 ? sectionIndex : Math.min(8, Number(savedSession?.step) || 0))
-  const [rate, setRate] = useState(state.settings.speechSpeed === 'slow' ? .75 : state.settings.speechSpeed === 'fast' ? 1.25 : 1)
+  const rate = state.settings.speechSpeed === 'slow' ? .75 : state.settings.speechSpeed === 'fast' ? 1.25 : 1
   const [answers, setAnswers] = useState(() => ({ ...blankAnswers, ...(savedSession?.answers || {}) }))
   const [checked, setChecked] = useState(() => savedSession?.checked || {})
   const [completed, setCompleted] = useState(() => Boolean(savedSession?.completed))
