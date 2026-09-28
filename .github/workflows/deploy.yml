@@ -1,0 +1,61 @@
+name: Build and Deploy GitHub Pages
+
+on:
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: github-pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Validate source data
+        run: npm run test:data
+
+      - name: Build production site
+        env:
+          VITE_SITE_URL: https://ngoctam169.github.io/iloveyou
+          VITE_BASE_PATH: /iloveyou/
+        run: npm run build
+
+      - name: Validate SEO output
+        run: npm run test:seo
+
+      - name: Validate GitHub Pages output
+        run: npm run test:deploy
+
+      - name: Validate blog content
+        run: npm run test:blog
+
+      - name: Deploy gh-pages branch
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./dist
+          publish_branch: gh-pages
+          force_orphan: true

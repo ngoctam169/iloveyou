@@ -8,13 +8,15 @@
     "build": "vite build && node scripts/prerender.mjs",
     "build:vocabulary": "node --no-warnings scripts/build-vocabulary-data.mjs",
     "build:brand": "node scripts/build-brand-assets.mjs",
-    "test": "npm run test:data && npm run build && npm run test:seo && npm run test:blog && npm run test:e2e && npm run test:platform",
+    "test": "npm run test:data && npm run build && npm run test:seo && npm run test:deploy && npm run test:blog && npm run test:e2e && npm run test:platform",
     "test:data": "node tests/data.mjs",
     "test:seo": "node tests/seo.mjs",
+    "test:deploy": "node tests/deploy.mjs",
     "test:blog": "node tests/blog.mjs",
     "test:e2e": "node tests/e2e.mjs",
     "test:platform": "node tests/platform.mjs",
     "preview": "vite preview",
+    "predeploy": "npm run build",
     "deploy": "gh-pages -d dist"
   },
   "dependencies": {
@@ -30,4 +32,3 @@
     "playwright": "^1.63.0"
   }
 }
-
