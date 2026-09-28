@@ -27,7 +27,7 @@ export default function Settings() {
     <div className="page-heading"><span className="overline">PREFERENCES</span><h1>Cài đặt</h1><p>Hồ sơ, khóa học và cách NT hỗ trợ phiên học của bạn được gom về một chỗ.</p></div>
 
     <section className="settings-section vertical" id="profile">
-      <div className="settings-title"><span><UserRound/></span><div><h2>Hồ sơ người học</h2><p>Profile riêng đã được gộp vào Settings để giảm bớt một trang không cần thiết.</p></div></div>
+      <div className="settings-title"><span><UserRound/></span><div><h2>Hồ sơ người học</h2><p>Tên và mục tiêu này được dùng trên Dashboard và các gợi ý học tập.</p></div></div>
       <div className="setting-selects">
         <label>Tên hiển thị<input value={displayName} onChange={(event)=>setDisplayName(event.target.value)} maxLength={60}/></label>
         <label>Mục tiêu học<input value={goal} onChange={(event)=>setGoal(event.target.value)} placeholder="Ví dụ: Giao tiếp, TOEIC 750, JLPT N3…"/></label>
