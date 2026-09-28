@@ -53,7 +53,8 @@ for (const level of Object.keys(expectedTopics)) {
   assert(englishLevels[level], `Missing English metadata for ${level}`)
   const roadmap = getRoadmap('english', level)
   assert(JSON.stringify(roadmap.map((unit) => unit.title)) === JSON.stringify(expectedTopics[level]), `${level} roadmap topics are incorrect`)
-  assert(roadmap.every((unit) => unit.lessons.length === 3), `${level} must have three usable lessons per unit`)
+  assert(roadmap.flatMap((unit) => unit.lessons).length === 60, `${level} must have exactly 60 usable lessons`)
+  assert(roadmap.every((unit) => unit.lessons.length >= 6), `${level} units are still too thin`)
   for (const lesson of roadmap.flatMap((unit) => unit.lessons)) {
     assert(!lessonIds.has(lesson.id), `Duplicate lesson id: ${lesson.id}`)
     lessonIds.add(lesson.id)
@@ -77,6 +78,17 @@ for (const item of allSearchItems) {
   const language = getLanguage(languageId)
   const level = findLevel(language, slug)?.[0]
   assert(route === 'lessons' && level && getLesson(languageId, level, lessonId), `Broken search path: ${item.path}`)
+}
+
+for (const language of ['chinese','japanese','korean']) {
+  const languageMeta = getLanguage(language)
+  for (const [level] of languageMeta.levels) {
+    const roadmap = getRoadmap(language,level)
+    const lessons = roadmap.flatMap((unit) => unit.lessons)
+    assert(lessons.length === 60, `${language} ${level} must have exactly 60 lessons`)
+    assert(new Set(lessons.map((lesson) => lesson.id)).size === 60, `${language} ${level} contains duplicate lesson ids`)
+    assert(lessons.every((lesson) => lesson.vocab?.length >= 3 && lesson.listening?.audio && lesson.reading?.text && lesson.writing && lesson.quiz), `${language} ${level} has incomplete expanded lessons`)
+  }
 }
 
 const independent = { levelProgress: { [progressKey('english', 'B2')]: { completedLessons: ['english-b2-1-1'] } } }

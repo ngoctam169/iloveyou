@@ -2,7 +2,7 @@ export const englishLevels = {
   A1: {
     name: 'Beginner',
     description: 'Xây nền tảng với câu ngắn, từ vựng quen thuộc và các tình huống hằng ngày.',
-    estimatedHours: 18,
+    estimatedHours: 28,
     topics: ['Greetings', 'Introductions', 'Numbers', 'Family', 'Food', 'Daily Routine', 'Shopping', 'Directions'],
     grammar: [
       ['The verb “to be”', 'Subject + am / is / are', 'Dùng “to be” để giới thiệu, mô tả người hoặc trạng thái.', ['I am a student.', 'She is happy.'], 'Không dùng “I is”; chủ ngữ I luôn đi với am.'],
@@ -37,7 +37,7 @@ export const englishLevels = {
   A2: {
     name: 'Elementary',
     description: 'Giao tiếp trong chuyến đi, công việc và các trải nghiệm quen thuộc.',
-    estimatedHours: 24,
+    estimatedHours: 32,
     topics: ['Travel', 'Past Experiences', 'Health', 'Work', 'Plans', 'Comparisons', 'Social Situations'],
     grammar: [
       ['Past Simple', 'Subject + verb-ed / past form', 'Dùng cho hành động đã kết thúc trong quá khứ.', ['We visited Hue last year.', 'She went home early.'], 'Không dùng dạng quá khứ sau did.'],
@@ -107,7 +107,7 @@ export const englishLevels = {
   B2: {
     name: 'Upper Intermediate',
     description: 'Tranh luận, giải quyết vấn đề và giao tiếp chuyên nghiệp với độ chính xác cao.',
-    estimatedHours: 36,
+    estimatedHours: 34,
     topics: ['Advanced Conversation', 'Debate', 'Business English', 'Media', 'Culture', 'Science', 'Problem Solving'],
     grammar: [
       ['Advanced conditionals', 'If + past perfect, would have + participle', 'Câu điều kiện hỗn hợp và loại ba diễn tả tình huống trái với thực tế.', ['If we had left earlier, we would have arrived on time.', 'If I were more organised, I would have finished.'], 'Giữ mốc thời gian nhất quán giữa hai mệnh đề.'],
@@ -142,7 +142,7 @@ export const englishLevels = {
   C1: {
     name: 'Advanced',
     description: 'Sử dụng tiếng Anh linh hoạt cho học thuật, thuyết trình và công việc chuyên sâu.',
-    estimatedHours: 42,
+    estimatedHours: 36,
     topics: ['Academic English', 'Professional Communication', 'Complex Grammar', 'Argumentation', 'Presentations', 'Advanced Writing'],
     grammar: [
       ['Nuanced modality', 'modal / semi-modal + perfect or progressive form', 'Điều chỉnh mức độ chắc chắn và thái độ của người viết.', ['The results may well have been overstated.', 'The policy is bound to affect demand.'], 'Chọn modal phù hợp với mức độ chắc chắn thực tế.'],
@@ -177,7 +177,7 @@ export const englishLevels = {
   C2: {
     name: 'Proficient',
     description: 'Làm chủ sắc thái, hàm ý và lập luận tinh tế gần mức người dùng thành thạo.',
-    estimatedHours: 48,
+    estimatedHours: 38,
     topics: ['Native-level Expressions', 'Advanced Nuance', 'Academic Analysis', 'Professional Writing', 'Debate', 'Literature', 'Complex Listening'],
     grammar: [
       ['Pragmatic emphasis', 'fronting / inversion / ellipsis by context', 'Điều chỉnh trọng tâm theo ngữ cảnh và mục đích tu từ.', ['What the account omits is equally revealing.', 'So compelling was the evidence that dissent faded.'], 'Nhấn mạnh chỉ hiệu quả khi phù hợp văn cảnh.'],

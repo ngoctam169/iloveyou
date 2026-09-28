@@ -54,7 +54,7 @@ try {
   await page.locator('.level-card', { hasText: 'B2' }).first().click()
   await page.waitForURL('**/english/b2')
   await page.getByText('Business English', { exact: true }).waitFor()
-  assert(await page.locator('.lesson-node').count() === 21, 'B2 roadmap should contain 21 accessible lessons')
+  assert(await page.locator('.lesson-node').count() === 60, 'B2 roadmap should contain 60 accessible lessons')
   await page.locator('.lesson-node').first().click()
   await page.waitForURL('**/english/b2/lessons/**')
   await page.locator('.vocab-card button[aria-label^="Lưu"]').first().click()
