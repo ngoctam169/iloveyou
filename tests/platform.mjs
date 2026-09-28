@@ -106,7 +106,12 @@ try {
   console.log('PLATFORM checkpoint: footer hash link scrolls to blog story')
 
   await page.setViewportSize({ width:1440,height:900 })
+  await page.goto(`${origin}/`)
+  const publicLearnBox = await page.getByRole('button',{ name:'Học', exact:true }).boundingBox()
   await page.goto(`${origin}/dashboard`)
+  const appLearnBox = await page.getByRole('button',{ name:'Học', exact:true }).boundingBox()
+  assert(publicLearnBox && appLearnBox && Math.abs(publicLearnBox.x-appLearnBox.x) < 1,'Header Học position shifted between public and app routes')
+  assert(publicLearnBox && appLearnBox && Math.abs(publicLearnBox.width-appLearnBox.width) < 1,'Header Học width changed between routes')
   await page.getByRole('button',{ name:'Học', exact:true }).click()
   await page.getByRole('menuitem',{ name:'My Vocabulary' }).waitFor()
   await page.getByRole('button',{ name:'Học', exact:true }).click()
