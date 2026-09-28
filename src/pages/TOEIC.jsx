@@ -1,79 +1,149 @@
-import { BarChart3, Bookmark, BookOpen, CheckCircle2, ChevronLeft, ChevronRight, Clock3, Headphones, History, Target } from 'lucide-react'
+import { BarChart3, BookOpen, CheckCircle2, ChevronLeft, ChevronRight, Clock3, Headphones, History, RotateCcw, Target } from 'lucide-react'
 import { useMemo, useState } from 'react'
-import AudioPlayer from '../components/common/AudioPlayer'
-import ExamTimer from '../components/common/ExamTimer'
+import SectionedExamRunner from '../components/exam/SectionedExamRunner'
 import ProgressBar from '../components/common/ProgressBar'
-import QuestionNavigator from '../components/common/QuestionNavigator'
 import QuizQuestion from '../components/common/QuizQuestion'
 import StatisticsCard from '../components/common/StatisticsCard'
+import AudioPlayer from '../components/common/AudioPlayer'
 import { useApp } from '../context/AppContext'
-import { toeicListeningQuestions, toeicMiniTest, toeicReading, toeicParts } from '../data/toeic'
+import { toeicListeningQuestions, toeicReading } from '../data/toeic'
+import { buildToeicFullResult, toeicFullSections, toeicFullStats } from '../data/exams/toeicFull'
 
-const estimatedScore = (correct, total) => Math.max(10, Math.min(990, Math.round((correct / total * 980 + 10) / 5) * 5))
+const tabs = ['Overview','Full Test','Listening Practice','Reading Practice','History']
 
 export default function TOEIC() {
   const { state, update } = useApp()
   const [tab, setTab] = useState('Overview')
   const latest = state.toeicHistory?.[0]
-  const listening = latest?.listeningScore || 0
-  const reading = latest?.readingScore || 0
   return <div className="inner-page section-shell learning-hub exam-hub">
-    <div className="hub-hero exam-hero"><div><span className="overline">TOEIC PREPARATION</span><h1>Xây chiến lược, luyện đúng điểm yếu</h1><p>Listening Part 1–4 · Reading Part 5–7 · Mini test có timer và lịch sử kết quả</p></div><label className="target-picker"><span>Target score</span><select value={state.toeicTarget} onChange={(event) => update({ toeicTarget:Number(event.target.value) })}>{[450,550,650,750,850,900].map((score) => <option key={score}>{score}</option>)}</select></label></div>
-    <div className="hub-tabs" role="tablist">{toeicParts.map((item) => <button role="tab" aria-selected={tab === item} className={tab === item ? 'active' : ''} key={item} onClick={() => setTab(item)}>{item}</button>)}</div>
-    {tab === 'Overview' && <><div className="metric-grid exam-metrics"><StatisticsCard icon={Target} value={latest?.score || '—'} label="Current score"/><StatisticsCard icon={Target} value={`${state.toeicTarget}+`} label="Target score"/><StatisticsCard icon={Headphones} value={listening || '—'} label="Listening"/><StatisticsCard icon={BookOpen} value={reading || '—'} label="Reading"/><StatisticsCard icon={Clock3} value={latest ? `${Math.ceil(latest.timeUsed / 60)}m` : '0m'} label="Study time"/><StatisticsCard icon={BarChart3} value={latest ? `${latest.accuracy}%` : '—'} label="Accuracy"/></div><div className="exam-overview-grid"><section className="panel"><div className="panel-title"><div><h2>Practice by part</h2><p>Mở tự do, không có prerequisite.</p></div></div><div className="part-list">{[['Listening','Part 1–4','10 câu · audio & transcript',Headphones],['Reading','Part 5–7','15 câu · giải thích chi tiết',BookOpen],['Mini Test','Listening + Reading','20 câu · 20 phút',Clock3]].map(([name,parts,detail,Icon]) => <button key={name} onClick={() => setTab(name)}><span><Icon/></span><div><strong>{name}</strong><small>{parts} · {detail}</small></div><ChevronRight/></button>)}</div></section><section className="panel weak-skills"><h2>Weak skills</h2>{latest?.weakTopics?.length ? latest.weakTopics.map((skill) => <div key={skill}><span>{skill}</span><ProgressBar value={45}/></div>) : <div className="empty-compact"><span>◎</span><p>Hoàn thành mini test để xác định kỹ năng cần cải thiện.</p></div>}</section></div></>}
-    {tab === 'Listening' && <TOEICPractice questions={toeicListeningQuestions} kind="toeic-listening"/>}
-    {tab === 'Reading' && <TOEICPractice questions={toeicReading} kind="toeic-reading"/>}
-    {tab === 'Mini Test' && <TOEICMiniTest onExit={() => setTab('History')}/>} 
-    {tab === 'History' && <ExamHistory history={state.toeicHistory || []}/>} 
+    <div className="hub-hero exam-hero">
+      <div>
+        <span className="overline">TOEIC LISTENING &amp; READING</span>
+        <h1>Thi thử TOEIC như một ca thi thật</h1>
+        <p>200 câu · Listening 45 phút · Reading 75 phút · chấm điểm ước tính trên thang 10–990.</p>
+      </div>
+      <label className="target-picker"><span>Target score</span><select value={state.toeicTarget} onChange={(event) => update({ toeicTarget:Number(event.target.value) })}>{[450,550,650,750,850,900].map((score) => <option key={score}>{score}</option>)}</select></label>
+    </div>
+
+    <div className="hub-tabs" role="tablist">{tabs.map((item) => <button role="tab" aria-selected={tab === item} className={tab === item ? 'active' : ''} key={item} onClick={() => setTab(item)}>{item}</button>)}</div>
+
+    {tab === 'Overview' && <TOEICOverview state={state} latest={latest} onOpen={setTab}/>}
+    {tab === 'Full Test' && <TOEICFullTest onHistory={() => setTab('History')}/>}
+    {tab === 'Listening Practice' && <TOEICPractice questions={toeicListeningQuestions} label="Listening Practice"/>}
+    {tab === 'Reading Practice' && <TOEICPractice questions={toeicReading} label="Reading Practice"/>}
+    {tab === 'History' && <ExamHistory history={state.toeicHistory || []}/>}
   </div>
 }
 
-function TOEICPractice({ questions, kind }) {
-  const { state, toggleSaved, addMistake } = useApp()
+function TOEICOverview({ state, latest, onOpen }) {
+  const listening = latest?.listeningScore || 0
+  const reading = latest?.readingScore || 0
+  return <>
+    <div className="metric-grid exam-metrics">
+      <StatisticsCard icon={Target} value={latest?.score || '—'} label="Latest estimated score"/>
+      <StatisticsCard icon={Target} value={`${state.toeicTarget}+`} label="Target score"/>
+      <StatisticsCard icon={Headphones} value={listening || '—'} label="Listening"/>
+      <StatisticsCard icon={BookOpen} value={reading || '—'} label="Reading"/>
+      <StatisticsCard icon={Clock3} value={latest ? `${Math.ceil(latest.timeUsed / 60)}m` : '—'} label="Time used"/>
+      <StatisticsCard icon={BarChart3} value={latest ? `${latest.accuracy}%` : '—'} label="Accuracy"/>
+    </div>
+
+    <section className="exam-primary-cta">
+      <div>
+        <span className="overline">FULL TEST</span>
+        <h2>200 câu · 120 phút</h2>
+        <p>Part 1–4 Listening: {toeicFullStats.listening} câu. Part 5–7 Reading: {toeicFullStats.reading} câu. Không hiện đáp án trong lúc thi, hết giờ tự chuyển phần/tự nộp.</p>
+      </div>
+      <button className="btn large" onClick={() => onOpen('Full Test')}>Bắt đầu Full Test <ChevronRight/></button>
+    </section>
+
+    <div className="exam-format-grid">
+      {[
+        ['Listening','45 phút','100 câu','Part 1: 6 · Part 2: 25 · Part 3: 39 · Part 4: 30',Headphones],
+        ['Reading','75 phút','100 câu','Part 5: 30 · Part 6: 16 · Part 7: 54',BookOpen],
+      ].map(([title,time,count,detail,Icon]) => <article key={title}><span><Icon/></span><div><h3>{title}</h3><strong>{count} · {time}</strong><p>{detail}</p></div></article>)}
+    </div>
+
+    <section className="panel exam-note">
+      <h2>Cách tính điểm</h2>
+      <p>Ứng dụng hiển thị điểm TOEIC ước tính theo thang 5–495 cho từng kỹ năng và 10–990 tổng. ETS sử dụng quy trình quy đổi/equating theo từng form thi, nên đây là điểm mô phỏng chứ không phải score report chính thức.</p>
+    </section>
+  </>
+}
+
+function TOEICFullTest({ onHistory }) {
+  const { saveExamResult } = useApp()
+  return <SectionedExamRunner
+    title="TOEIC Listening & Reading Full Test"
+    subtitle="Bộ đề mô phỏng tự viết theo cấu trúc TOEIC L&R: 200 câu, hai phần thi có timer riêng."
+    sections={toeicFullSections}
+    startNotes={[
+      'Listening: 100 câu trong 45 phút; khi chuyển sang Reading sẽ không quay lại Listening.',
+      'Reading: 100 câu trong 75 phút.',
+      'Không hiện đáp án khi đang thi; câu chưa trả lời được tính là bỏ trống.',
+    ]}
+    buildResult={buildToeicFullResult}
+    onComplete={(report) => saveExamResult('toeic',report)}
+    renderResult={({ result,restart }) => <section className="practice-result exam-result full-score-report">
+      <span>🏅</span>
+      <h2>Estimated TOEIC Score</h2>
+      <strong>{result.score}</strong>
+      <p className="score-scale">thang 10–990</p>
+      <div className="result-breakdown">
+        <div><b>{result.listeningScore}</b><span>Listening / 495</span><small>{result.listeningCorrect}/100 đúng</small></div>
+        <div><b>{result.readingScore}</b><span>Reading / 495</span><small>{result.readingCorrect}/100 đúng</small></div>
+        <div><b>{result.accuracy}%</b><span>Accuracy</span><small>{result.correct}/200 đúng</small></div>
+        <div><b>{result.unanswered}</b><span>Unanswered</span><small>câu bỏ trống</small></div>
+        <div><b>{Math.ceil(result.timeUsed/60)}m</b><span>Time used</span><small>tổng thời gian</small></div>
+        <div><b>{result.wrong}</b><span>Wrong</span><small>câu trả lời sai</small></div>
+      </div>
+      <p><strong>Cần ưu tiên:</strong> {result.weakTopics.join(', ') || 'Không có section nào dưới 70% raw score'}.</p>
+      <div className="center-actions">
+        <button className="btn secondary" onClick={restart}><RotateCcw/> Thi lại</button>
+        <button className="btn" onClick={onHistory}>Xem lịch sử</button>
+      </div>
+      <small className="exam-disclaimer">Estimated practice score; không phải chứng chỉ hay score report do ETS cấp.</small>
+    </section>}
+  />
+}
+
+function TOEICPractice({ questions, label }) {
   const [part, setPart] = useState('All parts')
-  const [status, setStatus] = useState('All')
   const [index, setIndex] = useState(0)
   const [answers, setAnswers] = useState({})
   const [checked, setChecked] = useState({})
-  const [showTranscript, setShowTranscript] = useState(false)
+  const [done, setDone] = useState(false)
   const parts = ['All parts', ...new Set(questions.map((item) => `Part ${item.part}`))]
-  const filtered = useMemo(() => questions.filter((item) => (part === 'All parts' || `Part ${item.part}` === part) && (status === 'All' || state.savedItems.some((saved) => saved.id === `${kind}-${item.id}`))), [questions, part, status, state.savedItems, kind])
-  const q = filtered[index % Math.max(1, filtered.length)]
-  if (!q) return <div className="empty-inline"><span>☆</span><h2>Chưa có câu được bookmark</h2><button className="btn secondary" onClick={() => setStatus('All')}>Xem tất cả</button></div>
+  const filtered = useMemo(() => questions.filter((item) => part === 'All parts' || `Part ${item.part}` === part), [questions, part])
+  const correct = filtered.filter((item) => answers[item.id] === item.answer).length
+
+  if (done) return <section className="practice-result exam-result">
+    <CheckCircle2/>
+    <h2>{label} hoàn thành</h2>
+    <strong>{correct}/{filtered.length}</strong>
+    <p>{Math.round(correct / Math.max(1,filtered.length) * 100)}% chính xác. Không còn vòng lặp về câu 1 sau câu cuối.</p>
+    <button className="btn" onClick={() => { setIndex(0); setAnswers({}); setChecked({}); setDone(false) }}><RotateCcw/> Luyện lại</button>
+  </section>
+
+  const q = filtered[index]
   const selected = answers[q.id]
   const isChecked = checked[q.id]
-  const item = { id:`${kind}-${q.id}`, type:kind.includes('listening') ? 'TOEIC Listening' : 'TOEIC Reading', title:q.question, subtitle:`Part ${q.part} · ${q.type}`, path:'/toeic' }
-  const saved = state.savedItems.some((entry) => entry.id === item.id)
-  const check = () => { setChecked({ ...checked, [q.id]:true }); if (selected !== q.answer) addMistake({ id:`mistake-${kind}-${q.id}`, type:'TOEIC', prompt:q.question, yourAnswer:q.options[selected] || 'Chưa trả lời', answer:q.options[q.answer], explanation:q.explanation, topic:`Part ${q.part}`, path:'/toeic' }) }
-  const move = (next) => { setIndex((current) => (current + next + filtered.length) % filtered.length); setShowTranscript(false) }
-  return <section className="exam-practice"><div className="filter-bar mini"><label><span>Part</span><select value={part} onChange={(event) => { setPart(event.target.value); setIndex(0) }}>{parts.map((item) => <option key={item}>{item}</option>)}</select></label><label><span>Trạng thái</span><select value={status} onChange={(event) => { setStatus(event.target.value); setIndex(0) }}><option>All</option><option>Bookmarked</option></select></label><span className="filter-result">{filtered.length} câu luyện tập</span></div><div className="practice-head"><div><span>Part {q.part} · {q.type}</span><strong>Câu {index % filtered.length + 1}/{filtered.length}</strong></div><button className={`icon-btn ${saved ? 'saved' : ''}`} aria-label="Lưu câu hỏi" onClick={() => toggleSaved(item)}><Bookmark fill={saved ? 'currentColor' : 'none'}/></button></div>{q.audio && <AudioPlayer text={q.audio} label="Phát câu hỏi"/>}<QuizQuestion question={q} value={selected} onChange={(value) => setAnswers({ ...answers, [q.id]:value })} checked={isChecked}/>{isChecked && q.transcript && <div className="transcript-panel"><button className="btn ghost small" onClick={() => setShowTranscript(!showTranscript)}>{showTranscript ? 'Ẩn transcript' : 'Hiện transcript'}</button>{showTranscript && <><p><strong>Transcript:</strong> {q.transcript}</p><p><strong>Dịch:</strong> {q.translation}</p><div className="vocab-chips">{q.vocabulary.map((word) => <span key={word}>{word}</span>)}</div></>}</div>}{isChecked && q.grammarPoint && <div className="answer-analysis"><div><strong>Grammar point</strong><p>{q.grammarPoint}</p></div><div><strong>Vocabulary</strong><p>{q.vocabulary.join(' · ')}</p></div><div><strong>Why other answers are wrong</strong><p>{q.whyWrong}</p></div></div>}<div className="practice-actions spread"><button className="btn ghost" onClick={() => move(-1)}><ChevronLeft/> Previous</button>{!isChecked ? <button className="btn" disabled={selected === undefined} onClick={check}>Kiểm tra đáp án</button> : <button className="btn" onClick={() => move(1)}>Next <ChevronRight/></button>}</div></section>
-}
-
-function TOEICMiniTest({ onExit }) {
-  const { addMistake, saveExamResult } = useApp()
-  const [started, setStarted] = useState(false)
-  const [index, setIndex] = useState(0)
-  const [answers, setAnswers] = useState({})
-  const [seconds, setSeconds] = useState(20 * 60)
-  const [result, setResult] = useState(null)
-  const submit = () => {
-    if (result) return
-    const listeningItems = toeicMiniTest.filter((item) => item.section === 'Listening')
-    const readingItems = toeicMiniTest.filter((item) => item.section === 'Reading')
-    const listenCorrect = listeningItems.filter((item) => answers[toeicMiniTest.indexOf(item)] === item.answer).length
-    const readCorrect = readingItems.filter((item) => answers[toeicMiniTest.indexOf(item)] === item.answer).length
-    const correct = listenCorrect + readCorrect
-    const report = { score:estimatedScore(correct,toeicMiniTest.length), listeningScore:Math.round(listenCorrect/listeningItems.length*495/5)*5, readingScore:Math.round(readCorrect/readingItems.length*495/5)*5, accuracy:Math.round(correct/toeicMiniTest.length*100), correct, wrong:toeicMiniTest.length-correct, timeUsed:20*60-seconds, weakTopics:[listenCorrect < listeningItems.length*.7 ? 'Listening details' : null, readCorrect < readingItems.length*.7 ? 'Reading grammar' : null].filter(Boolean) }
-    toeicMiniTest.forEach((item,itemIndex) => { if (answers[itemIndex] !== item.answer) addMistake({ id:`toeic-mini-${item.id}`, type:'TOEIC', prompt:item.question, yourAnswer:item.options[answers[itemIndex]] || 'Chưa trả lời', answer:item.options[item.answer], explanation:item.explanation, topic:`${item.section} · Part ${item.part}`, path:'/toeic' }) })
-    saveExamResult('toeic',report); setResult(report)
-  }
-  if (!started) return <section className="exam-start"><span className="exam-start-icon">🎧</span><h2>TOEIC Mini Test</h2><p>20 câu · Listening và Reading · 20 phút. Đáp án và giải thích chỉ hiển thị sau khi nộp bài.</p><ul><li>10 câu Listening Part 1–4</li><li>10 câu Reading Part 5–7</li><li>Tự động lưu điểm và lỗi sai</li></ul><button className="btn large" onClick={() => setStarted(true)}>Bắt đầu thi</button></section>
-  if (result) return <section className="practice-result exam-result"><span>🏅</span><h2>Estimated TOEIC Score</h2><strong>{result.score}</strong><div className="result-breakdown"><div><b>{result.listeningScore}</b><span>Listening</span></div><div><b>{result.readingScore}</b><span>Reading</span></div><div><b>{result.accuracy}%</b><span>Accuracy</span></div><div><b>{Math.ceil(result.timeUsed/60)}m</b><span>Time used</span></div><div><b>{result.correct}</b><span>Correct</span></div><div><b>{result.wrong}</b><span>Wrong</span></div></div><p><strong>Weak topics:</strong> {result.weakTopics.join(', ') || 'Không có điểm yếu nổi bật'}.</p><p>Khuyến nghị: ôn lại các câu sai trong Mistake Notebook rồi thử lại sau 2–3 ngày.</p><button className="btn" onClick={onExit}>Xem lịch sử</button></section>
-  const q = toeicMiniTest[index]
-  return <div className="timed-test"><div className="timed-test-head"><div><span>{q.section}</span><strong>TOEIC Mini Test</strong></div><ExamTimer seconds={seconds} onChange={setSeconds} onEnd={submit}/></div><div className="mock-layout"><QuestionNavigator count={toeicMiniTest.length} index={index} answers={answers} onSelect={setIndex}/><main className="question-card">{q.audio && <AudioPlayer text={q.audio} label="Play once more"/>}<QuizQuestion question={q} value={answers[index]} onChange={(value) => setAnswers({ ...answers, [index]:value })} checked={false} reveal={false}/><div className="mock-actions"><button className="btn secondary" disabled={index===0} onClick={() => setIndex(index-1)}>Previous</button>{index < toeicMiniTest.length-1 ? <button className="btn" onClick={() => setIndex(index+1)}>Next <ChevronRight/></button> : <button className="btn" onClick={submit}>Nộp bài</button>}</div></main></div></div>
+  const isLast = index === filtered.length - 1
+  return <section className="exam-practice">
+    <div className="filter-bar mini"><label><span>Part</span><select value={part} onChange={(event) => { setPart(event.target.value); setIndex(0); setAnswers({}); setChecked({}); setDone(false) }}>{parts.map((item) => <option key={item}>{item}</option>)}</select></label><span className="filter-result">{filtered.length} câu luyện tập</span></div>
+    <div className="practice-head"><div><span>Part {q.part} · {q.type}</span><strong>Câu {index + 1}/{filtered.length}</strong></div><ProgressBar value={index + Number(Boolean(isChecked))} max={filtered.length}/></div>
+    {q.audio && <AudioPlayer text={q.audio} label="Phát audio"/>}
+    <QuizQuestion question={q} value={selected} onChange={(value) => setAnswers((current) => ({ ...current,[q.id]:value }))} checked={isChecked}/>
+    <div className="practice-actions spread">
+      <button className="btn ghost" disabled={index===0} onClick={() => setIndex((value) => Math.max(0,value-1))}><ChevronLeft/> Previous</button>
+      {!isChecked && <button className="btn" disabled={selected === undefined} onClick={() => setChecked((current) => ({ ...current,[q.id]:true }))}>Kiểm tra</button>}
+      {isChecked && !isLast && <button className="btn" onClick={() => setIndex((value) => value + 1)}>Next <ChevronRight/></button>}
+      {isChecked && isLast && <button className="btn" onClick={() => setDone(true)}>Xem kết quả</button>}
+    </div>
+  </section>
 }
 
 function ExamHistory({ history }) {
-  if (!history.length) return <div className="empty-inline"><History/><h2>Chưa có lịch sử thi</h2><p>Hoàn thành TOEIC Mini Test để theo dõi sự tiến bộ.</p></div>
-  return <section className="history-list"><div className="panel-title"><div><h2>Mock test history</h2><p>{history.length} lần gần nhất được lưu trên thiết bị.</p></div></div>{history.map((item) => <article key={item.id}><div><strong>{item.score}</strong><span>Estimated score</span></div><div><b>{item.listeningScore}</b><span>Listening</span></div><div><b>{item.readingScore}</b><span>Reading</span></div><div><b>{item.accuracy}%</b><span>Accuracy</span></div><time>{new Intl.DateTimeFormat('vi-VN',{dateStyle:'medium'}).format(new Date(item.date))}</time></article>)}</section>
+  if (!history.length) return <div className="empty-inline"><History/><h2>Chưa có lịch sử TOEIC</h2><p>Hoàn thành Full Test để lưu kết quả.</p></div>
+  return <section className="history-list"><div className="panel-title"><div><h2>TOEIC test history</h2><p>{history.length} lần gần nhất được lưu trên thiết bị.</p></div></div>{history.map((item) => <article key={item.id}><div><strong>{item.score}</strong><span>Estimated score</span></div><div><b>{item.listeningScore}</b><span>Listening</span></div><div><b>{item.readingScore}</b><span>Reading</span></div><div><b>{item.accuracy}%</b><span>Accuracy</span></div><time>{new Intl.DateTimeFormat('vi-VN',{dateStyle:'medium'}).format(new Date(item.date))}</time></article>)}</section>
 }
