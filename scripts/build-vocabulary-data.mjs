@@ -184,31 +184,26 @@ async function buildEnglish(db) {
     JOIN definitions d ON d.id = wd.definition_id
     WHERE w.word = ? COLLATE NOCASE AND d.definition_lang = 'vi'
   `)
-  const byLevel = Object.fromEntries(levels.map((level) => [level, []]))
+  const candidates = []
+  const seen = new Set()
 
   for (const row of profiles) {
     const [headword, profilePos, level, ...tags] = row
     const word = clean(headword)
-    if (!levels.includes(level) || !/^[A-Za-z][A-Za-z' -]{0,40}$/.test(word)) continue
-    if (byLevel[level].some((item) => item.word.toLowerCase() === word.toLowerCase())) continue
+    const key = `${level}:${word.toLowerCase()}`
+    if (!levels.includes(level) || !/^[A-Za-z][A-Za-z' -]{0,40}$/.test(word) || seen.has(key)) continue
+    seen.add(key)
     const dictionary = chooseDictionaryRow(lookup.all(word), profilePos)
-    if (!dictionary?.definition) continue
     const sample = !word.includes(' ') ? examples.get(word.toLowerCase()) : null
-    byLevel[level].push({
-      languageId:'english', officialLevel:level, word, ipa:dictionary.ipa || '', partOfSpeech:normalizePos(profilePos || dictionary.pos),
-      meaningVi:dictionary.definition, definition:'', example:sample?.example || dictionary.example || '', translation:sample?.translation || '',
-      topic:inferTopic(tags.join(' '), dictionary.definition), exam:'CEFR',
+    candidates.push({
+      languageId:'english', officialLevel:level, word, ipa:dictionary?.ipa || '', partOfSpeech:normalizePos(profilePos || dictionary?.pos),
+      meaningVi:dictionary?.definition || `[EN] ${word}`, definition:'', example:sample?.example || dictionary?.example || '', translation:sample?.translation || '',
+      topic:inferTopic(tags.join(' '), dictionary?.definition), exam:'CEFR',
       source:level === 'C1' || level === 'C2' ? 'Octanove Vocabulary Profile + EN–VI dictionary' : 'CEFR-J Vocabulary Profile + EN–VI dictionary',
     })
   }
 
-  const result = {}
-  for (const level of levels) {
-    const selected = byLevel[level].sort((a,b) => a.word.localeCompare(b.word,'en')).slice(0,TARGET_PER_LEVEL)
-    if (selected.length < TARGET_PER_LEVEL) throw new Error(`English ${level}: expected ${TARGET_PER_LEVEL}, got ${selected.length}`)
-    result[level] = selected.map((word,index) => baseWord('english',level,index,word))
-  }
-  return result
+  return allocateBands(candidates, levels, levels)
 }
 
 async function loadCvdict() {
@@ -236,11 +231,13 @@ async function buildChinese() {
     for (const row of rows) {
       const translation = dictionary.get(row.s)
       const form = row.f?.[0]
-      if (!row.s || !translation?.meanings?.[0]) continue
+      if (!row.s) continue
+      const sourceGloss = form?.m?.join('; ') || ''
+      const viMeaning = translation?.meanings?.[0] || `[EN] ${compact(sourceGloss || row.s)}`
       candidates.push({
-        languageId:'chinese', officialLevel:`HSK ${number}`, word:row.s, ipa:form?.i?.y || translation.pinyin || '',
-        partOfSpeech:normalizePos(row.p?.[0]), meaningVi:translation.meanings[0], definition:form?.m?.join('; ') || '',
-        example:'', translation:'', topic:inferTopic(form?.m?.join(' '), translation.meanings.join(' ')), exam:'HSK',
+        languageId:'chinese', officialLevel:`HSK ${number}`, word:row.s, ipa:form?.i?.y || translation?.pinyin || '',
+        partOfSpeech:normalizePos(row.p?.[0]), meaningVi:viMeaning, definition:sourceGloss,
+        example:'', translation:'', topic:inferTopic(sourceGloss, translation?.meanings?.join(' ') || ''), exam:'HSK',
         collocations:form?.c || [], source:'HSK 3.0 vocabulary + CVDICT',
       })
     }
