@@ -111,7 +111,7 @@ export default function Header() {
       <nav className="desktop-nav" aria-label="Điều hướng chính" ref={navRef}>
         {desktopItems.map((item) => item.to
           ? <NavLink key={item.to} to={item.to}>{item.label}</NavLink>
-          : <div className={`nav-group ${item.items.some(([to]) => pathActive(location.pathname,to)) ? 'active' : ''}`} key={item.label}>
+          : <div className={`nav-group ${item.items.some(([to]) => pathActive(location.pathname,to)) ? 'active' : ''} ${openGroup === item.label ? 'open' : ''}`} key={item.label}>
               <button className="nav-group-button" type="button" aria-expanded={openGroup === item.label} onClick={() => setOpenGroup(openGroup === item.label ? null : item.label)}>
                 {item.label}<ChevronDown/>
               </button>
