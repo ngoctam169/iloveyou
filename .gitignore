@@ -4,3 +4,6 @@ dist
 .env.local
 .DS_Store
 *.log
+
+# Generated from open vocabulary sources before dev/build
+src/data/vocabulary/generated/*.json
