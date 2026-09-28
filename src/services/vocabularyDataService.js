@@ -51,7 +51,7 @@ export function mergeVocabularySources(state, remoteWords = [], languageId = nul
   for (const word of vocabularyCatalog.filter(inScope)) {
     const key = semanticKey(word)
     const remote = merged.get(key)
-    merged.set(key, remote ? { ...remote, ...word, id:remote.id } : word)
+    merged.set(key, remote ? { ...remote, ...word } : word)
   }
   for (const word of (state?.personalVocabulary || []).filter(inScope)) merged.set(semanticKey(word), word)
 
