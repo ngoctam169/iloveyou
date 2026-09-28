@@ -31,3 +31,7 @@
 
 @media(max-width:900px){.full-exam-layout{grid-template-columns:1fr}.full-question-nav{position:static;max-height:none}.full-exam-footer-status{margin-left:0}.question-nav.dense{grid-template-columns:repeat(10,1fr)}}
 @media(max-width:760px){.exam-primary-cta{align-items:flex-start;flex-direction:column}.exam-format-grid{grid-template-columns:1fr}.full-exam-topbar{top:66px;align-items:flex-start;flex-direction:column}.full-exam-clock{width:100%;justify-content:space-between}.question-nav.dense{grid-template-columns:repeat(5,1fr)}.full-exam-question{padding:22px}.full-exam-actions{flex-wrap:wrap}.full-exam-actions .btn{flex:1;min-width:130px}.writing-exam-task{padding:20px}.writing-exam-task>header{align-items:flex-start;flex-direction:column}}
+
+.exam-audio-once{display:flex;align-items:center;gap:12px;padding:14px 16px;margin:0 0 18px;border:1px solid var(--line);border-radius:13px;background:var(--surface-2)}
+.exam-audio-once .btn{flex:0 0 auto}.exam-audio-once small{color:var(--muted);font-size:.64rem;line-height:1.5}
+@media(max-width:560px){.exam-audio-once{align-items:flex-start;flex-direction:column}}
