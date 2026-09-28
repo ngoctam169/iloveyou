@@ -24,6 +24,12 @@ The generated vocabulary files in this directory combine open lexical sources. T
 
 - [NIKL TOPIK Vocabulary derived data](https://topikvocab.foldalpha.com/download/), provided under the Korea Open Government License Type 1. The generated data uses the Vietnamese export.
 
+## Learning-band size
+
+The production vocabulary builder targets roughly **1,000 entries per app level** so every level has a substantial practice pool. Source-listed words are used first. When a source level contains fewer than the target (for example beginner HSK/JLPT bands), the remaining slots are filled from a broader sourced vocabulary pool and marked with a `levelBasis` value such as `estimated app extension`.
+
+For Korean, the NIKL dataset contains 5,965 entries in three teaching grades (A/B/C), not six official TOPIK vocabulary levels. The app therefore partitions those three sourced grades into six study bands of roughly 1,000 words while retaining the original grade in `sourceLevel`.
+
 ## Scope note
 
 Level labels support study and filtering inside this application. They do not constitute official exam certification or an official vocabulary prescription by CEFR, HSK, JLPT, TOPIK, or their governing organizations.
