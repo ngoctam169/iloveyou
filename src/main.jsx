@@ -12,15 +12,18 @@ import './styles/bookmarks.css'
 import './styles/platform.css'
 import './styles/personal-vocabulary.css'
 import './styles/seo.css'
+import './styles/blog.css'
+
+const routerBase = import.meta.env.BASE_URL === '/' ? '' : import.meta.env.BASE_URL.replace(/\/$/, '')
 
 if (window.location.hash.startsWith('#/')) {
   const legacyPath = window.location.hash.slice(1)
-  window.history.replaceState(null, '', legacyPath)
+  window.history.replaceState(null, '', `${routerBase}${legacyPath}`)
 }
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
-    <BrowserRouter>
+    <BrowserRouter basename={routerBase || undefined}>
       <AppProvider>
         <App />
       </AppProvider>

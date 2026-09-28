@@ -8,11 +8,11 @@ export default function Header() {
   const { state } = useApp()
   const [menuOpen, setMenuOpen] = useState(false)
   const location = useLocation()
-  const publicLanding = location.pathname === '/' || location.pathname.startsWith('/learn-') || ['/languages','/english-vocabulary','/english-grammar','/about','/contact','/privacy','/terms'].includes(location.pathname)
+  const publicLanding = location.pathname === '/' || location.pathname.startsWith('/learn-') || location.pathname.startsWith('/blog') || ['/languages','/english-vocabulary','/english-grammar','/about','/contact','/privacy','/terms'].includes(location.pathname)
   const initials = String(state.profile.displayName || 'Learner').split(' ').filter(Boolean).map((part) => part[0]).slice(-2).join('').toUpperCase()
   useEffect(() => setMenuOpen(false), [location.pathname])
-  const appNav = [['/dashboard','Dashboard'],['/languages','Learn'],['/vocabulary','Vocabulary'],['/grammar','Grammar'],['/self-study','Practice Lab'],['/toeic','TOEIC'],['/ielts','IELTS'],['/review','Review']]
-  const publicNav = [['/languages','Languages'],['/english-vocabulary','Vocabulary'],['/english-grammar','Grammar'],['/toeic','TOEIC'],['/ielts','IELTS']]
+  const appNav = [['/dashboard','Dashboard'],['/languages','Learn'],['/vocabulary','Vocabulary'],['/grammar','Grammar'],['/self-study','Practice Lab'],['/toeic','TOEIC'],['/ielts','IELTS'],['/review','Review'],['/blog','Blog']]
+  const publicNav = [['/languages','Languages'],['/english-vocabulary','Vocabulary'],['/english-grammar','Grammar'],['/toeic','TOEIC'],['/ielts','IELTS'],['/blog','Blog'],['/about','About']]
   const mobileNav = [...(publicLanding ? publicNav : appNav),['/my-vocabulary','My Vocabulary'],['/progress','Statistics'],['/history','Lịch sử'],['/settings','Cài đặt']]
   return <>
     <header className="site-header">
@@ -24,4 +24,3 @@ export default function Header() {
     {!publicLanding && <nav className="bottom-nav" aria-label="Điều hướng ứng dụng"><NavLink to="/dashboard"><Home/>Home</NavLink><NavLink to="/languages"><Languages/>Learn</NavLink><NavLink to="/vocabulary"><BookOpen/>Words</NavLink><NavLink to="/review"><RotateCcw/>Review</NavLink><NavLink to="/progress"><BarChart3/>Stats</NavLink></nav>}
   </>
 }
-

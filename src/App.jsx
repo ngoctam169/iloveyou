@@ -11,6 +11,9 @@ const Languages = lazy(() => import('./pages/Languages'))
 const LanguageLanding = lazy(() => import('./pages/LanguageLanding'))
 const ResourceLanding = lazy(() => import('./pages/ResourceLanding'))
 const InfoPage = lazy(() => import('./pages/InfoPage'))
+const About = lazy(() => import('./pages/About'))
+const Blog = lazy(() => import('./pages/Blog'))
+const BlogPost = lazy(() => import('./pages/BlogPost'))
 const Course = lazy(() => import('./pages/Course'))
 const Lesson = lazy(() => import('./pages/Lesson'))
 const Dashboard = lazy(() => import('./pages/Dashboard'))
@@ -57,7 +60,9 @@ export default function App() {
       <Route path="/languages/:languageId" element={<LegacyLanguage/>}/>
       <Route path="/course/:languageId/:levelSlug" element={<LegacyCourse/>}/>
       <Route path="/lesson/:languageId/:levelSlug/:lessonId" element={<LegacyLesson/>}/>
-      <Route path="/about" element={<InfoPage page="about"/>}/>
+      <Route path="/about" element={<About/>}/>
+      <Route path="/blog" element={<Blog/>}/>
+      <Route path="/blog/:slug" element={<BlogPost/>}/>
       <Route path="/contact" element={<InfoPage page="contact"/>}/>
       <Route path="/privacy" element={<InfoPage page="privacy"/>}/>
       <Route path="/terms" element={<InfoPage page="terms"/>}/>

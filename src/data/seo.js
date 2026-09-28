@@ -1,7 +1,8 @@
 import { findLevel, getLanguage, languages, levelSlug } from './languages.js'
+import { blogPostMeta, findBlogMeta } from './blogMeta.js'
 
 export const SITE_NAME = 'NT'
-export const DEFAULT_SITE_URL = 'https://nt-learning.example.com'
+export const DEFAULT_SITE_URL = 'https://ngoctam169.github.io/iloveyou'
 export const DEFAULT_OG_IMAGE = '/og-image.png'
 
 const languageCopy = {
@@ -13,7 +14,7 @@ const languageCopy = {
 
 export const coreSeoRoutes = [
   '/', '/languages', '/learn-english', '/learn-chinese', '/learn-japanese', '/learn-korean',
-  '/english-vocabulary', '/english-grammar', '/toeic', '/ielts', '/about', '/contact', '/privacy', '/terms', '/search',
+  '/english-vocabulary', '/english-grammar', '/toeic', '/ielts', '/about', '/blog', '/contact', '/privacy', '/terms', '/search',
 ]
 
 const staticMeta = {
@@ -23,7 +24,8 @@ const staticMeta = {
   '/english-grammar': { title: 'English Grammar từ A1 đến C2 | NT', description: 'Hệ thống English grammar theo CEFR, có cấu trúc, cách dùng, ví dụ, lỗi thường gặp và bài luyện.', keywords: 'English grammar, ngữ pháp tiếng Anh, grammar A1, present perfect' },
   '/toeic': { title: 'Luyện thi TOEIC Listening & Reading | NT', description: 'Luyện TOEIC Listening và Reading theo dạng câu hỏi, xem giải thích, từ vựng và theo dõi kết quả mini test.', keywords: 'luyện thi TOEIC, TOEIC vocabulary, TOEIC Listening, TOEIC Reading' },
   '/ielts': { title: 'Luyện IELTS đủ bốn kỹ năng | NT', description: 'Luyện IELTS Listening, Reading, Writing và Speaking với bài tập theo dạng, checklist rõ ràng và lịch sử luyện tập.', keywords: 'luyện IELTS online, IELTS vocabulary, IELTS Writing, IELTS Speaking' },
-  '/about': { title: 'Giới thiệu về NT', description: 'Tìm hiểu sứ mệnh, phương pháp và nguyên tắc xây dựng nền tảng học ngôn ngữ NT.' },
+  '/about': { title: 'Nguyễn Ngọc Tâm | Full-stack Developer | Ngọc Tâm Dev', description: 'Nguyễn Ngọc Tâm là Full-stack Developer tại TP.HCM, chuyên PHP, Laravel, MongoDB, Redis, WebSocket, WebRTC, REST API và tích hợp CRM.', keywords: 'Nguyễn Ngọc Tâm developer, Nguyen Ngoc Tam dev, Ngọc Tâm Dev, PHP Developer Ho Chi Minh, Full-stack Developer Vietnam', pageType:'profile' },
+  '/blog': { title: 'Blog | Nguyễn Ngọc Tâm – Full-stack Developer', description: 'Blog kỹ thuật của Nguyễn Ngọc Tâm về PHP, Laravel, MongoDB, Redis, WebSocket, WebRTC và backend, với ví dụ, trade-off và lỗi production.', keywords: 'blog Nguyễn Ngọc Tâm, PHP backend, Laravel, MongoDB, WebSocket, WebRTC', pageType:'blog' },
   '/contact': { title: 'Liên hệ NT', description: 'Thông tin liên hệ, góp ý nội dung và hỗ trợ sử dụng nền tảng học ngôn ngữ NT.' },
   '/privacy': { title: 'Chính sách quyền riêng tư | NT', description: 'Cách NT lưu tiến độ học tập trên thiết bị và bảo vệ quyền riêng tư của người học.' },
   '/terms': { title: 'Điều khoản sử dụng | NT', description: 'Điều khoản sử dụng nội dung, tính năng và dữ liệu học tập trên website NT.' },
@@ -60,6 +62,12 @@ export function getSeoForPath(pathname, search = '') {
   const path = pathname !== '/' ? pathname.replace(/\/+$/, '') : '/'
   const direct = staticMeta[path]
   if (direct) return { ...direct, path }
+  const blogMatch = path.match(/^\/blog\/([^/]+)$/)
+  if (blogMatch) {
+    const post = findBlogMeta(blogMatch[1])
+    if (post) return { title:post.seoTitle, ogTitle:post.title, description:post.description, keywords:post.tags.join(', '), path, pageType:'article', article:post }
+    return { title:'Không tìm thấy bài viết | NT', description:'Bài viết bạn tìm kiếm không tồn tại hoặc đường dẫn chưa chính xác.', path, robots:'noindex, follow' }
+  }
   const languageLanding = path.match(/^\/learn-(english|chinese|japanese|korean)$/)
   if (languageLanding) return { ...getLanguageSeo(languageLanding[1]), path }
   const lessonMatch = path.match(/^\/(english|chinese|japanese|korean)\/([^/]+)\/lessons\/([^/]+)$/)
@@ -79,12 +87,13 @@ export function getSeoForPath(pathname, search = '') {
     if (language && level) return { title: `${language.name} ${level[0]}: Lộ trình và bài học | NT`, description: `Học ${copy.vi} ${level[0]} với lộ trình từ vựng, ngữ pháp, nghe, nói, đọc và viết. Xem mục tiêu, thời lượng và toàn bộ bài học.`, keywords: `${language.name} ${level[0]}, ${copy.keyword}, ${language.name} ${level[0]} vocabulary`, path }
   }
   const fallbackName = path.split('/').filter(Boolean).map((part) => part.replaceAll('-', ' ')).join(' · ')
-  return { title: `${fallbackName || 'Học ngôn ngữ'} | NT`, description: 'Học ngôn ngữ theo lộ trình, luyện từ vựng, ngữ pháp và đủ bốn kỹ năng trên NT.', path, search }
+  return { title: `${fallbackName || 'Học ngôn ngữ'} | NT`, description: 'Trang bạn tìm kiếm không tồn tại hoặc đường dẫn chưa chính xác.', path, search, robots:'noindex, follow' }
 }
 
 export function publicSeoPaths() {
   return [
     ...coreSeoRoutes,
+    ...blogPostMeta.map((post) => `/blog/${post.slug}`),
     ...languages.flatMap((language) => language.levels.flatMap(([level]) => [
       `/${language.id}/${levelSlug(level)}`,
       `/${language.id}/${levelSlug(level)}/vocabulary`,
@@ -92,4 +101,3 @@ export function publicSeoPaths() {
     ])),
   ]
 }
-
