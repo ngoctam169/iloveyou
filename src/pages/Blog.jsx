@@ -19,7 +19,7 @@ export default function Blog() {
 
   return <div className="inner-page section-shell blog-index">
     <Breadcrumbs items={[{ label:'Trang chủ',to:'/' },{ label:'Blog' }]}/>
-    <header className="blog-hero"><div><span className="overline">ENGINEERING NOTES &amp; PERSONAL JOURNEY</span><h1>Blog của Nguyễn Ngọc Tâm</h1><p>Hành trình từ Ninh Thuận vào Sài Gòn làm developer, cùng các bài viết về PHP, Backend, Realtime Systems &amp; Web Development.</p><div className="blog-author-line"><BookOpenText aria-hidden="true"/><span>Viết bởi <Link to="/about">{AUTHOR.name}</Link> · {AUTHOR.jobTitle} tại Ho Chi Minh City</span></div></div><div className="blog-topic-cloud" aria-label="Chủ đề chính">{['Ninh Thuận','PHP','Laravel','MongoDB','WebSocket','WebRTC'].map((topic) => <span key={topic}>{topic}</span>)}</div></header>
+    <header className="blog-hero"><div><span className="overline">CHUYỆN LÀM NGHỀ &amp; GHI CHÚ KỸ THUẬT</span><h1>Blog của Nguyễn Ngọc Tâm</h1><p>Một vài câu chuyện trên đường làm developer và những ghi chú kỹ thuật rút ra từ công việc thực tế.</p><div className="blog-author-line"><BookOpenText aria-hidden="true"/><span>Viết bởi <Link to="/about">{AUTHOR.name}</Link> · {AUTHOR.jobTitle} tại Ho Chi Minh City</span></div></div><div className="blog-topic-cloud" aria-label="Chủ đề chính">{['Ninh Thuận','PHP','Laravel','MongoDB','WebSocket','WebRTC'].map((topic) => <span key={topic}>{topic}</span>)}</div></header>
 
     <section className="inline-story" id="nguyen-ngoc-tam-ninh-thuan" aria-labelledby="personal-story-title">
       <header className="article-header">

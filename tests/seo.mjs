@@ -64,7 +64,11 @@ const blogGraph = jsonLd(blogHtml)['@graph']
 const inlinePosting = blogGraph.find((item) => item['@type'] === 'BlogPosting' && item.url === `${DEFAULT_SITE_URL}/blog#${inlineStory.anchor}`)
 assert(inlinePosting?.about?.['@id'] === `${DEFAULT_SITE_URL}/#person`,'Inline personal story schema is not connected to the Person entity')
 const inlineWords = inlineStory.content.flatMap((block) => block.text ? [block.text] : block.items || []).join(' ').split(' ').filter(Boolean).length
-assert(inlineWords >= 1000 && inlineWords <= 2000,`Inline personal story has ${inlineWords} words; expected 1000–2000`)
+assert(inlineWords >= 1000 && inlineWords <= 1200,`Inline personal story has ${inlineWords} words; expected about 1000–1200`)
+const inlineStoryText = inlineStory.content.flatMap((block) => block.text ? [block.text] : block.items || []).join(' ')
+assert(!/Ngọc Tâm Dev|Tâm Dev|developer branding/i.test(inlineStoryText),'Inline personal story still contains branding language')
+assert(!/Ngọc Tâm Dev|Tâm Dev/i.test(inlineStory.description),'Inline story description still contains branding language')
+assert(!inlineStory.tags.some((tag) => /Ngọc Tâm Dev|Tâm Dev/i.test(tag)),'Inline story tags still contain branding language')
 
 const sitemap = read('dist/sitemap.xml')
 for (const path of ['/about','/blog',...standaloneBlogPosts.map((post) => `/blog/${post.slug}`)]) assert(sitemap.includes(`<loc>${DEFAULT_SITE_URL}${path}</loc>`),`Sitemap is missing ${path}`)
