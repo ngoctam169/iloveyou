@@ -59,3 +59,69 @@
   .audio-player-modern .rate-buttons button{flex:1}
   .grouped-mobile-menu section>div{grid-template-columns:1fr}
 }
+
+
+/* 2026 readability + learning-flow refresh */
+.learning-hub,.dashboard,.course-page{padding-top:32px}
+.hub-hero{position:relative;overflow:hidden;padding:30px 32px;border-radius:22px;background:
+  radial-gradient(circle at 92% 10%,color-mix(in srgb,var(--primary) 16%,transparent),transparent 34%),
+  linear-gradient(135deg,var(--surface),color-mix(in srgb,var(--primary-soft) 70%,var(--surface)))}
+.hub-hero:after{content:'';position:absolute;right:-60px;bottom:-90px;width:220px;height:220px;border-radius:50%;background:color-mix(in srgb,var(--primary) 7%,transparent);pointer-events:none}
+.hub-hero>*,.hub-kpi{position:relative;z-index:1}.hub-hero h1{max-width:760px;font-size:clamp(1.9rem,3.6vw,3.05rem)}.hub-hero p{max-width:680px}
+.panel,.statistics-card,.vocabulary-index,.unit-heading{box-shadow:0 8px 28px rgba(54,40,86,.045)}
+.dashboard-overview-stats{grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.dashboard-overview-stats .statistics-card{min-height:78px;padding:14px!important}.dashboard-overview-stats .statistics-card strong{font-size:1.15rem}
+.continue-card{min-height:275px;padding:34px 42px}.continue-copy h2{font-size:1.75rem}.art-circle{width:148px;height:148px;font-size:3.9rem}
+.dashboard-grid{gap:20px}.dashboard-main,.dashboard-aside{gap:20px}.panel{border-radius:18px}.panel-title{margin-bottom:18px}
+.word-of-day{display:flex;align-items:center;justify-content:space-between;gap:28px}.word-of-day>div:first-child{max-width:760px}.word-of-day h2{margin-bottom:8px}.word-of-day p{margin-bottom:7px}.word-of-day-actions{flex:0 0 auto}
+.vocabulary-shortcuts{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0 10px}
+.vocabulary-level-audit{display:flex;align-items:center;flex-wrap:wrap;gap:8px;padding:11px 13px;margin-bottom:14px;border:1px solid var(--line);border-radius:14px;background:var(--surface)}
+.vocabulary-level-audit span{display:inline-flex;align-items:center;gap:5px;padding:6px 9px;border-radius:999px;font-size:.67rem;font-weight:700}
+.vocabulary-level-audit span.source{color:var(--green);background:color-mix(in srgb,var(--green) 10%,var(--surface))}
+.vocabulary-level-audit span.extended{color:var(--orange);background:color-mix(in srgb,var(--orange) 12%,var(--surface))}
+.vocabulary-level-audit span.study-band{color:var(--blue);background:color-mix(in srgb,var(--blue) 10%,var(--surface))}
+.vocabulary-level-audit small{margin-left:auto;color:var(--muted);font-size:.64rem}
+.vocabulary-data-note{margin:12px 0 16px;padding:11px 13px;border:1px solid var(--line);background:var(--surface-2)}
+.vocabulary-filters{position:sticky;z-index:18;top:78px;grid-template-columns:repeat(6,minmax(0,1fr));padding:12px;margin:0 0 18px;border:1px solid var(--line);border-radius:16px;background:color-mix(in srgb,var(--bg) 94%,transparent);backdrop-filter:blur(16px);box-shadow:0 10px 30px rgba(54,40,86,.07)}
+.vocabulary-filters .filter-search{grid-column:1/-1}.vocabulary-filters select,.vocabulary-filters input{background:var(--surface)}
+.vocabulary-browser{grid-template-columns:minmax(220px,255px) minmax(0,1fr);gap:18px}.vocabulary-index{top:224px;border-radius:15px}.vocabulary-index>div{max-height:610px}
+.vocabulary-index button{padding:9px 12px}.vocabulary-index button.active{box-shadow:inset 3px 0 0 var(--primary)}
+.vocabulary-browser .detailed-flashcard{min-height:455px}.detailed-face{padding:34px;border-radius:22px}.detailed-face.front h2{margin:18px 0 4px;font-size:clamp(2.7rem,7vw,4.65rem)}
+.vocabulary-card-meta{display:flex;justify-content:center;flex-wrap:wrap;gap:7px}.vocabulary-card-meta .word-type{margin:0}
+.provenance-chip,.level-chip{display:inline-flex;align-items:center;padding:4px 8px;border-radius:999px;font-size:.61rem;font-weight:800}
+.level-chip{color:var(--primary);background:var(--primary-soft)}.provenance-chip.source{color:var(--green);background:color-mix(in srgb,var(--green) 10%,var(--surface))}
+.provenance-chip.extended{color:var(--orange);background:color-mix(in srgb,var(--orange) 12%,var(--surface))}
+.provenance-chip.study-band{color:var(--blue);background:color-mix(in srgb,var(--blue) 11%,var(--surface))}
+.provenance-chip.editorial{color:var(--muted);background:var(--surface-2)}
+.vocabulary-source-card{display:grid;gap:5px;margin-top:12px;padding:12px 14px;border:1px solid var(--line);border-radius:12px;background:var(--surface-2)}
+.vocabulary-source-card strong{font-size:.69rem}.vocabulary-source-card p{margin:0;color:var(--text);font-size:.72rem;line-height:1.55}.vocabulary-source-card small{color:var(--muted);font-size:.61rem;line-height:1.5}
+.level-overview-details{margin:18px 0 6px;border:1px solid var(--line);border-radius:16px;background:var(--surface);overflow:hidden}
+.level-overview-details>summary{display:flex;align-items:center;justify-content:space-between;gap:18px;padding:17px 20px;cursor:pointer;list-style:none}
+.level-overview-details>summary::-webkit-details-marker{display:none}.level-overview-details>summary span{display:grid;gap:2px}.level-overview-details>summary strong{font-size:.9rem}.level-overview-details>summary small{color:var(--muted);font-size:.67rem}.level-overview-details>summary b{color:var(--primary);font-size:.68rem}
+.level-overview-details[open]>summary{border-bottom:1px solid var(--line)}.level-overview-details[open]>summary b{font-size:0}.level-overview-details[open]>summary b:after{content:'− Thu gọn';font-size:.68rem}
+.level-overview-details .level-seo-content{padding:24px}.level-overview-details .section-intro{margin-bottom:26px}
+.course-resource-links{margin-top:16px}.lesson-filters{margin-top:16px}.roadmap-layout{gap:44px;padding-top:42px}.roadmap{max-width:760px}
+.course-hero{padding:34px 40px;border-radius:22px}.course-progress-card{min-width:210px}
+.lesson-step-heading{margin-bottom:22px}.grammar-card,.exercise-card,.writing-card,.reading-passage,.speaking-box{border-radius:18px}.lesson-footer-actions{padding-top:18px}
+
+@media(max-width:1200px){
+  .vocabulary-filters{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .vocabulary-index{top:300px}
+}
+@media(max-width:900px){
+  .dashboard-overview-stats{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .word-of-day{align-items:flex-start;flex-direction:column}.word-of-day-actions{display:flex;flex-wrap:wrap}
+  .vocabulary-filters{position:static}.vocabulary-index{top:auto}
+}
+@media(max-width:760px){
+  .learning-hub,.dashboard,.course-page{padding-top:22px}.hub-hero{padding:22px}.hub-hero h1{font-size:2rem}.hub-kpi{padding:16px}
+  .dashboard-overview-stats{grid-template-columns:1fr 1fr}.continue-card{padding:26px}.continue-copy h2{font-size:1.55rem}
+  .vocabulary-level-audit{align-items:flex-start}.vocabulary-level-audit small{width:100%;margin-left:0}
+  .vocabulary-filters{grid-template-columns:1fr 1fr;padding:10px}.vocabulary-browser .detailed-flashcard{min-height:520px}.detailed-face{padding:24px}
+  .level-overview-details>summary{align-items:flex-start}.level-overview-details .level-seo-content{padding:18px}
+  .course-hero{padding:27px}.roadmap-layout{padding-top:32px}
+}
+@media(max-width:460px){
+  .dashboard-overview-stats{grid-template-columns:1fr}.vocabulary-filters{grid-template-columns:1fr}.vocabulary-filters .filter-search{grid-column:auto}
+  .vocabulary-level-audit span{width:100%;justify-content:space-between}.vocabulary-card-meta{gap:5px}.detailed-face.front h2{font-size:2.55rem}
+  .level-overview-details>summary b{white-space:nowrap}
+}

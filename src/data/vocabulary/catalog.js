@@ -44,9 +44,6 @@ for (const word of multilingualVocabulary) {
 
 for (const language of languages) {
   for (const [level] of language.levels) {
-    // Non-English advanced roadmaps currently recycle starter lessons. Do not
-    // present those same nine starter words as higher HSK/JLPT/TOPIK vocabulary.
-    if (language.id !== 'english' && level !== language.levels[0][0]) continue
     for (const unit of getRoadmap(language.id, level)) {
       for (const lesson of unit.lessons) {
         for (const row of lesson.vocab || []) {
@@ -70,9 +67,20 @@ for (const language of languages) {
   }
 }
 
+const normalizedLevelWord = (word) => ({
+  ...word,
+  appLevel: word.appLevel || word.level,
+  sourceLevel: word.sourceLevel || word.level,
+  levelStatus: word.levelStatus || 'editorial',
+})
+
 const deduplicated = new Map()
-for (const word of catalogue.values()) {
-  const key = word.languageId === 'english' ? `${word.languageId}:${word.level}:${vocabularyId(word.word)}` : `${word.languageId}:${vocabularyId(word.word)}`
+for (const rawWord of catalogue.values()) {
+  const word = normalizedLevelWord(rawWord)
+  const meaningKey = vocabularyId(word.meaningVi || '')
+  const key = word.languageId === 'english'
+    ? `${word.languageId}:${vocabularyId(word.word)}:${meaningKey}`
+    : `${word.languageId}:${vocabularyId(word.word)}`
   const existing = deduplicated.get(key)
   if (!existing || (!existing.lessonIds?.length && word.lessonIds?.length)) deduplicated.set(key, word)
 }
