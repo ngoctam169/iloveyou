@@ -167,7 +167,8 @@ export function buildLessonRuntimeContent(rawLesson, vocabulary = [], languageId
   const target = targetFor(languageId, words, seed)
   const listening = buildListening(lesson, words, pool, seed)
   const reading = buildReading(lesson, words, pool, seed)
-  const quiz = buildQuiz(lesson, words, pool, seed, target, listening)
+  const builtQuiz = buildQuiz(lesson, words, pool, seed, target, listening)
+  const quiz = { ...builtQuiz, question:`Bài ${seed} · ${lesson.topic}: ${builtQuiz.question}` }
   const practice = buildPractice(words, target, languageId)
   return { ...lesson, target, listen:listening.audio, listening, reading, quiz, practice }
 }
