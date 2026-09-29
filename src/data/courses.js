@@ -1,6 +1,6 @@
 import { getLanguage, levelSlug } from './languages.js'
 import { getLevelMeta } from './levels.js'
-import { generatedVocabulary } from './vocabulary/generated/index.js'
+import lessonPools from './vocabulary/generated/lesson-pools.json' with { type: 'json' }
 
 const packs = {
   english: [
@@ -177,20 +177,8 @@ const distributeLessonCounts = (unitCount, total = TARGET_LESSONS_PER_LEVEL) => 
   return Array.from({ length:unitCount }, (_, index) => base + (index < remainder ? 1 : 0))
 }
 
-const wordRow = (word) => [
-  word.word || '',
-  word.ipa || '',
-  word.partOfSpeech || '',
-  word.meaningVi || word.definition || '',
-  word.example || '',
-  word.translation || '',
-]
-
 const vocabularyRows = (languageId, levelName, fallback = []) => {
-  const rows = generatedVocabulary
-    .filter((word) => word.languageId === languageId && word.level === levelName)
-    .map(wordRow)
-    .filter((word) => word[0])
+  const rows = lessonPools?.[languageId]?.[levelName] || []
   return rows.length >= 3 ? rows : fallback
 }
 
