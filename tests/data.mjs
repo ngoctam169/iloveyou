@@ -153,6 +153,8 @@ const hard = nextSchedule(nextSchedule({}, 'hard'), 'hard')
 assert(hard.repetitions === 0 && isWeakVocabulary(hard), 'Repeated Hard ratings must not master a word')
 assert(hard.correct === 0 && hard.hardCount === 2, 'Uncertain recall must remain separate from correct recall')
 assert(vocabularyStatus({ ...nextSchedule({}, 'good'), nextReview: new Date(0).toISOString() }) === 'Review Today', 'Due words must remain visible in Review Today')
+const weakSkillSchedule = nextSchedule({}, 'hard', new Date('2026-01-01T00:00:00.000Z'))
+assert(weakSkillSchedule.repetitions === 0 && weakSkillSchedule.interval === 1, 'Weak lesson skills should return for review without being counted as mastered')
 
 function sourceFiles(directory) {
   return readdirSync(directory, { withFileTypes: true }).flatMap((entry) => entry.isDirectory() ? sourceFiles(join(directory, entry.name)) : ['.js', '.jsx'].includes(extname(entry.name)) ? [join(directory, entry.name)] : [])
