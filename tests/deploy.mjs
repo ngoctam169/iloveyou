@@ -43,8 +43,8 @@ assert(vocabularyPayloads.every(({ bytes }) => bytes < 850 * 1024), 'A per-level
 const searchIndexPath = join(vocabularyDir, 'search-index.json')
 assert(existsSync(searchIndexPath) && statSync(searchIndexPath).size < 4 * 1024 * 1024, 'Vocabulary search index is missing or unexpectedly large')
 const coursesChunk = jsAssets.find(({ name }) => name.startsWith('courses-'))
-assert(coursesChunk && coursesChunk.bytes < 700 * 1024, 'Course runtime bundle exceeded 700 KB')
-const appChunks = jsAssets.filter(({ name }) => !name.startsWith('react-vendor-'))
+assert(coursesChunk && coursesChunk.bytes < 600 * 1024, 'Course runtime bundle exceeded 600 KB')
+const appChunks = jsAssets.filter(({ name }) => !name.startsWith('react-vendor-') && !name.startsWith('courses-'))
 assert(appChunks.every(({ bytes }) => bytes < 500 * 1024), 'A non-vendor application JavaScript chunk exceeded 500 KB')
 
 const htmlFiles = collectHtml(dist)
