@@ -237,8 +237,10 @@ function makeListening(audio, words, topic, lessonNumber) {
   const type = listeningTypes[(lessonNumber - 1) % listeningTypes.length]
   if (type === 'Dictation') return { type, audio, prompt: 'Nghe và chép lại chính xác câu bạn nghe được.', expected: audio, explanation: `Câu hoàn chỉnh: “${audio}”` }
   if (type === 'Fill in the Blank') {
-    const expected = words.find((word) => new RegExp(`\\b${word[0]}\\b`, 'i').test(word[4])) || words[0]
-    return { type, audio: expected[4], prompt: expected[4].replace(new RegExp(expected[0], 'i'), '_____'), expected: expected[0], explanation: `Từ còn thiếu là “${expected[0]}”.` }
+    const expected = words.find((word) => word[4] && new RegExp(`\\b${word[0]}\\b`, 'i').test(word[4])) || words.find((word) => word[4]) || words[0]
+    const sentence = expected[4] || expected[0] || audio
+    const prompt = sentence && expected[0] ? sentence.replace(new RegExp(expected[0], 'i'), '_____') : '_____'
+    return { type, audio: sentence || audio, prompt, expected: expected[0], explanation: `Từ còn thiếu là “${expected[0]}”.` }
   }
   return {
     type,
@@ -261,7 +263,10 @@ function makeWriting(levelIndex, variant, words, target, topic) {
 function makeQuiz(grammar, words, listen, target, lessonNumber) {
   const type = quizTypes[(lessonNumber - 1) % quizTypes.length]
   const word = words[0]
-  if (type === 'Fill Blank') return { type, question: word[4].replace(new RegExp(word[0], 'i'), '_____'), expected: word[0], explanation: `Từ phù hợp là “${word[0]}” (${word[3]}).` }
+  if (type === 'Fill Blank') {
+    const sentence = word[4] || word[0]
+    return { type, question: sentence.replace(new RegExp(word[0], 'i'), '_____'), expected: word[0], explanation: `Từ phù hợp là “${word[0]}” (${word[3]}).` }
+  }
   if (type === 'Reorder Sentence') return { type, question: 'Sắp xếp thành câu hoàn chỉnh.', expected: target, tokens: target.replace(/[.!?]/g, '').split(/\s+/).sort((a, b) => a.localeCompare(b)), explanation: `Câu đúng: “${target}”` }
   if (type === 'Matching') return { type, question: 'Ghép từ với nghĩa phù hợp.', pairs: words.map((item) => [item[0], item[3]]), explanation: 'Các cặp từ và nghĩa được lấy từ phần từ vựng của bài.' }
   if (type === 'True False') return { type, question: `“${word[0]}” có nghĩa là “${word[3]}”.`, options: ['True', 'False'], answer: 0, explanation: `${word[0]}: ${word[3]}.` }
