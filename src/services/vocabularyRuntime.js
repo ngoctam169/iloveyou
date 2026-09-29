@@ -1,12 +1,19 @@
 import { getLanguage, levelSlug } from '../data/languages'
 import { wordKey } from '../utils/srs'
 
-const chunkLoaders = import.meta.glob('../data/vocabulary/generated/runtime/*.json', { import:'default' })
 const scopeCache = new Map()
+const pendingScopes = new Map()
 let searchIndexPromise
 
 const scopeKey = (languageId, level) => `${languageId}:${level}`
-const runtimePath = (languageId, level) => `../data/vocabulary/generated/runtime/${languageId}-${levelSlug(level)}.json`
+const dataUrl = (file) => `${import.meta.env.BASE_URL}data/vocabulary/${file}`
+const runtimeFile = (languageId, level) => `${languageId}-${levelSlug(level)}.json`
+
+async function fetchJson(file) {
+  const response = await fetch(dataUrl(file), { credentials:'same-origin' })
+  if (!response.ok) throw new Error(`Không tải được dữ liệu từ vựng (${response.status})`)
+  return response.json()
+}
 
 export function getCachedVocabularyScope(languageId, level) {
   if (!languageId) return []
@@ -22,13 +29,15 @@ export async function loadVocabularyScope(languageId, level) {
   await Promise.all(levels.map(async (name) => {
     const key = scopeKey(languageId, name)
     if (scopeCache.has(key)) return
-    const loader = chunkLoaders[runtimePath(languageId, name)]
-    if (!loader) {
-      scopeCache.set(key, [])
-      return
+    if (!pendingScopes.has(key)) {
+      pendingScopes.set(key, fetchJson(runtimeFile(languageId, name))
+        .then((words) => {
+          scopeCache.set(key, Array.isArray(words) ? words : [])
+          return scopeCache.get(key)
+        })
+        .finally(() => pendingScopes.delete(key)))
     }
-    const words = await loader()
-    scopeCache.set(key, Array.isArray(words) ? words : [])
+    await pendingScopes.get(key)
   }))
   return getCachedVocabularyScope(languageId, level)
 }
@@ -59,14 +68,17 @@ export async function loadVocabularyKeys(keys = []) {
 }
 
 export async function loadVocabularySearchIndex() {
-  if (!searchIndexPromise) {
-    searchIndexPromise = import('../data/vocabulary/generated/runtime/search-index.json')
-      .then((module) => module.default || [])
-  }
+  if (!searchIndexPromise) searchIndexPromise = fetchJson('search-index.json')
+    .then((items) => Array.isArray(items) ? items : [])
+    .catch((error) => {
+      searchIndexPromise = undefined
+      throw error
+    })
   return searchIndexPromise
 }
 
 export function clearVocabularyRuntimeCache() {
   scopeCache.clear()
+  pendingScopes.clear()
   searchIndexPromise = undefined
 }
