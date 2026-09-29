@@ -516,9 +516,11 @@ for (const [languageId, words] of Object.entries(datasets)) {
   const levels = [...new Set(words.map((word) => word.level))]
   lessonPools[languageId] = {}
   for (const level of levels) {
+    // Keep only the fields required to build the synchronous roadmap.
+    // Full pronunciation, examples and translations are loaded on demand from
+    // public/data/vocabulary/<language>-<level>.json at lesson runtime.
     const rows = words.filter((word) => word.level === level).slice(0, 180).map((word) => [
-      word.word || '', word.ipa || '', word.partOfSpeech || '', word.meaningVi || word.definition || '',
-      word.example || '', word.translation || '',
+      word.word || '', word.meaningVi || word.definition || '',
     ])
     lessonPools[languageId][level] = rows
   }
