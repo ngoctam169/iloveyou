@@ -33,7 +33,14 @@ function resolvesInDist(url) {
 const htmlFiles = collectHtml(dist)
 assert(htmlFiles.length > 3, 'Prerender output is unexpectedly small')
 
-for (const file of htmlFiles) {
+const verificationFiles = htmlFiles.filter((file) => /^google[a-z0-9_-]+\.html$/i.test(file.split(/[\\/]/).at(-1)))
+for (const file of verificationFiles) {
+  const html = readFileSync(file, 'utf8')
+  assert(/google-site-verification:/i.test(html), `${relative(root, file)} is not a valid Google verification file`)
+}
+const appHtmlFiles = htmlFiles.filter((file) => !verificationFiles.includes(file))
+
+for (const file of appHtmlFiles) {
   const html = readFileSync(file, 'utf8')
   const label = relative(root, file)
 
@@ -51,4 +58,4 @@ for (const file of htmlFiles) {
   }
 }
 
-console.log(`DEPLOY PASS: validated ${htmlFiles.length} prerendered HTML files and GitHub Pages asset paths`)
+console.log(`DEPLOY PASS: validated ${appHtmlFiles.length} app HTML files, ${verificationFiles.length} verification files and GitHub Pages asset paths`)
