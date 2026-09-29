@@ -173,7 +173,7 @@ try {
   await page.locator('.lesson-grammar-quiz .answer-list button').filter({ hasText:'Present Perfect' }).click()
   await page.getByRole('button',{ name:'Kiểm tra ngữ pháp' }).click()
   await page.locator('.lesson-grammar-quiz .feedback.correct').waitFor()
-  assert((await page.evaluate(() => Object.values(JSON.parse(localStorage.getItem('nt_state_v1')).lessonSessions || {}).some((session) => session.checked?.grammar && session.answers?.grammar !== null))), 'Lesson grammar answer was not persisted')
+  await page.waitForFunction(() => Object.values(JSON.parse(localStorage.getItem('nt_state_v1')).lessonSessions || {}).some((session) => session.checked?.grammar && session.answers?.grammar !== null))
   await page.locator('.lesson-sidebar button').nth(7).click()
   await page.getByRole('button',{ name:'Hoàn thành bài học' }).click()
   await page.locator('.lesson-step-heading h1').getByText('Review').waitFor()
