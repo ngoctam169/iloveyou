@@ -1,5 +1,8 @@
 import { spawn } from 'node:child_process'
 import { chromium } from 'playwright'
+import { getLesson } from '../src/data/courses.js'
+import { vocabularyCatalog } from '../src/data/vocabulary/catalog.js'
+import { buildLessonRuntimeContent } from '../src/utils/lessonRuntime.js'
 
 const port = 4175
 const origin = `http://127.0.0.1:${port}`
@@ -30,6 +33,13 @@ async function seededContext(state = {}) {
 }
 
 try {
+  const b2RawLesson = getLesson('english','B2','english-b2-1-1')
+  const b2Vocabulary = vocabularyCatalog.filter((word) => word.languageId === 'english' && word.level === 'B2')
+  const b2RuntimeLesson = buildLessonRuntimeContent(b2RawLesson,b2Vocabulary,'english','B2')
+  const wrongListeningIndex = b2RuntimeLesson.listening?.options
+    ? b2RuntimeLesson.listening.options.findIndex((_, index) => index !== b2RuntimeLesson.listening.answer)
+    : -1
+  assert(wrongListeningIndex >= 0, 'B2 test lesson must expose a deliberate wrong listening option')
   await waitForServer()
   browser = await chromium.launch({ channel: 'chrome', headless: true })
   console.log('E2E checkpoint: browser started')
@@ -60,7 +70,7 @@ try {
   await page.locator('.vocab-card button[aria-label^="Lưu"]').first().click()
   await page.getByRole('button', { name: /Tiếp tục/ }).click()
   await page.getByRole('button', { name: /Tiếp tục/ }).click()
-  await page.locator('.answer-list button').nth(1).click()
+  await page.locator('.answer-list button').nth(wrongListeningIndex).click()
   await page.getByRole('button', { name: 'Kiểm tra', exact: true }).click()
   await page.getByRole('button', { name: /Tiếp tục/ }).click()
   await page.getByRole('button', { name: /Tiếp tục/ }).click()
