@@ -34,13 +34,18 @@ function resolvesInDist(url) {
 const assetsDir = join(dist, 'assets')
 const jsAssets = readdirSync(assetsDir).filter((name) => name.endsWith('.js')).map((name) => ({ name, bytes:statSync(join(assetsDir,name)).size }))
 assert(!jsAssets.some(({ name }) => name.startsWith('vocabulary-data-')), 'Monolithic vocabulary-data chunk returned')
-const vocabularyChunks = jsAssets.filter(({ name }) => /^(english-|chinese-|japanese-|korean-)/.test(name))
-assert(vocabularyChunks.length >= 23, `Expected per-level vocabulary chunks, found ${vocabularyChunks.length}`)
-assert(vocabularyChunks.every(({ bytes }) => bytes < 850 * 1024), 'A per-level vocabulary chunk exceeded 850 KB')
-const searchChunk = jsAssets.find(({ name }) => name.startsWith('search-index-'))
-assert(searchChunk && searchChunk.bytes < 4 * 1024 * 1024, 'Vocabulary search index is missing or unexpectedly large')
+assert(!jsAssets.some(({ name }) => /^(english-|chinese-|japanese-|korean-|search-index-)/.test(name)), 'Vocabulary JSON leaked back into JavaScript chunks')
+const vocabularyDir = join(dist, 'data', 'vocabulary')
+assert(existsSync(vocabularyDir), 'Missing dist/data/vocabulary runtime directory')
+const vocabularyPayloads = readdirSync(vocabularyDir).filter((name) => /^(english-|chinese-|japanese-|korean-).+\.json$/.test(name)).map((name) => ({ name, bytes:statSync(join(vocabularyDir,name)).size }))
+assert(vocabularyPayloads.length >= 23, `Expected per-level vocabulary JSON files, found ${vocabularyPayloads.length}`)
+assert(vocabularyPayloads.every(({ bytes }) => bytes < 850 * 1024), 'A per-level vocabulary JSON file exceeded 850 KB')
+const searchIndexPath = join(vocabularyDir, 'search-index.json')
+assert(existsSync(searchIndexPath) && statSync(searchIndexPath).size < 4 * 1024 * 1024, 'Vocabulary search index is missing or unexpectedly large')
 const coursesChunk = jsAssets.find(({ name }) => name.startsWith('courses-'))
-assert(coursesChunk && coursesChunk.bytes < 700 * 1024, 'Course runtime bundle exceeded 700 KB')
+assert(coursesChunk && coursesChunk.bytes < 600 * 1024, 'Course runtime bundle exceeded 600 KB')
+const appChunks = jsAssets.filter(({ name }) => !name.startsWith('react-vendor-') && !name.startsWith('courses-'))
+assert(appChunks.every(({ bytes }) => bytes < 500 * 1024), 'A non-vendor application JavaScript chunk exceeded 500 KB')
 
 const htmlFiles = collectHtml(dist)
 assert(htmlFiles.length > 3, 'Prerender output is unexpectedly small')
@@ -64,4 +69,4 @@ for (const file of htmlFiles) {
   }
 }
 
-console.log(`DEPLOY PASS: validated ${htmlFiles.length} prerendered HTML files, ${vocabularyChunks.length} lazy vocabulary chunks and GitHub Pages asset paths`)
+console.log(`DEPLOY PASS: validated ${htmlFiles.length} prerendered HTML files, ${vocabularyPayloads.length} lazy vocabulary JSON payloads and GitHub Pages asset paths`)

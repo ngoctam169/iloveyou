@@ -6,7 +6,7 @@ import { tmpdir } from 'node:os'
 
 const cacheDir = tmpdir()
 const outputDir = new URL('../src/data/vocabulary/generated/', import.meta.url)
-const runtimeDir = new URL('../src/data/vocabulary/generated/runtime/', import.meta.url)
+const runtimeDir = new URL('../public/data/vocabulary/', import.meta.url)
 
 const sources = {
   dictionary: ['nt-en-vi.db', 'https://raw.githubusercontent.com/skypediacode/english-vietnamese-dictionary/main/dictionary_en_vi.db'],

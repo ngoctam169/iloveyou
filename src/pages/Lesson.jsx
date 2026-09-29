@@ -1,5 +1,5 @@
 import { ArrowLeft, ArrowRight, Bookmark, BookOpen, Check, CheckCircle2, ChevronLeft, CircleHelp, Headphones, Mic, PenLine, RotateCcw, Sparkles, Star, Volume2, X } from 'lucide-react'
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { Link, useLocation, useNavigate, useParams } from 'react-router-dom'
 import AudioPlayer from '../components/common/AudioPlayer'
 import ProgressBar from '../components/common/ProgressBar'
@@ -26,7 +26,7 @@ export default function Lesson() {
   const language = getLanguage(languageId)
   const level = findLevel(language, levelSlugParam)
   const lesson = getLesson(languageId, level?.[0], lessonId)
-  const { state, update, chooseCourse, completeLesson, addMistake, toggleSaved, setToast } = useApp()
+  const { state, persistLessonSession, chooseCourse, completeLesson, addMistake, toggleSaved, setToast } = useApp()
   const savedSession = state.lessonSessions?.[lessonId]
   const location = useLocation()
   const sectionIndex = sections.findIndex(([name]) => name.toLowerCase() === new URLSearchParams(location.search).get('section')?.toLowerCase())
@@ -72,9 +72,9 @@ export default function Lesson() {
     if (lesson && step === 2 && state.settings.autoplay) speak(lesson.listening?.audio || lesson.listen, languageId, rate, setToast)
   }, [step, lesson?.id, state.settings.autoplay, languageId])
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (!lesson) return
-    update((current) => ({ lessonSessions: { ...(current.lessonSessions || {}), [lesson.id]: { step, answers, checked, completed, completedSections, xpEarned, activeSeconds:activeSeconds.current, updatedAt:new Date().toISOString() } } }))
+    persistLessonSession(lesson.id, { step, answers, checked, completed, completedSections, xpEarned, activeSeconds:activeSeconds.current, updatedAt:new Date().toISOString() })
   }, [step, answers, checked, completed, completedSections, xpEarned, lesson?.id])
 
   const lessonSaved = lesson ? state.savedItems.some((item) => item.id === `lesson-${lesson.id}`) : false
