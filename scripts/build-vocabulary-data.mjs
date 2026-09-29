@@ -541,7 +541,7 @@ for (const [key, words] of runtimeGroups) {
   const fileName = `${languageId}-${slug(level)}.json`
   await writeFile(new URL(fileName, runtimeDir), `${JSON.stringify(words)}\n`)
 }
-const searchIndex = vocabularyCatalog.map(({ id, languageId, level, word, meaningVi, topic }) => ({ id, languageId, level, word, meaningVi, topic }))
+const searchIndex = vocabularyCatalog.map(({ languageId, level, word, meaningVi, topic }) => [languageId, level, word, meaningVi, topic || ''])
 await writeFile(new URL('search-index.json', runtimeDir), `${JSON.stringify(searchIndex)}\n`)
 console.log(`runtime vocabulary chunks: ${runtimeGroups.size}; search index: ${searchIndex.length}`)
 
