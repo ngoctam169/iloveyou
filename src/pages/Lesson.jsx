@@ -74,13 +74,13 @@ export default function Lesson() {
   useEffect(() => { noteActivity() }, [step, answers, checked])
 
   useEffect(() => {
-    if (lesson && step === 2 && state.settings.autoplay) speak(lesson.listening?.audio || lesson.listen, languageId, rate, setToast)
-  }, [step, lesson?.id, state.settings.autoplay, languageId])
+    if (!vocabularyLoading && lesson && step === 2 && state.settings.autoplay) speak(lesson.listening?.audio || lesson.listen, languageId, rate, setToast)
+  }, [step, lesson?.id, vocabularyLoading, state.settings.autoplay, languageId])
 
   useLayoutEffect(() => {
-    if (!lesson) return
+    if (!lesson || vocabularyLoading) return
     persistLessonSession(lesson.id, { contentVersion:LESSON_CONTENT_VERSION, step, answers, checked, completed, completedSections, xpEarned, activeSeconds:activeSeconds.current, updatedAt:new Date().toISOString() })
-  }, [step, answers, checked, completed, completedSections, xpEarned, lesson?.id])
+  }, [step, answers, checked, completed, completedSections, xpEarned, lesson?.id, vocabularyLoading])
 
   const lessonSaved = lesson ? state.savedItems.some((item) => item.id === `lesson-${lesson.id}`) : false
   if (!language || !level || !rawLesson) return <NotFound compact />
