@@ -109,6 +109,8 @@ for (const language of ['english','chinese','japanese','korean']) {
     const lessons = rawLessons.map((lesson) => buildLessonRuntimeContent(lesson, levelVocabulary, language, level))
     assert(lessons.length === 60, `${language} ${level} runtime lesson count changed`)
     assert(new Set(lessons.map(lessonContentFingerprint)).size === lessons.length, `${language} ${level} contains repeated runtime lesson content`)
+    const lessonWords = lessons.flatMap((lesson) => lesson.vocab.map((word) => word[0].normalize('NFKC').toLocaleLowerCase()))
+    assert(new Set(lessonWords).size === lessonWords.length, `${language} ${level} reuses target vocabulary across its 60 lessons`)
     assert(new Set(lessons.map((lesson) => lesson.listening.audio)).size === lessons.length, `${language} ${level} repeats listening audio across lessons`)
     assert(new Set(lessons.map((lesson) => lesson.reading.text)).size === lessons.length, `${language} ${level} repeats reading content across lessons`)
     assert(new Set(lessons.map((lesson) => lesson.quiz.question)).size === lessons.length, `${language} ${level} repeats quiz questions across lessons`)
