@@ -45,7 +45,9 @@ function targetFor(languageId, words, seed) {
 function buildReading(lesson, words, seed) {
   const examples = unique(words.map((word) => word[4]))
   const text = examples.length >= 2 ? examples.slice(0, 3).join(' ') : (fallbackStudyText(lesson.languageId, words) + ' ' + (examples[0] || '')).trim()
-  const focus = words[seed % words.length]
+  const visibleWords = words.filter((word) => normalize(text).includes(normalize(word[0])))
+  const focusPool = visibleWords.length ? visibleWords : words
+  const focus = focusPool[seed % focusPool.length]
   const mode = seed % 3
   if (mode === 1) {
     const answer = optionSet(focus[0], words.filter((word) => word !== focus).map((word) => word[0]), seed)
