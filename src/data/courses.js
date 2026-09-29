@@ -177,9 +177,10 @@ function makeEnglishLessons(levelName, unitIndex, topic, meta, lessonCount, less
     const baseListen = meta.listening[(unitIndex + variant) % meta.listening.length]
     const baseTarget = meta.targets[(unitIndex + variant) % meta.targets.length]
     const contextualExamples = words.map((word) => word[4]).filter(Boolean)
-    const listen = [baseListen, contextualExamples[lessonNumber % Math.max(1, contextualExamples.length)]].filter(Boolean).join(' ')
-    const target = lessonNumber % 2 === 0 ? (contextualExamples[(lessonNumber + 1) % Math.max(1, contextualExamples.length)] || baseTarget) : baseTarget
-    const readingExamples = contextualExamples.slice().sort((a,b) => (a.length + lessonNumber) % 7 - (b.length + lessonNumber) % 7)
+    const vocabularyCue = contextualExamples[lessonNumber % Math.max(1, contextualExamples.length)] || `This lesson focuses on the words ${words.map((word) => word[0]).join(', ')}.`
+    const listen = [baseListen, vocabularyCue].filter(Boolean).join(' ')
+    const target = lessonNumber % 2 === 0 ? (contextualExamples[(lessonNumber + 1) % Math.max(1, contextualExamples.length)] || `I can use ${words[0][0]} in context.`) : baseTarget
+    const readingExamples = (contextualExamples.length ? contextualExamples : [`This practice uses ${words.map((word) => word[0]).join(', ')} in the topic ${topic}.`]).slice().sort((a,b) => (a.length + lessonNumber) % 7 - (b.length + lessonNumber) % 7)
     const reading = {
       ...meta.reading,
       title: `${topic} · ${meta.reading.title} · Practice ${lessonNumber}`,
