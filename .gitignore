@@ -7,3 +7,6 @@ dist
 
 # Generated from open vocabulary sources before dev/build
 src/data/vocabulary/generated/*.json
+
+# Generated lazy runtime vocabulary files
+public/data/vocabulary/*.json
