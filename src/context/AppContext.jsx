@@ -72,9 +72,29 @@ export function AppProvider({ children }) {
   }
 
   const removeMistake = (id) => setState((current) => ({ ...current, mistakes: current.mistakes.filter((item) => item.id !== id) }))
-  const addMistake = (mistake) => setState((current) => ({
+  const addMistake = (mistake) => setState((current) => {
+    const previous = current.mistakes.find((item) => item.id === mistake.id)
+    const attemptedAt = new Date().toISOString()
+    return {
+      ...current,
+      mistakes: [{
+        ...previous,
+        ...mistake,
+        mistakeCount:(previous?.mistakeCount || 0) + 1,
+        createdAt:previous?.createdAt || attemptedAt,
+        lastAttempted:attemptedAt,
+        reviewSchedule:previous?.reviewSchedule || null,
+      }, ...current.mistakes.filter((item) => item.id !== mistake.id)],
+    }
+  })
+  const reviewMistake = (id, quality = 'good') => setState((current) => ({
     ...current,
-    mistakes: [{ ...mistake, mistakeCount: (current.mistakes.find((item) => item.id === mistake.id)?.mistakeCount || 0) + 1, createdAt: new Date().toISOString(), lastAttempted: new Date().toISOString() }, ...current.mistakes.filter((item) => item.id !== mistake.id)],
+    mistakes:current.mistakes.map((item) => item.id !== id ? item : ({
+      ...item,
+      reviewSchedule:nextSchedule(item.reviewSchedule || {},quality),
+      lastAttempted:new Date().toISOString(),
+      reviewCount:(Number(item.reviewCount) || 0) + 1,
+    })),
   }))
 
   const reviewVocabulary = (word, quality) => {
@@ -181,7 +201,7 @@ export function AppProvider({ children }) {
   }
 
   const value = useMemo(() => ({
-    state, update, chooseCourse, completeLesson, toggleSaved, removeMistake, addMistake, reviewVocabulary, setVocabularyMeta, savePersonalWord, deletePersonalWord, createVocabularyList, toggleWordInList, deleteVocabularyList, recordSelfStudy, recordStudyTime, recordGrammarAnswer, saveExamResult, reset,
+    state, update, chooseCourse, completeLesson, toggleSaved, removeMistake, addMistake, reviewMistake, reviewVocabulary, setVocabularyMeta, savePersonalWord, deletePersonalWord, createVocabularyList, toggleWordInList, deleteVocabularyList, recordSelfStudy, recordStudyTime, recordGrammarAnswer, saveExamResult, reset,
     toast, setToast,
   }), [state, toast])
 

@@ -1,6 +1,7 @@
 import { getLanguage, levelSlug } from './languages.js'
 import { getLevelMeta } from './levels.js'
 import { generatedVocabulary } from './vocabulary/generated/index.js'
+import { grammarBankFor, topicsForLevel } from './curriculum.js'
 
 const packs = {
   english: [
@@ -155,7 +156,8 @@ export function getRoadmap(languageId, levelName) {
   }
 
   const firstLevel = language.levels[0][0]
-  const unitTitles = levelName === firstLevel ? ['Khởi đầu tự tin', ...genericUnits.slice(1)] : genericUnits
+  const levelIndex = language.levels.findIndex(([name]) => name === levelName)
+  const unitTitles = topicsForLevel(levelIndex)
   return unitTitles.map((title, unitIndex) => ({
     unit:unitIndex + 1,
     title,
@@ -172,11 +174,17 @@ function makeEnglishLessons(levelName, unitIndex, topic, meta, lessonCount, less
     const grammar = {
       name: grammarData[0], structure: grammarData[1], explanation: grammarData[2], examples: grammarData[3], mistake: grammarData[4],
     }
-    const listen = meta.listening[(unitIndex + variant) % meta.listening.length]
-    const target = meta.targets[(unitIndex + variant) % meta.targets.length]
+    const baseListen = meta.listening[(unitIndex + variant) % meta.listening.length]
+    const baseTarget = meta.targets[(unitIndex + variant) % meta.targets.length]
+    const contextualExamples = words.map((word) => word[4]).filter(Boolean)
+    const vocabularyCue = contextualExamples[lessonNumber % Math.max(1, contextualExamples.length)] || `This lesson focuses on the words ${words.map((word) => word[0]).join(', ')}.`
+    const listen = [baseListen, vocabularyCue].filter(Boolean).join(' ')
+    const target = lessonNumber % 2 === 0 ? (contextualExamples[(lessonNumber + 1) % Math.max(1, contextualExamples.length)] || `I can use ${words[0][0]} in context.`) : baseTarget
+    const readingExamples = (contextualExamples.length ? contextualExamples : [`This practice uses ${words.map((word) => word[0]).join(', ')} in the topic ${topic}.`]).slice().sort((a,b) => (a.length + lessonNumber) % 7 - (b.length + lessonNumber) % 7)
     const reading = {
       ...meta.reading,
-      title: `${topic} · ${meta.reading.title}`,
+      title: `${topic} · ${meta.reading.title} · Practice ${lessonNumber}`,
+      text: lessonNumber % 2 === 0 ? `${readingExamples.join(' ')} ${meta.reading.text}` : `${meta.reading.text} ${readingExamples.join(' ')}`,
       type: lessonNumber % 3 === 0 ? 'True / False' : 'Multiple Choice',
       ...(lessonNumber % 3 === 0 ? { question: `True or false: “${meta.reading.options[meta.reading.answer]}” matches the passage.`, options: ['True', 'False'], answer: 0 } : {}),
     }
@@ -229,8 +237,10 @@ function makeListening(audio, words, topic, lessonNumber) {
   const type = listeningTypes[(lessonNumber - 1) % listeningTypes.length]
   if (type === 'Dictation') return { type, audio, prompt: 'Nghe và chép lại chính xác câu bạn nghe được.', expected: audio, explanation: `Câu hoàn chỉnh: “${audio}”` }
   if (type === 'Fill in the Blank') {
-    const expected = words.find((word) => new RegExp(`\\b${word[0]}\\b`, 'i').test(word[4])) || words[0]
-    return { type, audio: expected[4], prompt: expected[4].replace(new RegExp(expected[0], 'i'), '_____'), expected: expected[0], explanation: `Từ còn thiếu là “${expected[0]}”.` }
+    const expected = words.find((word) => word[4] && new RegExp(`\\b${word[0]}\\b`, 'i').test(word[4])) || words.find((word) => word[4]) || words[0]
+    const sentence = expected[4] || expected[0] || audio
+    const prompt = sentence && expected[0] ? sentence.replace(new RegExp(expected[0], 'i'), '_____') : '_____'
+    return { type, audio: sentence || audio, prompt, expected: expected[0], explanation: `Từ còn thiếu là “${expected[0]}”.` }
   }
   return {
     type,
@@ -253,7 +263,10 @@ function makeWriting(levelIndex, variant, words, target, topic) {
 function makeQuiz(grammar, words, listen, target, lessonNumber) {
   const type = quizTypes[(lessonNumber - 1) % quizTypes.length]
   const word = words[0]
-  if (type === 'Fill Blank') return { type, question: word[4].replace(new RegExp(word[0], 'i'), '_____'), expected: word[0], explanation: `Từ phù hợp là “${word[0]}” (${word[3]}).` }
+  if (type === 'Fill Blank') {
+    const sentence = word[4] || word[0]
+    return { type, question: sentence.replace(new RegExp(word[0], 'i'), '_____'), expected: word[0], explanation: `Từ phù hợp là “${word[0]}” (${word[3]}).` }
+  }
   if (type === 'Reorder Sentence') return { type, question: 'Sắp xếp thành câu hoàn chỉnh.', expected: target, tokens: target.replace(/[.!?]/g, '').split(/\s+/).sort((a, b) => a.localeCompare(b)), explanation: `Câu đúng: “${target}”` }
   if (type === 'Matching') return { type, question: 'Ghép từ với nghĩa phù hợp.', pairs: words.map((item) => [item[0], item[3]]), explanation: 'Các cặp từ và nghĩa được lấy từ phần từ vựng của bài.' }
   if (type === 'True False') return { type, question: `“${word[0]}” có nghĩa là “${word[3]}”.`, options: ['True', 'False'], answer: 0, explanation: `${word[0]}: ${word[3]}.` }
@@ -263,8 +276,11 @@ function makeQuiz(grammar, words, listen, target, lessonNumber) {
 }
 
 function makePracticeLessons(languageId, levelName, unitIndex, lessonOffset, topic, keepStarterCore = false) {
-  const levelIndex = getLanguage(languageId).levels.findIndex(([name]) => name === levelName)
+  const language = getLanguage(languageId)
+  const levelIndex = language.levels.findIndex(([name]) => name === levelName)
   const vocabPool = vocabularyRows(languageId,levelName,packs[languageId].flatMap((item) => item.vocab))
+  const fallbackGrammar = packs[languageId][unitIndex % packs[languageId].length]?.grammar
+  const grammarPool = grammarBankFor(languageId,levelName,fallbackGrammar)
   return Array.from({ length:6 }, (_, index) => {
     const source = packs[languageId][(unitIndex + index) % packs[languageId].length]
     const lessonNumber = lessonOffset + index + 1
@@ -272,23 +288,31 @@ function makePracticeLessons(languageId, levelName, unitIndex, lessonOffset, top
       ? source.vocab
       : sliceVocabulary(vocabPool,(lessonNumber - 1) * 3,3)
     const focus = lessonFocuses[index]
-    const listen = words.find((word) => word[4])?.[4] || source.listen
+    const grammar = grammarPool[(unitIndex * 6 + index) % Math.max(1,grammarPool.length)] || source.grammar
+    const target = grammar.examples?.[(unitIndex + index) % Math.max(1,grammar.examples.length)] || words.find((word) => word[4])?.[4] || source.target
     const examples = words.map((word) => word[4]).filter(Boolean)
+    const listeningLines = [target, examples[(index + 1) % Math.max(1,examples.length)], examples[(index + 2) % Math.max(1,examples.length)]].filter(Boolean)
+    const listen = [...new Set(listeningLines)].slice(0,levelIndex >= 3 ? 3 : 2).join(' ')
+    const readingLines = [...new Set([...examples, ...(grammar.examples || []).slice(0,levelIndex >= 3 ? 2 : 1)])]
     const reading = {
-      title:`${topic} · Context Practice`,
-      text:examples.join(' ') || source.reading.text,
-      question:`Từ nào có nghĩa gần nhất với “${words[0][3]}”?`,
-      options:words.map((word) => word[0]),
+      title:`${topic} · Context Practice ${lessonNumber}`,
+      text:readingLines.join(' ') || source.reading.text,
+      question:levelIndex >= 3 ? `Cấu trúc nào là trọng tâm trong đoạn “${topic}”?` : `Từ nào có nghĩa gần nhất với “${words[0][3]}”?`,
+      options:levelIndex >= 3 ? [grammar.structure,words[0][0],words[1][0]] : words.map((word) => word[0]),
       answer:0,
       type:'Multiple Choice',
     }
-    const writing = levelIndex >= 4
-      ? { type:'Extended Writing', prompt:`Viết khoảng 120–150 từ về “${topic}”, cố gắng dùng ${words[0][0]} và ${words[1][0]}.`, keywords:words.slice(0,2).map((word) => word[0]), minWords:120, maxWords:180 }
-      : levelIndex >= 2
-        ? { type:'Guided Writing', prompt:`Viết 5–7 câu về “${topic}” và dùng ít nhất hai từ mới của bài.`, keywords:words.slice(0,2).map((word) => word[0]), minWords:35, maxWords:100 }
-        : { ...source.writing, type:source.writing.type || 'Guided Writing', keywords:words.slice(0,2).map((word) => word[0]) }
+    const writing = levelIndex === 0
+      ? { type:'Guided Writing', prompt:`Viết 2–3 câu về “${topic}” và dùng ít nhất một từ mới.`, keywords:words.slice(0,2).map((word) => word[0]), minWords:8, maxWords:45 }
+      : levelIndex === 1
+        ? { type:'Guided Writing', prompt:`Viết 4–5 câu về “${topic}”, dùng cấu trúc ${grammar.name} và ít nhất hai từ mới.`, keywords:words.slice(0,2).map((word) => word[0]), minWords:20, maxWords:70 }
+        : levelIndex === 2
+          ? { type:'Guided Writing', prompt:`Viết 5–7 câu về “${topic}”, nêu lý do hoặc trải nghiệm và dùng ${grammar.name}.`, keywords:words.slice(0,2).map((word) => word[0]), minWords:35, maxWords:100 }
+          : levelIndex === 3
+            ? { type:'Opinion Writing', prompt:`Viết 80–120 từ về “${topic}”, trình bày quan điểm và vận dụng ${grammar.name}.`, keywords:words.slice(0,2).map((word) => word[0]), minWords:80, maxWords:120, requiredIdeas:['Nêu quan điểm','Đưa lý do hoặc ví dụ','Kết luận'] }
+            : { type:'Extended Writing', prompt:`Viết 120–180 từ phân tích “${topic}”, dùng cấu trúc ${grammar.name} và ít nhất hai từ mới.`, keywords:words.slice(0,2).map((word) => word[0]), minWords:120, maxWords:180, requiredIdeas:['Nêu luận điểm','Phân tích bằng ví dụ hoặc bằng chứng','Thể hiện sắc thái hoặc phản biện','Kết luận'] }
     const quiz = index % 3 === 2
-      ? { type:'Grammar Quiz', question:'Cấu trúc nào là trọng tâm của bài?', options:[source.grammar.structure,source.target,words[0][0]], answer:0, explanation:`${source.grammar.name}: ${source.grammar.structure}` }
+      ? { type:'Grammar Quiz', question:'Cấu trúc nào là trọng tâm của bài?', options:[grammar.structure,target,words[0][0]], answer:0, explanation:`${grammar.name}: ${grammar.structure}` }
       : { type:'Vocabulary Quiz', question:`“${words[0][0]}” có nghĩa là gì?`, options:words.map((word) => word[3]), answer:0, explanation:`${words[0][0]}: ${words[0][3]}.` }
 
     return {
@@ -296,26 +320,37 @@ function makePracticeLessons(languageId, levelName, unitIndex, lessonOffset, top
       id:`${languageId}-${levelSlug(levelName)}-${unitIndex + 1}-${index + 1}`,
       number:lessonNumber,
       title:`${topic}: ${focus}`,
-      nativeTitle:`${focus} · ${source.nativeTitle}`,
+      nativeTitle:`${levelName} · ${focus}`,
       icon:focus === 'Review & Challenge' ? '✦' : source.icon,
       topic,
       level:levelName,
       vocab:words,
+      grammar,
+      target,
       listen,
       listening:makeListening(listen,words,topic,lessonNumber),
       reading,
       writing,
       quiz,
-      duration:20 + (index % 3) * 5,
+      duration:20 + Math.min(15,levelIndex * 3) + (index % 3) * 3,
       objectives:[
         `Ghi nhớ và dùng được ${words.map((word) => word[0]).join(', ')}.`,
-        `Vận dụng ${source.grammar.name} trong ngữ cảnh ${topic}.`,
-        'Hoàn thành hoạt động nghe, đọc, viết và bài kiểm tra cuối bài.',
+        `Vận dụng ${grammar.name} trong ngữ cảnh ${topic}.`,
+        levelIndex >= 3 ? 'Đọc/nghe lấy hàm ý, lập luận và phản hồi bằng ngôn ngữ phù hợp level.' : 'Hoàn thành hoạt động nghe, đọc, nói và viết theo level.',
       ],
-      detailedExplanation:`Bài ${focus.toLowerCase()} của unit “${topic}” kết hợp từ mới theo đúng level ${levelName} với mẫu ngữ pháp và hoạt động bốn kỹ năng.`,
+      detailedExplanation:`Bài ${focus.toLowerCase()} của unit “${topic}” dùng curriculum riêng cho ${levelName}. Ngữ pháp ${grammar.name}, từ vựng và nhiệm vụ sản sinh được chọn theo đúng level thay vì tái sử dụng cấu trúc beginner.`,
+      dialogue:{
+        lines:[
+          ['A',target],
+          ['B',examples[0] || target],
+          ['A',grammar.examples?.[1] || examples[1] || target],
+        ],
+        translation:`Hội thoại luyện ${grammar.name} trong chủ đề ${topic}.`,
+      },
     }
   })
 }
+
 export function getLesson(languageId, levelName, lessonId) {
   return getRoadmap(languageId, levelName).flatMap((unit) => unit.lessons).find((lesson) => lesson.id === lessonId)
 }

@@ -53,8 +53,11 @@ for (const level of Object.keys(expectedTopics)) {
   assert(englishLevels[level], `Missing English metadata for ${level}`)
   const roadmap = getRoadmap('english', level)
   assert(JSON.stringify(roadmap.map((unit) => unit.title)) === JSON.stringify(expectedTopics[level]), `${level} roadmap topics are incorrect`)
-  assert(roadmap.flatMap((unit) => unit.lessons).length === 60, `${level} must have exactly 60 usable lessons`)
+  const levelLessons = roadmap.flatMap((unit) => unit.lessons)
+  assert(levelLessons.length === 60, `${level} must have exactly 60 usable lessons`)
   assert(roadmap.every((unit) => unit.lessons.length >= 6), `${level} units are still too thin`)
+  assert(new Set(levelLessons.map((lesson) => lesson.listening.audio)).size >= 30, `${level} listening content is too repetitive`)
+  assert(new Set(levelLessons.map((lesson) => lesson.reading.text)).size >= 30, `${level} reading content is too repetitive`)
   for (const lesson of roadmap.flatMap((unit) => unit.lessons)) {
     assert(!lessonIds.has(lesson.id), `Duplicate lesson id: ${lesson.id}`)
     lessonIds.add(lesson.id)
@@ -86,8 +89,12 @@ for (const language of ['chinese','japanese','korean']) {
     const roadmap = getRoadmap(language,level)
     const lessons = roadmap.flatMap((unit) => unit.lessons)
     assert(lessons.length === 60, `${language} ${level} must have exactly 60 lessons`)
+    assert(roadmap.length === 10 && new Set(roadmap.map((unit) => unit.title)).size === 10, `${language} ${level} must expose 10 distinct curriculum units`)
     assert(new Set(lessons.map((lesson) => lesson.id)).size === 60, `${language} ${level} contains duplicate lesson ids`)
+    assert(new Set(lessons.map((lesson) => lesson.grammar?.name)).size >= 3, `${language} ${level} is still recycling a beginner grammar seed`)
     assert(lessons.every((lesson) => lesson.vocab?.length >= 3 && lesson.listening?.audio && lesson.reading?.text && lesson.writing && lesson.quiz), `${language} ${level} has incomplete expanded lessons`)
+    const levelIndex = languageMeta.levels.findIndex(([name]) => name === level)
+    if (levelIndex >= 3) assert(lessons.some((lesson) => Number(lesson.writing?.minWords) >= 80), `${language} ${level} lacks advanced production tasks`)
   }
 }
 

@@ -77,6 +77,7 @@ try {
   const b2State = await page.evaluate(() => JSON.parse(localStorage.getItem('nt_state_v1')))
   assert(b2State.levelProgress['english:B2'].completedLessons.includes('english-b2-1-1'), 'B2 completion was not saved in its own level bucket')
   assert(b2State.mistakes.some((item) => item.type === 'Listening'), 'Incorrect listening answer was not saved to Mistakes')
+  assert(b2State.levelProgress['english:B2'].lessonSkillScores['english-b2-1-1'].Listening === 0, 'Incorrect listening answer received partial accuracy credit')
   assert(b2State.savedItems.some((item) => item.type === 'Vocabulary' && item.path), 'Saved vocabulary did not retain a return path')
 
   console.log('E2E checkpoint: B2 lesson completed')
@@ -85,11 +86,11 @@ try {
   await page.waitForURL('**/dashboard')
   const currentLevelText = await page.locator('.level-switcher h2').textContent()
   assert(currentLevelText?.includes('English · B2'), `Dashboard did not retain B2 as current level (rendered: ${currentLevelText})`)
-  await page.getByRole('link', { name: 'Change Level' }).click()
+  await page.getByRole('link', { name: /Change Level|Đổi level/ }).click()
   await page.locator('.level-card', { hasText: 'A1' }).first().click()
   await page.waitForURL('**/english/a1')
   await page.getByText('Greetings', { exact: true }).waitFor()
-  await page.getByRole('link', { name: 'Change Level' }).click()
+  await page.getByRole('link', { name: /Change Level|Đổi level/ }).click()
   await page.locator('.level-card', { hasText: 'C2' }).first().click()
   await page.waitForURL('**/english/c2')
   await page.getByText('Complex Listening', { exact: true }).waitFor()
@@ -110,6 +111,9 @@ try {
 
   await page.goto(`${origin}/mistakes`)
   await page.getByRole('link', { name: /Practice Again/ }).first().waitFor()
+  await page.getByRole('button', { name:'Đã làm đúng' }).first().click()
+  await page.waitForFunction(() => JSON.parse(localStorage.getItem('nt_state_v1')).mistakes.some((item) => item.reviewSchedule?.nextReview))
+  assert((await page.evaluate(() => JSON.parse(localStorage.getItem('nt_state_v1')).mistakes.some((item) => item.reviewSchedule?.interval >= 2))), 'Mistake review did not schedule the next repetition')
   await page.goto(`${origin}/saved`)
   await page.getByRole('link', { name: /Mở nội dung/ }).waitFor()
 
@@ -126,8 +130,8 @@ try {
   await page.locator('.vocabulary-load-more').click()
   assert(await page.locator('.vocabulary-index > div > button:not(.vocabulary-load-more)').count() === 100, 'Vocabulary load-more did not reveal the next page')
   await page.locator('.vocabulary-filters select').nth(5).selectOption('alphabetical')
-  await page.locator('.filter-search input').fill('vegetable')
-  await page.getByRole('heading', { name: 'vegetable', exact: true }).waitFor()
+  await page.locator('.filter-search input').fill('family')
+  await page.getByRole('heading', { name: 'family', exact: true }).waitFor()
 
   await page.goto(`${origin}/flashcards?language=english&level=A1&limit=5`)
   await page.locator('.flashcard-progress').getByText('1 / 5', { exact: true }).waitFor()
