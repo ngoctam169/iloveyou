@@ -1,3 +1,4 @@
+export const LESSON_CONTENT_VERSION = 2
 
 const languageNames = { english:'tiếng Anh', chinese:'tiếng Trung', japanese:'tiếng Nhật', korean:'tiếng Hàn' }
 const listeningTypes = ['Listen & Choose', 'Dictation', 'Fill in the Blank', 'Listen & Answer', 'Conversation Listening']
