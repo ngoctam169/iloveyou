@@ -77,6 +77,7 @@ try {
   const b2State = await page.evaluate(() => JSON.parse(localStorage.getItem('nt_state_v1')))
   assert(b2State.levelProgress['english:B2'].completedLessons.includes('english-b2-1-1'), 'B2 completion was not saved in its own level bucket')
   assert(b2State.mistakes.some((item) => item.type === 'Listening'), 'Incorrect listening answer was not saved to Mistakes')
+  assert(b2State.levelProgress['english:B2'].lessonSkillScores['english-b2-1-1'].Listening === 0, 'Incorrect listening answer received partial accuracy credit')
   assert(b2State.savedItems.some((item) => item.type === 'Vocabulary' && item.path), 'Saved vocabulary did not retain a return path')
 
   console.log('E2E checkpoint: B2 lesson completed')
@@ -110,6 +111,9 @@ try {
 
   await page.goto(`${origin}/mistakes`)
   await page.getByRole('link', { name: /Practice Again/ }).first().waitFor()
+  await page.getByRole('button', { name:'Đã làm đúng' }).first().click()
+  await page.waitForFunction(() => JSON.parse(localStorage.getItem('nt_state_v1')).mistakes.some((item) => item.reviewSchedule?.nextReview))
+  assert((await page.evaluate(() => JSON.parse(localStorage.getItem('nt_state_v1')).mistakes.some((item) => item.reviewSchedule?.interval >= 2))), 'Mistake review did not schedule the next repetition')
   await page.goto(`${origin}/saved`)
   await page.getByRole('link', { name: /Mở nội dung/ }).waitFor()
 
