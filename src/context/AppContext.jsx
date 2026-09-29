@@ -25,6 +25,11 @@ export function AppProvider({ children }) {
   }, [toast])
 
   const update = (partial) => setState((current) => ({ ...current, ...(typeof partial === 'function' ? partial(current) : partial) }))
+  const persistLessonSession = (lessonId, session) => setState((current) => {
+    const next = { ...current, lessonSessions: { ...(current.lessonSessions || {}), [lessonId]: session } }
+    saveState(next)
+    return next
+  })
   const chooseCourse = (language, level) => update({ selectedLanguage: language, selectedLevel: level })
 
   const completeLesson = ({ lessonId, languageId, level, score, skills, vocabularyCount = 0, vocabularyWords = [], minutes = 8 }) => {
@@ -190,7 +195,7 @@ export function AppProvider({ children }) {
   }
 
   const value = useMemo(() => ({
-    state, update, chooseCourse, completeLesson, toggleSaved, removeMistake, addMistake, reviewVocabulary, setVocabularyMeta, savePersonalWord, deletePersonalWord, createVocabularyList, toggleWordInList, deleteVocabularyList, recordSelfStudy, recordStudyTime, recordGrammarAnswer, saveExamResult, reset,
+    state, update, persistLessonSession, chooseCourse, completeLesson, toggleSaved, removeMistake, addMistake, reviewVocabulary, setVocabularyMeta, savePersonalWord, deletePersonalWord, createVocabularyList, toggleWordInList, deleteVocabularyList, recordSelfStudy, recordStudyTime, recordGrammarAnswer, saveExamResult, reset,
     toast, setToast,
   }), [state, toast])
 
