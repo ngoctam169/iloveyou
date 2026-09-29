@@ -18,6 +18,13 @@ const statuses = ['All', 'New Words', 'Learning', 'Review Today', 'Recently Wron
 const PAGE_SIZE = 50
 const statusFromParam = (value) => ({ review:'Review Today', weak:'Weak Words', wrong:'Recently Wrong', mastered:'Mastered', new:'New Words' }[value] || 'All')
 const favoriteId = (word) => `vocab-${wordKey(word)}`
+const provenanceLabel = (word) => word.levelStatus === 'source' ? 'Khớp level nguồn' : word.levelStatus === 'extended' ? 'Bổ sung từ level lân cận' : word.levelStatus === 'study-band' ? 'Study band của app' : 'Biên tập trong app'
+const provenanceTone = (word) => word.levelStatus === 'source' ? 'source' : word.levelStatus === 'extended' ? 'extended' : word.levelStatus === 'study-band' ? 'study-band' : 'editorial'
+const provenanceDetail = (word) => word.levelStatus === 'study-band'
+  ? `${word.level} là study band của app; nguồn gốc giữ ở ${word.sourceLevel || 'NIKL grade'}.`
+  : word.levelStatus === 'extended'
+    ? `App level ${word.level}; nguồn gốc ${word.sourceLevel || 'level lân cận'} và được bổ sung để đủ độ phủ luyện tập.`
+    : `App level ${word.level}${word.sourceLevel ? ` · source level ${word.sourceLevel}` : ''}.`
 const isFavorite = (word, items) => items.some((item) => item.id === favoriteId(word) || item.type === 'Vocabulary' && item.title?.toLocaleLowerCase() === word.word.toLocaleLowerCase() && item.subtitle?.includes(word.level) && (!item.languageId || item.languageId === word.languageId))
 
 export default function Vocabulary() {
@@ -93,6 +100,9 @@ export default function Vocabulary() {
     mastered: scope.filter((word) => statusFor(word) === 'Mastered').length,
     due: scope.filter((word) => isDue(scheduleFor(word))).length,
     weak: scope.filter(weak).length,
+    source: scope.filter((word) => word.levelStatus === 'source').length,
+    extended: scope.filter((word) => word.levelStatus === 'extended').length,
+    studyBand: scope.filter((word) => word.levelStatus === 'study-band').length,
   }
   useEffect(() => {
     if (tab !== 'Quiz') return
