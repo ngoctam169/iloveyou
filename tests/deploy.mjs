@@ -69,4 +69,4 @@ for (const file of htmlFiles) {
   }
 }
 
-console.log(`DEPLOY PASS: validated ${htmlFiles.length} prerendered HTML files, ${vocabularyChunks.length} lazy vocabulary chunks and GitHub Pages asset paths`)
+console.log(`DEPLOY PASS: validated ${htmlFiles.length} prerendered HTML files, ${vocabularyPayloads.length} lazy vocabulary JSON payloads and GitHub Pages asset paths`)
