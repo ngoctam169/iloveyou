@@ -91,6 +91,19 @@ for (const language of ['chinese','japanese','korean']) {
   }
 }
 
+for (const [language,highLevel,forbidden] of [['chinese','HSK 6','Subject + 是 + noun'],['japanese','N1','Noun + です / Verb + ます'],['korean','TOPIK 6','Noun + 이에요/예요']]) {
+  const lessons = getRoadmap(language,highLevel).flatMap((unit)=>unit.lessons)
+  assert(new Set(lessons.map((lesson)=>lesson.grammar.structure)).size >= 4, `${language} ${highLevel} must rotate advanced grammar, not beginner seed grammar`)
+  assert(!lessons.some((lesson)=>lesson.grammar.structure === forbidden), `${language} ${highLevel} leaked beginner grammar into advanced curriculum`)
+  assert(new Set(lessons.map((lesson)=>lesson.topic)).size >= 6, `${language} ${highLevel} needs distinct advanced themes`)
+}
+
+for (const level of Object.keys(expectedTopics)) {
+  const lessons = getRoadmap('english',level).flatMap((unit)=>unit.lessons)
+  assert(new Set(lessons.map((lesson)=>lesson.listening.audio)).size >= 20, `${level} listening content is still too repetitive`)
+  assert(new Set(lessons.map((lesson)=>lesson.reading.text)).size >= 20, `${level} reading content is still too repetitive`)
+}
+
 const independent = { levelProgress: { [progressKey('english', 'B2')]: { completedLessons: ['english-b2-1-1'] } } }
 assert(getLevelProgress(independent, 'english', 'B2').completedLessons.length === 1, 'B2 progress lookup failed')
 assert(getLevelProgress(independent, 'english', 'A1').completedLessons.length === 0, 'Progress leaked between levels')
