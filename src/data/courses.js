@@ -145,7 +145,7 @@ const localizeLevelGrammar = (languageId, levelName, source, lessonNumber) => {
   const profile = levelCurriculum[languageId]?.[levelName]
   if (!profile?.grammar?.length) return source.grammar
   const [name,structure,explanation] = profile.grammar[(lessonNumber - 1) % profile.grammar.length]
-  return { name, structure, explanation, examples: source.grammar.examples, mistake: `Tập trung dùng đúng cấu trúc ${structure} trong ngữ cảnh ${profile.themes[(lessonNumber - 1) % profile.themes.length]}.` }
+  return { name, structure, explanation, examples: [], mistake: `Tập trung dùng đúng cấu trúc ${structure} trong ngữ cảnh ${profile.themes[(lessonNumber - 1) % profile.themes.length]}.` }
 }
 
 const contextualTarget = (languageId, levelName, words, topic, lessonNumber, fallback) => {
