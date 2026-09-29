@@ -177,9 +177,13 @@ const distributeLessonCounts = (unitCount, total = TARGET_LESSONS_PER_LEVEL) => 
   return Array.from({ length:unitCount }, (_, index) => base + (index < remainder ? 1 : 0))
 }
 
+const expandLessonWord = (row = []) => row.length <= 2
+  ? [row[0] || '', '', '', row[1] || '', '', '']
+  : row
+
 const vocabularyRows = (languageId, levelName, fallback = []) => {
   const rows = lessonPools?.[languageId]?.[levelName] || []
-  return rows.length >= 3 ? rows : fallback
+  return rows.length >= 3 ? rows.map(expandLessonWord) : fallback
 }
 
 const sliceVocabulary = (pool, start, count = 3) => Array.from({ length:count }, (_, offset) => pool[(start + offset) % pool.length])
