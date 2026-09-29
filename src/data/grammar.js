@@ -4,8 +4,17 @@ import { levelGrammarBanks } from './curriculum.js'
 
 export const grammarEntries = languages.flatMap((language) => language.levels.flatMap(([level], levelIndex) => {
   if (language.id !== 'english' && levelIndex > 0) {
-    const row = levelGrammarBanks[language.id]?.[level]?.[0]
-    return row ? [{ id:`${language.id}-${levelSlug(level)}-grammar`, languageId:language.id, level, ...row, lessonPath:null }] : []
+    const bank = levelGrammarBanks[language.id]?.[level] || []
+    const lessons = getRoadmap(language.id, level).flatMap((unit) => unit.lessons)
+    return bank.map((row,index) => ({
+      id:`${language.id}-${levelSlug(level)}-grammar-${index + 1}`,
+      languageId:language.id,
+      level,
+      ...row,
+      lessonPath:lessons.find((lesson) => lesson.grammar.name === row.name)
+        ? `/${language.id}/${levelSlug(level)}/lessons/${lessons.find((lesson) => lesson.grammar.name === row.name).id}?section=grammar`
+        : null,
+    }))
   }
   const found = new Map()
   for (const lesson of getRoadmap(language.id, level).flatMap((unit) => unit.lessons)) {
