@@ -115,6 +115,62 @@ const quizTypes = ['Multiple Choice', 'Fill Blank', 'Reorder Sentence', 'Matchin
 const lessonFocuses = ['Core Language', 'Vocabulary Lab', 'Listening & Speaking', 'Grammar in Context', 'Reading & Writing', 'Review & Challenge']
 const TARGET_LESSONS_PER_LEVEL = 60
 
+const levelCurriculum = {
+  chinese: {
+    'HSK 1': { themes:['Greetings','Family','Numbers','Daily routine','Food','Places','Basic requests'], grammar:[['是 sentences','Subject + 是 + noun','Giới thiệu danh tính và phân loại.'],['有 / 没有','Subject + 有 / 没有 + object','Nói có hoặc không có.'],['吗 questions','Statement + 吗？','Tạo câu hỏi yes/no.'],['在 location','Subject + 在 + place','Nói vị trí.']] },
+    'HSK 2': { themes:['Schedules','Shopping','Transport','Weather','Health','Invitations','Comparisons'], grammar:[['了 completion','Verb + 了','Diễn tả hành động đã hoàn tất.'],['正在 progressive','正在 + verb','Diễn tả hành động đang xảy ra.'],['比 comparison','A + 比 + B + adjective','So sánh hai đối tượng.'],['因为…所以…','因为 + cause， 所以 + result','Nối nguyên nhân và kết quả.']] },
+    'HSK 3': { themes:['Travel planning','Study habits','Work','Relationships','Services','Experiences','Opinions'], grammar:[['把 sentence','Subject + 把 + object + verb + result','Nhấn mạnh cách xử lý một đối tượng.'],['被 passive','Subject + 被 + agent + verb','Câu bị động cơ bản.'],['过 experience','Verb + 过','Nói trải nghiệm đã từng có.'],['虽然…但是…','虽然 + concession，但是 + result','Diễn tả nhượng bộ.']] },
+    'HSK 4': { themes:['Problem solving','Media','Culture','Environment','Career','Public services','Debate'], grammar:[['既然…就…','既然 + premise，就 + result','Nêu tiền đề rồi kết luận hợp lý.'],['不仅…而且…','不仅 + A，而且 + B','Bổ sung hai đặc điểm/hành động.'],['无论…都…','无论 + condition，都 + result','Khái quát bất kể điều kiện.'],['连…都…','连 + focus + 都 + predicate','Nhấn mạnh trường hợp bất ngờ.']] },
+    'HSK 5': { themes:['Academic study','Professional communication','Social issues','Technology','Economy','Narrative','Argument'], grammar:[['一方面…另一方面…','一方面 + A，另一方面 + B','Trình bày hai mặt của vấn đề.'],['与其…不如…','与其 + A，不如 + B','Ưu tiên phương án B hơn A.'],['之所以…是因为…','之所以 + result，是因为 + cause','Đảo thứ tự nguyên nhân-kết quả để nhấn mạnh.'],['即使…也…','即使 + concession，也 + result','Nhượng bộ giả định.']] },
+    'HSK 6': { themes:['Abstract argument','Public policy','Literature','Research','Ethics','Negotiation','Nuance'], grammar:[['并非…而是…','并非 + A，而是 + B','Bác bỏ cách hiểu A và thay bằng B.'],['倘若…则…','倘若 + condition，则 + result','Điều kiện trang trọng trong văn viết.'],['毋庸置疑','毋庸置疑 + clause','Khẳng định điều khó phủ nhận trong văn phong trang trọng.'],['就…而言','就 + topic + 而言','Giới hạn phạm vi lập luận.']] },
+  },
+  japanese: {
+    N5: { themes:['Greetings','Self introduction','Time','Daily routine','Food','Shopping','Directions'], grammar:[['です / ます','Noun + です / Verb + ます','Mẫu lịch sự nền tảng.'],['Particles は / が','Topic + は / subject + が','Phân biệt chủ đề và chủ ngữ.'],['Particles を / に','Object + を / destination-time + に','Đánh dấu tân ngữ, đích đến và thời điểm.'],['〜ませんか','Verb ませんか','Mời hoặc đề nghị lịch sự.']] },
+    N4: { themes:['Plans','Experiences','Requests','Travel','Health','Work','Comparison'], grammar:[['〜たことがある','Verb た + ことがある','Nói về trải nghiệm.'],['〜ながら','Verb stem + ながら','Hai hành động diễn ra đồng thời.'],['〜なければならない','Negative stem + なければならない','Diễn tả nghĩa vụ.'],['〜そうです','Stem + そうです','Suy đoán dựa trên dấu hiệu.']] },
+    N3: { themes:['News','Workplace','Education','Relationships','Services','Opinions','Problem solving'], grammar:[['〜ようにする','Verb + ようにする','Cố gắng tạo thành thói quen.'],['〜ことになっている','Clause + ことになっている','Quy định hoặc lịch đã được quyết định.'],['〜わけではない','Clause + わけではない','Phủ định một cách hiểu quá rộng.'],['〜ために','Noun / Verb + ために','Mục đích hoặc nguyên nhân.']] },
+    N2: { themes:['Professional communication','Social issues','Media','Culture','Research','Negotiation','Debate'], grammar:[['〜に違いない','Clause + に違いない','Suy đoán với độ chắc chắn cao.'],['〜にもかかわらず','Clause + にもかかわらず','Nhượng bộ trang trọng.'],['〜ことから','Clause + ことから','Suy ra nguyên nhân hoặc căn cứ.'],['〜に基づいて','Noun + に基づいて','Dựa trên dữ liệu/căn cứ.']] },
+    N1: { themes:['Abstract analysis','Policy','Literature','Academic argument','Ethics','Corporate strategy','Nuance'], grammar:[['〜を踏まえて','Noun + を踏まえて','Xem xét dựa trên bối cảnh/căn cứ.'],['〜に至るまで','Noun + に至るまで','Nhấn mạnh phạm vi kéo dài đến cả trường hợp cuối.'],['〜を余儀なくされる','Noun + を余儀なくされる','Bị buộc phải làm do hoàn cảnh.'],['〜とはいえ','Clause + とはいえ','Nhượng bộ rồi điều chỉnh nhận định.']] },
+  },
+  korean: {
+    'TOPIK 1': { themes:['Greetings','Family','Numbers','Daily routine','Food','Places','Basic requests'], grammar:[['이에요/예요','Noun + 이에요/예요','Nói “là” ở mức lịch sự thân thiện.'],['은/는','Noun + 은/는','Đánh dấu chủ đề.'],['을/를','Noun + 을/를','Đánh dấu tân ngữ.'],['아요/어요','Verb stem + 아요/어요','Hiện tại lịch sự thông dụng.']] },
+    'TOPIK 2': { themes:['Plans','Shopping','Transport','Weather','Health','Invitations','Experiences'], grammar:[['-(으)ㄹ 거예요','Stem + (으)ㄹ 거예요','Kế hoạch hoặc dự đoán tương lai.'],['-아/어서','Stem + 아/어서','Nối nguyên nhân hoặc chuỗi hành động.'],['-고 싶어요','Stem + 고 싶어요','Diễn tả mong muốn.'],['-(으)ㄹ 수 있어요','Stem + (으)ㄹ 수 있어요','Diễn tả khả năng.']] },
+    'TOPIK 3': { themes:['Work','Education','Relationships','Services','Travel','Opinions','Problem solving'], grammar:[['-(으)면서','Stem + (으)면서','Hai hành động đồng thời.'],['-기 때문에','Stem + 기 때문에','Nguyên nhân rõ ràng.'],['-(으)ㄴ 적이 있다','Stem + (으)ㄴ 적이 있다','Nói trải nghiệm.'],['-아/어야 하다','Stem + 아/어야 하다','Nghĩa vụ.']] },
+    'TOPIK 4': { themes:['Media','Culture','Environment','Career','Technology','Public issues','Debate'], grammar:[['-는 반면에','Clause + 는 반면에','Đối chiếu hai mặt.'],['-(으)ㄹ 뿐만 아니라','Clause + (으)ㄹ 뿐만 아니라','Không chỉ A mà còn B.'],['-도록','Stem + 도록','Mục tiêu hoặc mức độ.'],['-다고 볼 수 있다','Clause + 다고 볼 수 있다','Đưa ra nhận định có dè dặt.']] },
+    'TOPIK 5': { themes:['Academic study','Professional writing','Economy','Social issues','Research','Argument','Negotiation'], grammar:[['-는 데 비해','Clause + 는 데 비해','So sánh tương phản có tính phân tích.'],['-(으)므로','Stem + (으)므로','Nguyên nhân trang trọng trong văn viết.'],['-기 마련이다','Stem + 기 마련이다','Khái quát xu hướng thường xảy ra.'],['-는 것으로 나타나다','Clause + 는 것으로 나타나다','Tường thuật kết quả khảo sát/nghiên cứu.']] },
+    'TOPIK 6': { themes:['Abstract argument','Policy','Ethics','Literature','Research','Corporate strategy','Nuance'], grammar:[['-기에 망정이지','Clause + 기에 망정이지','Nhấn mạnh nhờ một điều kiện mà tránh kết quả xấu.'],['-고도 남다','Stem + 고도 남다','Nhấn mạnh mức độ hơn cả đủ.'],['-는 셈이다','Clause + 는 셈이다','Kết luận theo nghĩa “coi như”.'],['-을/를 막론하고','Noun + 을/를 막론하고','Bất kể đối tượng/phạm vi.']] },
+  },
+}
+
+const localizeLevelGrammar = (languageId, levelName, source, lessonNumber) => {
+  const profile = levelCurriculum[languageId]?.[levelName]
+  if (!profile?.grammar?.length) return source.grammar
+  const [name,structure,explanation] = profile.grammar[(lessonNumber - 1) % profile.grammar.length]
+  return { name, structure, explanation, examples: source.grammar.examples, mistake: `Tập trung dùng đúng cấu trúc ${structure} trong ngữ cảnh ${profile.themes[(lessonNumber - 1) % profile.themes.length]}.` }
+}
+
+const contextualTarget = (languageId, levelName, words, topic, lessonNumber, fallback) => {
+  const profile = levelCurriculum[languageId]?.[levelName]
+  if (!profile) return fallback
+  const theme = profile.themes[(lessonNumber - 1) % profile.themes.length] || topic
+  const vocabulary = words.map((word)=>word[0]).filter(Boolean).slice(0,2).join(' / ')
+  return languageId === 'chinese' ? `围绕“${theme}”表达一个完整观点，并尽量使用 ${vocabulary}。` : languageId === 'japanese' ? `「${theme}」について、${vocabulary}を使いながら自分の考えを一文で述べてください。` : `“${theme}”에 대해 ${vocabulary}를 활용해서 자신의 생각을 한 문장으로 말해 보세요.`
+}
+
+const generatedEnglishListening = (meta, topic, words, lessonNumber) => {
+  const base = meta.listening[(lessonNumber - 1) % meta.listening.length]
+  const wordA = words[0]?.[0] || topic
+  const wordB = words[1]?.[0] || 'evidence'
+  const variants = [`${base} The speaker then connects ${wordA} with the wider topic of ${topic.toLowerCase()}.`,`During a discussion about ${topic.toLowerCase()}, one speaker highlights ${wordA}, while another asks for clearer ${wordB}.`,`A short report on ${topic.toLowerCase()} explains why ${wordA} matters and gives one practical example involving ${wordB}.`,`Two colleagues disagree about ${topic.toLowerCase()}, but they eventually use ${wordA} to clarify the main point.`]
+  return variants[(lessonNumber - 1) % variants.length]
+}
+
+const generatedEnglishReading = (meta, topic, words, lessonNumber) => {
+  const wordA = words[0]?.[0] || 'evidence'
+  const wordB = words[1]?.[0] || 'context'
+  const variants = [`${meta.reading.text} In a related ${topic.toLowerCase()} example, learners are asked to notice how ${wordA} changes the interpretation of the situation.`,`People often approach ${topic.toLowerCase()} with simple assumptions. A more useful approach is to compare evidence, identify constraints and explain why ${wordA} and ${wordB} matter in context.`,`A team reviewing ${topic.toLowerCase()} first described the problem, then compared alternatives and finally justified its decision. The discussion became clearer when participants used ${wordA} precisely instead of relying on vague language.`]
+  return variants[(lessonNumber - 1) % variants.length]
+}
+
 const distributeLessonCounts = (unitCount, total = TARGET_LESSONS_PER_LEVEL) => {
   const base = Math.floor(total / unitCount)
   const remainder = total % unitCount
@@ -172,11 +228,13 @@ function makeEnglishLessons(levelName, unitIndex, topic, meta, lessonCount, less
     const grammar = {
       name: grammarData[0], structure: grammarData[1], explanation: grammarData[2], examples: grammarData[3], mistake: grammarData[4],
     }
-    const listen = meta.listening[(unitIndex + variant) % meta.listening.length]
-    const target = meta.targets[(unitIndex + variant) % meta.targets.length]
+    const listen = generatedEnglishListening(meta, topic, words, lessonNumber)
+    const targetBase = meta.targets[(unitIndex + variant) % meta.targets.length]
+    const target = `${targetBase} Use ${words[0][0]} naturally when you expand your answer.`
     const reading = {
       ...meta.reading,
-      title: `${topic} · ${meta.reading.title}`,
+      text: generatedEnglishReading(meta, topic, words, lessonNumber),
+      title: `${topic} · ${meta.reading.title} · ${lessonNumber}`,
       type: lessonNumber % 3 === 0 ? 'True / False' : 'Multiple Choice',
       ...(lessonNumber % 3 === 0 ? { question: `True or false: “${meta.reading.options[meta.reading.answer]}” matches the passage.`, options: ['True', 'False'], answer: 0 } : {}),
     }
@@ -272,10 +330,14 @@ function makePracticeLessons(languageId, levelName, unitIndex, lessonOffset, top
       ? source.vocab
       : sliceVocabulary(vocabPool,(lessonNumber - 1) * 3,3)
     const focus = lessonFocuses[index]
+    const profile = levelCurriculum[languageId]?.[levelName]
+    const lessonTheme = profile?.themes?.[(lessonNumber - 1) % profile.themes.length] || topic
+    const grammar = localizeLevelGrammar(languageId, levelName, source, lessonNumber)
     const listen = words.find((word) => word[4])?.[4] || source.listen
+    const target = contextualTarget(languageId, levelName, words, lessonTheme, lessonNumber, source.target)
     const examples = words.map((word) => word[4]).filter(Boolean)
     const reading = {
-      title:`${topic} · Context Practice`,
+      title:`${lessonTheme} · Context Practice`,
       text:examples.join(' ') || source.reading.text,
       question:`Từ nào có nghĩa gần nhất với “${words[0][3]}”?`,
       options:words.map((word) => word[0]),
@@ -283,36 +345,38 @@ function makePracticeLessons(languageId, levelName, unitIndex, lessonOffset, top
       type:'Multiple Choice',
     }
     const writing = levelIndex >= 4
-      ? { type:'Extended Writing', prompt:`Viết khoảng 120–150 từ về “${topic}”, cố gắng dùng ${words[0][0]} và ${words[1][0]}.`, keywords:words.slice(0,2).map((word) => word[0]), minWords:120, maxWords:180 }
+      ? { type:'Extended Writing', prompt:`Viết khoảng 120–150 từ về “${lessonTheme}”, cố gắng dùng ${words[0][0]} và ${words[1][0]}.`, keywords:words.slice(0,2).map((word) => word[0]), minWords:120, maxWords:180 }
       : levelIndex >= 2
-        ? { type:'Guided Writing', prompt:`Viết 5–7 câu về “${topic}” và dùng ít nhất hai từ mới của bài.`, keywords:words.slice(0,2).map((word) => word[0]), minWords:35, maxWords:100 }
+        ? { type:'Guided Writing', prompt:`Viết 5–7 câu về “${lessonTheme}” và dùng ít nhất hai từ mới của bài.`, keywords:words.slice(0,2).map((word) => word[0]), minWords:35, maxWords:100 }
         : { ...source.writing, type:source.writing.type || 'Guided Writing', keywords:words.slice(0,2).map((word) => word[0]) }
     const quiz = index % 3 === 2
-      ? { type:'Grammar Quiz', question:'Cấu trúc nào là trọng tâm của bài?', options:[source.grammar.structure,source.target,words[0][0]], answer:0, explanation:`${source.grammar.name}: ${source.grammar.structure}` }
+      ? { type:'Grammar Quiz', question:'Cấu trúc nào là trọng tâm của bài?', options:[grammar.structure,target,words[0][0]], answer:0, explanation:`${grammar.name}: ${grammar.structure}` }
       : { type:'Vocabulary Quiz', question:`“${words[0][0]}” có nghĩa là gì?`, options:words.map((word) => word[3]), answer:0, explanation:`${words[0][0]}: ${words[0][3]}.` }
 
     return {
       ...source,
       id:`${languageId}-${levelSlug(levelName)}-${unitIndex + 1}-${index + 1}`,
       number:lessonNumber,
-      title:`${topic}: ${focus}`,
+      title:`${lessonTheme}: ${focus}`,
       nativeTitle:`${focus} · ${source.nativeTitle}`,
       icon:focus === 'Review & Challenge' ? '✦' : source.icon,
-      topic,
+      topic:lessonTheme,
       level:levelName,
       vocab:words,
+      grammar,
       listen,
-      listening:makeListening(listen,words,topic,lessonNumber),
+      target,
+      listening:makeListening(listen,words,lessonTheme,lessonNumber),
       reading,
       writing,
       quiz,
       duration:20 + (index % 3) * 5,
       objectives:[
         `Ghi nhớ và dùng được ${words.map((word) => word[0]).join(', ')}.`,
-        `Vận dụng ${source.grammar.name} trong ngữ cảnh ${topic}.`,
+        `Vận dụng ${grammar.name} trong ngữ cảnh ${lessonTheme}.`,
         'Hoàn thành hoạt động nghe, đọc, viết và bài kiểm tra cuối bài.',
       ],
-      detailedExplanation:`Bài ${focus.toLowerCase()} của unit “${topic}” kết hợp từ mới theo đúng level ${levelName} với mẫu ngữ pháp và hoạt động bốn kỹ năng.`,
+      detailedExplanation:`Bài ${focus.toLowerCase()} của unit “${lessonTheme}” dùng curriculum riêng cho ${levelName}, kết hợp từ vựng đúng level với ${grammar.name} và hoạt động bốn kỹ năng.`,
     }
   })
 }
