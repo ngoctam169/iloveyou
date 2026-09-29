@@ -397,9 +397,7 @@ function makePracticeLessons(languageId, levelName, unitIndex, lessonOffset, top
   return Array.from({ length:6 }, (_, index) => {
     const source = packs[languageId][(unitIndex + index) % packs[languageId].length]
     const lessonNumber = lessonOffset + index + 1
-    const words = keepStarterCore && unitIndex === 0 && index < 3
-      ? source.vocab
-      : sliceVocabulary(vocabPool,(lessonNumber - 1) * 3,3)
+    const words = sliceVocabulary(vocabPool,(lessonNumber - 1) * 3,3)
     const focus = lessonFocuses[index]
     const profile = levelCurriculum[languageId]?.[levelName]
     const lessonTheme = profile?.themes?.[(lessonNumber - 1) % profile.themes.length] || topic
