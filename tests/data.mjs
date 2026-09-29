@@ -1,6 +1,7 @@
 import { readFileSync, readdirSync } from 'node:fs'
 import { extname, join } from 'node:path'
-import { allSearchItems, getLesson, getRoadmap } from '../src/data/courses.js'
+import { getLesson, getRoadmap } from '../src/data/courses.js'
+import { allSearchItems } from '../src/data/searchItems.js'
 import { englishLevels } from '../src/data/levels.js'
 import { findLevel, getLanguage } from '../src/data/languages.js'
 import { averageSkillScores, getLevelProgress, progressKey } from '../src/utils/progress.js'
