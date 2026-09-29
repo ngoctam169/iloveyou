@@ -5,7 +5,7 @@ import StatisticsCard from '../components/common/StatisticsCard'
 import { useApp } from '../context/AppContext'
 import { getRoadmap } from '../data/courses'
 import { getLanguage } from '../data/languages'
-import { allVocabulary, vocabularyForState } from '../services/vocabularyService'
+import { useVocabularyData } from '../hooks/useVocabularyData'
 import { getLevelProgress, summarizeProgress, totalStudyMinutes } from '../utils/progress'
 import { isDue, localDate, wordKey } from '../utils/srs'
 import { speak } from '../utils/speech'
@@ -20,10 +20,12 @@ export default function Dashboard() {
   const totals = summarizeProgress(state)
   const next = lessons.find((lesson) => !progress.completedLessons.includes(lesson.id)) || lessons[0]
   const percent = lessons.length ? Math.round((progress.completedLessons.filter((id) => lessons.some((lesson) => lesson.id === id)).length / lessons.length) * 100) : 0
-  const vocabulary = vocabularyForState(state, language.id, level)
+  const { words: vocabulary } = useVocabularyData(state, language.id, level)
   const vocabularyDue = vocabulary.filter((word) => isDue(state.flashcardProgress[wordKey(word)])).length
   const vocabularyNew = vocabulary.filter((word) => !state.flashcardProgress[wordKey(word)] && !state.vocabularyMeta?.[wordKey(word)]?.started).length
-  const vocabularyLearned = allVocabulary(state).filter((word) => state.flashcardProgress[wordKey(word)] || state.vocabularyMeta?.[wordKey(word)]?.learned).length
+  const learnedWordKeys = new Set(Object.keys(state.flashcardProgress || {}))
+  Object.entries(state.vocabularyMeta || {}).forEach(([key, meta]) => { if (meta?.learned) learnedWordKeys.add(key) })
+  const vocabularyLearned = learnedWordKeys.size
   const dayNumber = Math.floor(new Date().setHours(0, 0, 0, 0) / 86400000)
   const wordOfDay = vocabulary.length ? vocabulary[((dayNumber % vocabulary.length) + vocabulary.length) % vocabulary.length] : null
   const practicedToday = new Set((state.vocabularyActivity || []).filter((entry) => entry.date === localDate()).map((entry) => entry.key)).size
