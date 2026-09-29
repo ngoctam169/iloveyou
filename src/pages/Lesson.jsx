@@ -13,6 +13,7 @@ import { useVocabularyData } from '../hooks/useVocabularyData'
 import { speak } from '../utils/speech'
 import { wordKey } from '../utils/srs'
 import { buildGrammarQuestion, grammarEntryFor } from '../utils/grammarPractice'
+import { buildLessonRuntimeContent, LESSON_CONTENT_VERSION } from '../utils/lessonRuntime'
 import NotFound from './NotFound'
 import { grammarPath, lessonPath as cleanLessonPath, levelPath, vocabularyPath } from '../utils/routes'
 
@@ -22,24 +23,16 @@ const sections = [
 ]
 const blankAnswers = { grammar: null, listening: null, reading: null, writing: '', writingIdeas: [], speakingScore: null, quiz: null }
 
-const vocabularyLookupKey = (value = '') => String(value).normalize('NFKC').trim().toLocaleLowerCase()
-const asLessonTuple = (word) => [word.word || '', word.ipa || '', word.partOfSpeech || '', word.meaningVi || word.definition || '', word.example || '', word.translation || '']
-function hydrateLessonVocabulary(lesson, vocabulary = []) {
-  if (!lesson?.vocab?.length || !vocabulary.length) return lesson
-  const lookup = new Map(vocabulary.map((word) => [vocabularyLookupKey(word.word), word]))
-  const vocab = lesson.vocab.map((row) => lookup.has(vocabularyLookupKey(row[0])) ? asLessonTuple(lookup.get(vocabularyLookupKey(row[0]))) : row)
-  return { ...lesson, vocab }
-}
-
 export default function Lesson() {
   const { languageId, levelSlug: levelSlugParam, lessonId } = useParams()
   const language = getLanguage(languageId)
   const level = findLevel(language, levelSlugParam)
   const rawLesson = useMemo(() => getLesson(languageId, level?.[0], lessonId), [languageId, level?.[0], lessonId])
   const { state, persistLessonSession, chooseCourse, completeLesson, addMistake, toggleSaved, setToast } = useApp()
-  const { words: levelVocabulary } = useVocabularyData(state, languageId, level?.[0])
-  const lesson = useMemo(() => hydrateLessonVocabulary(rawLesson, levelVocabulary), [rawLesson, levelVocabulary])
-  const savedSession = state.lessonSessions?.[lessonId]
+  const { words: levelVocabulary, loading: vocabularyLoading } = useVocabularyData(state, languageId, level?.[0])
+  const lesson = useMemo(() => buildLessonRuntimeContent(rawLesson, levelVocabulary, languageId, level?.[0]), [rawLesson, levelVocabulary, languageId, level?.[0]])
+  const storedSession = state.lessonSessions?.[lessonId]
+  const savedSession = storedSession?.contentVersion === LESSON_CONTENT_VERSION ? storedSession : null
   const location = useLocation()
   const sectionIndex = sections.findIndex(([name]) => name.toLowerCase() === new URLSearchParams(location.search).get('section')?.toLowerCase())
   const [step, setStep] = useState(() => sectionIndex >= 0 ? sectionIndex : Math.min(8, Number(savedSession?.step) || 0))
@@ -86,11 +79,13 @@ export default function Lesson() {
 
   useLayoutEffect(() => {
     if (!lesson) return
-    persistLessonSession(lesson.id, { step, answers, checked, completed, completedSections, xpEarned, activeSeconds:activeSeconds.current, updatedAt:new Date().toISOString() })
+    persistLessonSession(lesson.id, { contentVersion:LESSON_CONTENT_VERSION, step, answers, checked, completed, completedSections, xpEarned, activeSeconds:activeSeconds.current, updatedAt:new Date().toISOString() })
   }, [step, answers, checked, completed, completedSections, xpEarned, lesson?.id])
 
   const lessonSaved = lesson ? state.savedItems.some((item) => item.id === `lesson-${lesson.id}`) : false
-  if (!language || !level || !lesson) return <NotFound compact />
+  if (!language || !level || !rawLesson) return <NotFound compact />
+  if (vocabularyLoading) return <main className="lesson-loading"><div className="empty-inline"><span>◌</span><h1>Đang chuẩn bị bài học</h1><p>Đang tải đúng dữ liệu từ vựng và câu hỏi cho level này…</p></div></main>
+  if (!lesson) return <NotFound compact />
   const totalProgress = completed ? 100 : Math.round((completedSections.length / sections.length) * 100)
   const remainingSections = sections.slice(0, 7).map(([name], index) => completedSections.includes(index) ? null : name).filter(Boolean)
   const levelLessons = getRoadmap(languageId, level[0]).flatMap((unit) => unit.lessons)
