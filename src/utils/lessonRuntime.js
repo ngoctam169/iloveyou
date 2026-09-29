@@ -132,7 +132,7 @@ function buildQuiz(lesson, words, pool, seed, target, listening) {
   }
   if (requested === 'Grammar Quiz') {
     const correct = lesson.grammar?.structure || lesson.grammar?.name
-    return { type:requested, question:'Cấu trúc nào là trọng tâm ngữ pháp của bài “' + lesson.title + '”?', explanation:(lesson.grammar?.name || '') + ': ' + correct + '.', ...optionSet(correct, [target, focus[0], words[(seed + 2) % words.length]?.[0]], seed) }
+    return { type:requested, question:'Bài ' + lesson.number + ' · ' + lesson.topic + ': cấu trúc nào là trọng tâm khi luyện với từ “' + focus[0] + '”?', explanation:(lesson.grammar?.name || '') + ': ' + correct + '.', ...optionSet(correct, [target, focus[0], words[(seed + 2) % words.length]?.[0]], seed) }
   }
   if (requested === 'Listening Quiz') {
     const correct = listening.correctValue || listening.expected || listening.options?.[listening.answer] || focus[0]
