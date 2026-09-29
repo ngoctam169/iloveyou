@@ -39,7 +39,7 @@ try {
   assert(articleSchema['@graph'].some((item)=>item['@type']==='BlogPosting'&&item.author?.['@id']===`${origin}/#person`),'Runtime BlogPosting schema is invalid')
 
   await page.goto(`${origin}/about`)
-  await page.getByRole('heading',{ name:'Nguyễn Ngọc Tâm – Full-stack Developer',level:1 }).waitFor()
+  await page.getByRole('heading',{ name:'Nguyễn Ngọc Tâm (Ngọc Tâm Dev) – Full-stack Developer',level:1 }).waitFor()
   const aboutSchema=await page.locator('#nt-json-ld').textContent().then(JSON.parse)
   assert(aboutSchema['@graph'].some((item)=>item['@type']==='ProfilePage'&&item.mainEntity?.['@id']===`${origin}/#person`),'Runtime ProfilePage schema is invalid')
   assert(await page.locator('a[href="https://linkedin.com/in/ngoctam1609"]').count()>0,'LinkedIn profile link is missing')
@@ -61,6 +61,7 @@ try {
 
   await page.goto(`${origin}/blog/nguyen-ngoc-tam-ninh-thuan`)
   await page.waitForURL('**/blog#nguyen-ngoc-tam-ninh-thuan')
+  await page.locator('#nguyen-ngoc-tam-ninh-thuan').waitFor()
   assert(await page.locator('#nguyen-ngoc-tam-ninh-thuan').count()===1,'Legacy personal story URL must redirect into the Blog section')
 
   await page.goto(`${origin}/blog/bai-viet-khong-ton-tai`)

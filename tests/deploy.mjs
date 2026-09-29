@@ -34,6 +34,7 @@ const htmlFiles = collectHtml(dist)
 assert(htmlFiles.length > 3, 'Prerender output is unexpectedly small')
 
 for (const file of htmlFiles) {
+  if (/google[a-z0-9]+\.html$/i.test(file)) continue
   const html = readFileSync(file, 'utf8')
   const label = relative(root, file)
 

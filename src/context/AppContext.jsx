@@ -36,6 +36,14 @@ export function AppProvider({ children }) {
       const lessonSkillScores = { ...(previous.lessonSkillScores || {}), [lessonId]: skills }
       const activity = applyActivity(current, { type: 'Lesson', skill: 'Course', topic: lessonId, seconds: minutes * 60 })
       const vocabularyMeta = { ...(current.vocabularyMeta || {}) }
+      const skillReview = { ...(current.skillReview || {}) }
+      Object.entries(skills || {}).forEach(([skill, value]) => {
+        if (skill === 'Vocabulary') return
+        const reviewKey = `${languageId}:${level}:${lessonId}:${skill}`
+        const previousReview = skillReview[reviewKey] || {}
+        const schedule = nextSchedule(previousReview, Number(value) >= 70 ? 'good' : 'hard')
+        skillReview[reviewKey] = { ...schedule, languageId, level, lessonId, skill, score:Number(value) || 0, updatedAt:new Date().toISOString() }
+      })
       if (isNew) vocabularyWords.forEach((word) => {
         const wordId = wordKey({ languageId, level, word })
         vocabularyMeta[wordId] = { ...vocabularyMeta[wordId], started: true }
@@ -58,6 +66,7 @@ export function AppProvider({ children }) {
           },
         },
         vocabularyMeta,
+        skillReview,
         xp: (Number(current.xp) || 0) + (isNew ? 100 + (score === 100 ? 50 : 0) : 20),
       }
     })

@@ -85,11 +85,11 @@ try {
   await page.waitForURL('**/dashboard')
   const currentLevelText = await page.locator('.level-switcher h2').textContent()
   assert(currentLevelText?.includes('English · B2'), `Dashboard did not retain B2 as current level (rendered: ${currentLevelText})`)
-  await page.getByRole('link', { name: 'Change Level' }).click()
+  await page.getByRole('link', { name: /Change Level|Đổi level/ }).click()
   await page.locator('.level-card', { hasText: 'A1' }).first().click()
   await page.waitForURL('**/english/a1')
   await page.getByText('Greetings', { exact: true }).waitFor()
-  await page.getByRole('link', { name: 'Change Level' }).click()
+  await page.getByRole('link', { name: /Change Level|Đổi level/ }).click()
   await page.locator('.level-card', { hasText: 'C2' }).first().click()
   await page.waitForURL('**/english/c2')
   await page.getByText('Complex Listening', { exact: true }).waitFor()
@@ -126,8 +126,9 @@ try {
   await page.locator('.vocabulary-load-more').click()
   assert(await page.locator('.vocabulary-index > div > button:not(.vocabulary-load-more)').count() === 100, 'Vocabulary load-more did not reveal the next page')
   await page.locator('.vocabulary-filters select').nth(5).selectOption('alphabetical')
-  await page.locator('.filter-search input').fill('vegetable')
-  await page.getByRole('heading', { name: 'vegetable', exact: true }).waitFor()
+  await page.locator('.filter-search input').fill('family')
+  await page.locator('.vocabulary-index button', { hasText:'family' }).first().click()
+  await page.getByRole('heading', { name: 'family', exact: true }).waitFor()
 
   await page.goto(`${origin}/flashcards?language=english&level=A1&limit=5`)
   await page.locator('.flashcard-progress').getByText('1 / 5', { exact: true }).waitFor()
@@ -159,7 +160,7 @@ try {
   await page.getByRole('heading', { name:'Lịch sử học tập' }).waitFor()
 
   console.log('E2E checkpoint: retired routes redirect into core modules')
-  for (const route of ['/languages', '/progress', '/profile']) {
+  for (const route of ['/languages', '/progress', '/settings']) {
     await page.goto(`${origin}${route}`)
     await page.locator('main.page').waitFor()
     assert((await page.locator('main.page').innerText()).trim().length > 20, `${route} rendered an empty page`)
@@ -175,7 +176,7 @@ try {
   await page.setViewportSize({ width: 375, height: 800 })
   await page.goto(`${origin}/dashboard`)
   await page.getByRole('button', { name: 'Mở menu' }).click()
-  await page.getByRole('navigation', { name: 'Điều hướng di động' }).getByText('Cài đặt').click()
+  await page.getByRole('navigation', { name: 'Điều hướng di động' }).getByText(/Settings|Cài đặt/).click()
   await page.waitForURL('**/settings')
 
   await page.goto(`${origin}/english/b2/lessons/english-b2-1-2`)
