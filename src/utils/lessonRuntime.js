@@ -30,6 +30,13 @@ function fallbackStudyText(languageId, words) {
   return 'This lesson focuses on ' + terms.join(', ') + '. Notice how each word contributes a different meaning in context.'
 }
 
+function focusCue(languageId, word) {
+  if (languageId === 'chinese') return '关键词是“' + word + '”。'
+  if (languageId === 'japanese') return 'キーワードは「' + word + '」です。'
+  if (languageId === 'korean') return '핵심 단어는 ‘' + word + '’입니다.'
+  return 'The key word is “' + word + '”.'
+}
+
 function targetFor(languageId, words, seed) {
   const ordered = Array.from({ length:words.length }, (_, offset) => words[(seed + offset) % words.length])
   const sourced = ordered.map(sentenceContaining).find(Boolean)
@@ -44,7 +51,7 @@ function targetFor(languageId, words, seed) {
 
 function buildReading(lesson, words, pool, seed) {
   const examples = unique(words.map((word) => word[4]))
-  const text = examples.length >= 2 ? examples.slice(0, 3).join(' ') : (fallbackStudyText(lesson.languageId, words) + ' ' + (examples[0] || '')).trim()
+  const text = examples.length >= 2 ? (examples.slice(0, 3).join(' ') + ' ' + fallbackStudyText(lesson.languageId, words)).trim() : (fallbackStudyText(lesson.languageId, words) + ' ' + (examples[0] || '')).trim()
   const visibleWords = words.filter((word) => normalize(text).includes(normalize(word[0])))
   const focusPool = visibleWords.length ? visibleWords : words
   const focus = focusPool[seed % focusPool.length]
@@ -71,7 +78,7 @@ function buildListening(lesson, words, pool, seed) {
   const second = words[(seed + 1) % words.length]
   const focusSentence = sentenceContaining(focus)
   const secondSentence = sentenceContaining(second)
-  const baseAudio = focusSentence || focus[0]
+  const baseAudio = focusSentence ? (focusSentence + ' ' + focusCue(lesson.languageId, focus[0])) : focusCue(lesson.languageId, focus[0])
   if (type === 'Dictation') return { type, audio:baseAudio, prompt:'Nghe và chép lại chính xác nội dung bạn nghe được.', expected:baseAudio, correctValue:baseAudio, evidence:focus[0], explanation:'Nội dung đúng: “' + baseAudio + '”' }
   if (type === 'Fill in the Blank') {
     if (focusSentence) {
