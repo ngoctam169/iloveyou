@@ -113,6 +113,7 @@ for (const language of ['english','chinese','japanese','korean']) {
     assert(new Set(lessons.map((lesson) => lesson.reading.text)).size === lessons.length, `${language} ${level} repeats reading content across lessons`)
     assert(new Set(lessons.map((lesson) => lesson.quiz.question)).size === lessons.length, `${language} ${level} repeats quiz questions across lessons`)
     const answerPositions = new Set()
+    const trueFalseAnswers = new Set()
     for (const lesson of lessons) {
       assert(lesson.reading.evidence && lesson.reading.text.normalize('NFKC').toLocaleLowerCase().includes(lesson.reading.evidence.normalize('NFKC').toLocaleLowerCase()), `${lesson.id} reading question is not grounded in its passage`)
       assert(lesson.listening.evidence && lesson.listening.audio.normalize('NFKC').toLocaleLowerCase().includes(lesson.listening.evidence.normalize('NFKC').toLocaleLowerCase()), `${lesson.id} listening question is not grounded in its audio`)
@@ -122,12 +123,14 @@ for (const language of ['english','chinese','japanese','korean']) {
       if (lesson.reading.options) answerPositions.add(`r${lesson.reading.answer}`)
       if (lesson.listening.options) answerPositions.add(`l${lesson.listening.answer}`)
       if (lesson.quiz.options) answerPositions.add(`q${lesson.quiz.answer}`)
+      if (lesson.quiz.type === 'True False') trueFalseAnswers.add(lesson.quiz.correctValue)
       const entry = grammarEntryFor(language, level, lesson.grammar.name)
       assert(entry, `${lesson.id} grammar is missing from the grammar library`)
       const grammarQuestion = buildGrammarQuestion(entry)
       assert(grammarQuestion.options[grammarQuestion.answer] === lesson.grammar.name, `${lesson.id} grammar question answer does not match lesson grammar`)
     }
     assert(answerPositions.size >= 4, `${language} ${level} answer positions are still effectively hard-coded`)
+    assert(trueFalseAnswers.size >= 2, `${language} ${level} True/False quizzes do not vary between true and false answers`)
   }
 }
 
