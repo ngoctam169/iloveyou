@@ -199,9 +199,13 @@ try {
   console.log('PLATFORM checkpoint: personal deletion and library-word lists')
 
   await page.goto(`${origin}/english/a1/lessons/english-a1-1-1?section=reading`)
-  await page.getByRole('button',{ name:'Xem từ family' }).first().click()
+  const readingWordButton = page.locator('.reading-word').first()
+  await readingWordButton.waitFor()
+  const readingWord = (await readingWordButton.getAttribute('aria-label'))?.replace(/^Xem từ\s+/i,'').trim().toLowerCase()
+  assert(readingWord, 'Reading passage did not expose a vocabulary lookup target')
+  await readingWordButton.click()
   await page.getByRole('button',{ name:'Thêm vào My Vocabulary' }).click()
-  assert((await page.evaluate(() => JSON.parse(localStorage.getItem('nt_state_v1')).personalVocabulary || [])).some((word) => word.word.toLowerCase() === 'family'), 'Reading vocabulary could not be added to My Vocabulary')
+  assert((await page.evaluate((expected) => (JSON.parse(localStorage.getItem('nt_state_v1')).personalVocabulary || []).some((word) => word.word.toLowerCase() === expected), readingWord)), 'Reading vocabulary could not be added to My Vocabulary')
   await page.getByRole('button',{ name:'Đã thêm vào kho cá nhân' }).waitFor()
   console.log('PLATFORM checkpoint: reading vocabulary lookup and personal save')
 
