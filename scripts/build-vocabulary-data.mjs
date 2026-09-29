@@ -516,9 +516,11 @@ for (const [languageId, words] of Object.entries(datasets)) {
   const levels = [...new Set(words.map((word) => word.level))]
   lessonPools[languageId] = {}
   for (const level of levels) {
+    // Keep only the fields required to build the synchronous roadmap.
+    // Full pronunciation, examples and translations are loaded on demand from
+    // public/data/vocabulary/<language>-<level>.json at lesson runtime.
     const rows = words.filter((word) => word.level === level).slice(0, 180).map((word) => [
-      word.word || '', word.ipa || '', word.partOfSpeech || '', word.meaningVi || word.definition || '',
-      word.example || '', word.translation || '',
+      word.word || '', word.meaningVi || word.definition || '',
     ])
     lessonPools[languageId][level] = rows
   }
@@ -536,10 +538,20 @@ for (const word of vocabularyCatalog) {
   if (!runtimeGroups.has(key)) runtimeGroups.set(key, [])
   runtimeGroups.get(key).push(word)
 }
+const compactRuntimeWord = (word) => [
+  word.id || '', word.word || '', word.ipa || '', word.partOfSpeech || '',
+  word.meaningVi || '', word.definition || '', word.example || '', word.translation || '',
+  word.topic || '', word.exam || '', word.collocations || [], word.synonyms || [],
+  word.antonyms || [], word.wordFamily || [], word.phrases || [], word.lessonIds || [],
+  (word.lessons || []).map((lesson) => [lesson.id || '', lesson.title || '', lesson.path || '']),
+  word.source || '', word.levelBasis || '', word.sourceLevel || '', word.levelStatus || 'editorial',
+]
+
 for (const [key, words] of runtimeGroups) {
   const [languageId, level] = key.split('::')
   const fileName = `${languageId}-${slug(level)}.json`
-  await writeFile(new URL(fileName, runtimeDir), `${JSON.stringify(words)}\n`)
+  const payload = { format:2, languageId, level, words:words.map(compactRuntimeWord) }
+  await writeFile(new URL(fileName, runtimeDir), `${JSON.stringify(payload)}\n`)
 }
 const searchIndex = vocabularyCatalog.map(({ languageId, level, word, meaningVi, topic }) => [languageId, level, word, meaningVi, topic || ''])
 await writeFile(new URL('search-index.json', runtimeDir), `${JSON.stringify(searchIndex)}\n`)

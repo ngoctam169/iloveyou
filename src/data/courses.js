@@ -177,9 +177,13 @@ const distributeLessonCounts = (unitCount, total = TARGET_LESSONS_PER_LEVEL) => 
   return Array.from({ length:unitCount }, (_, index) => base + (index < remainder ? 1 : 0))
 }
 
+const expandLessonWord = (row = []) => row.length <= 2
+  ? [row[0] || '', '', '', row[1] || '', '', '']
+  : row
+
 const vocabularyRows = (languageId, levelName, fallback = []) => {
   const rows = lessonPools?.[languageId]?.[levelName] || []
-  return rows.length >= 3 ? rows : fallback
+  return rows.length >= 3 ? rows.map(expandLessonWord) : fallback
 }
 
 const sliceVocabulary = (pool, start, count = 3) => Array.from({ length:count }, (_, offset) => pool[(start + offset) % pool.length])
@@ -264,9 +268,9 @@ function makeEnglishLessons(levelName, unitIndex, topic, meta, lessonCount, less
       },
       extraReading: `A practical way to master ${topic.toLowerCase()} is to notice how speakers connect an idea with evidence. Read the text once for the main message, then a second time to identify the grammar pattern. Finally, summarize the passage without copying its exact wording.`,
       practice: {
-        fill: { prompt: words[0][4].replace(new RegExp(words[0][0], 'i'), '_____'), answer: words[0][0] },
+        fill: { prompt: `Viết từ phù hợp với nghĩa “${words[0][3]}”.`, answer: words[0][0] },
         reorder: { tokens: target.replace(/[.!?]/g, '').split(/\s+/).sort((a, b) => a.localeCompare(b)), answer: target },
-        translation: { prompt: words[1][5], answer: words[1][4] },
+        translation: { prompt: `Dùng “${words[1][0]}” để diễn đạt ý “${words[1][3]}”.`, answer: target },
       },
     }
   })
@@ -277,7 +281,8 @@ function makeListening(audio, words, topic, lessonNumber) {
   if (type === 'Fill in the Blank') {
     const expected = words.find((word) => word[4] && new RegExp(`\\b${word[0]}\\b`, 'i').test(word[4]))
     if (expected) return { type, audio: expected[4], prompt: expected[4].replace(new RegExp(expected[0], 'i'), '_____'), expected: expected[0], explanation: `Từ còn thiếu là “${expected[0]}”.` }
-    return { type:'Listen & Choose', audio, prompt:'Chọn chủ đề phù hợp nhất với câu bạn nghe.', options:[topic, words[0][3], words[1][3]], answer:0, explanation:`Câu bạn vừa nghe: “${audio}”` }
+    const focus = words[0]
+    return { type, audio:`${audio} ${focus[0]}.`, prompt:'Nghe và nhập từ trọng tâm ở cuối đoạn.', expected:focus[0], explanation:`Từ trọng tâm là “${focus[0]}” (${focus[3]}).` }
   }
   return {
     type,
@@ -291,7 +296,7 @@ function makeListening(audio, words, topic, lessonNumber) {
 
 function makeWriting(levelIndex, variant, words, target, topic) {
   if (levelIndex <= 1 && variant === 0) return { type: 'Reorder Sentence', prompt: 'Sắp xếp các từ để tạo thành câu đúng.', expected: target, tokens: target.replace(/[.!?]/g, '').split(/\s+/).sort((a, b) => a.localeCompare(b)), keywords: words.slice(0, 2).map((word) => word[0]), minWords: 3 }
-  if (levelIndex <= 1 && variant === 1) return { type: 'Fill Missing Word', prompt: `Điền từ còn thiếu: ${words[0][4].replace(new RegExp(words[0][0], 'i'), '_____')}`, expected: words[0][0], keywords: [words[0][0]], minWords: 1 }
+  if (levelIndex <= 1 && variant === 1) return { type: 'Fill Missing Word', prompt: `Viết từ phù hợp với nghĩa “${words[0][3]}”.`, expected: words[0][0], keywords: [words[0][0]], minWords: 1 }
   if (levelIndex <= 1) return { type: 'Write Simple Sentence', prompt: `Viết 3–5 câu đơn giản về “${topic}”.`, keywords: words.slice(0, 2).map((word) => word[0]), minWords: levelIndex === 0 ? 8 : 15, maxWords: 50 }
   if (levelIndex <= 3) return { type: ['Email', 'Story', 'Opinion'][variant], prompt: `${['Viết một email', 'Kể một câu chuyện', 'Trình bày ý kiến'][variant]} về “${topic}”.`, keywords: words.slice(0, 2).map((word) => word[0]), minWords: levelIndex === 2 ? 50 : 80, maxWords: 120 }
   return { type: ['Argumentative Writing', 'Formal Writing', 'Academic-style Writing'][variant], prompt: `Viết ${variant === 0 ? 'một bài luận lập luận' : variant === 1 ? 'một văn bản trang trọng' : 'một bản phân tích học thuật'} về “${topic}”.`, keywords: words.slice(0, 2).map((word) => word[0]), minWords: levelIndex === 4 ? 120 : 150, maxWords: levelIndex === 4 ? 220 : 260, requiredIdeas: ['Nêu luận điểm chính', 'Đưa ra bằng chứng hoặc ví dụ', 'Kết luận rõ ràng'] }
@@ -300,12 +305,12 @@ function makeWriting(levelIndex, variant, words, target, topic) {
 function makeQuiz(grammar, words, listen, target, lessonNumber) {
   const type = quizTypes[(lessonNumber - 1) % quizTypes.length]
   const word = words[0]
-  if (type === 'Fill Blank') return { type, question: word[4].replace(new RegExp(word[0], 'i'), '_____'), expected: word[0], explanation: `Từ phù hợp là “${word[0]}” (${word[3]}).` }
+  if (type === 'Fill Blank') return { type, question: `Viết từ phù hợp với nghĩa “${word[3]}”.`, expected: word[0], explanation: `Từ phù hợp là “${word[0]}” (${word[3]}).` }
   if (type === 'Reorder Sentence') return { type, question: 'Sắp xếp thành câu hoàn chỉnh.', expected: target, tokens: target.replace(/[.!?]/g, '').split(/\s+/).sort((a, b) => a.localeCompare(b)), explanation: `Câu đúng: “${target}”` }
   if (type === 'Matching') return { type, question: 'Ghép từ với nghĩa phù hợp.', pairs: words.map((item) => [item[0], item[3]]), explanation: 'Các cặp từ và nghĩa được lấy từ phần từ vựng của bài.' }
   if (type === 'True False') return { type, question: `“${word[0]}” có nghĩa là “${word[3]}”.`, options: ['True', 'False'], answer: 0, explanation: `${word[0]}: ${word[3]}.` }
   if (type === 'Grammar Quiz') return { type, question: `Câu nào minh họa đúng “${grammar.name}”?`, options: [grammar.examples[0], `Not ${grammar.examples[0]}`, 'None of the above'], answer: 0, explanation: `${grammar.structure}. ${grammar.explanation}` }
-  if (type === 'Listening Quiz') return { type, audio: listen, question: 'Chọn chính xác câu bạn vừa nghe.', options: [listen, words[0][4], target], answer: 0, explanation: `Câu đúng là: “${listen}”` }
+  if (type === 'Listening Quiz') return { type, audio: listen, question: 'Chọn chính xác câu bạn vừa nghe.', options: [listen, target, `${words[0][0]} — ${words[0][3]}`], answer: 0, explanation: `Câu đúng là: “${listen}”` }
   return { type, question: `“${word[0]}” gần nghĩa nhất với đáp án nào?`, options: [word[3], words[1][3], words[2][3]], answer: 0, explanation: `${word[0]} (${word[2]}) có nghĩa là “${word[3]}”.` }
 }
 

@@ -9,6 +9,7 @@ import VocabularyCard from '../components/vocabulary/VocabularyCard'
 import { useApp } from '../context/AppContext'
 import { getLesson, getRoadmap } from '../data/courses'
 import { findLevel, getLanguage } from '../data/languages'
+import { useVocabularyData } from '../hooks/useVocabularyData'
 import { speak } from '../utils/speech'
 import { wordKey } from '../utils/srs'
 import { buildGrammarQuestion, grammarEntryFor } from '../utils/grammarPractice'
@@ -21,12 +22,23 @@ const sections = [
 ]
 const blankAnswers = { grammar: null, listening: null, reading: null, writing: '', writingIdeas: [], speakingScore: null, quiz: null }
 
+const vocabularyLookupKey = (value = '') => String(value).normalize('NFKC').trim().toLocaleLowerCase()
+const asLessonTuple = (word) => [word.word || '', word.ipa || '', word.partOfSpeech || '', word.meaningVi || word.definition || '', word.example || '', word.translation || '']
+function hydrateLessonVocabulary(lesson, vocabulary = []) {
+  if (!lesson?.vocab?.length || !vocabulary.length) return lesson
+  const lookup = new Map(vocabulary.map((word) => [vocabularyLookupKey(word.word), word]))
+  const vocab = lesson.vocab.map((row) => lookup.has(vocabularyLookupKey(row[0])) ? asLessonTuple(lookup.get(vocabularyLookupKey(row[0]))) : row)
+  return { ...lesson, vocab }
+}
+
 export default function Lesson() {
   const { languageId, levelSlug: levelSlugParam, lessonId } = useParams()
   const language = getLanguage(languageId)
   const level = findLevel(language, levelSlugParam)
-  const lesson = getLesson(languageId, level?.[0], lessonId)
+  const rawLesson = useMemo(() => getLesson(languageId, level?.[0], lessonId), [languageId, level?.[0], lessonId])
   const { state, persistLessonSession, chooseCourse, completeLesson, addMistake, toggleSaved, setToast } = useApp()
+  const { words: levelVocabulary } = useVocabularyData(state, languageId, level?.[0])
+  const lesson = useMemo(() => hydrateLessonVocabulary(rawLesson, levelVocabulary), [rawLesson, levelVocabulary])
   const savedSession = state.lessonSessions?.[lessonId]
   const location = useLocation()
   const sectionIndex = sections.findIndex(([name]) => name.toLowerCase() === new URLSearchParams(location.search).get('section')?.toLowerCase())
