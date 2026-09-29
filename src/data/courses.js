@@ -287,8 +287,9 @@ function makeListening(audio, words, topic, lessonNumber) {
   const type = listeningTypes[(lessonNumber - 1) % listeningTypes.length]
   if (type === 'Dictation') return { type, audio, prompt: 'Nghe và chép lại chính xác câu bạn nghe được.', expected: audio, explanation: `Câu hoàn chỉnh: “${audio}”` }
   if (type === 'Fill in the Blank') {
-    const expected = words.find((word) => new RegExp(`\\b${word[0]}\\b`, 'i').test(word[4])) || words[0]
-    return { type, audio: expected[4], prompt: expected[4].replace(new RegExp(expected[0], 'i'), '_____'), expected: expected[0], explanation: `Từ còn thiếu là “${expected[0]}”.` }
+    const expected = words.find((word) => word[4] && new RegExp(`\\b${word[0]}\\b`, 'i').test(word[4]))
+    if (expected) return { type, audio: expected[4], prompt: expected[4].replace(new RegExp(expected[0], 'i'), '_____'), expected: expected[0], explanation: `Từ còn thiếu là “${expected[0]}”.` }
+    return { type:'Listen & Choose', audio, prompt:'Chọn chủ đề phù hợp nhất với câu bạn nghe.', options:[topic, words[0][3], words[1][3]], answer:0, explanation:`Câu bạn vừa nghe: “${audio}”` }
   }
   return {
     type,
