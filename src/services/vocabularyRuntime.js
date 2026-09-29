@@ -10,7 +10,7 @@ const dataUrl = (file) => `${import.meta.env.BASE_URL}data/vocabulary/${file}`
 const runtimeFile = (languageId, level) => `${languageId}-${levelSlug(level)}.json`
 
 async function fetchJson(file) {
-  const response = await fetch(dataUrl(file), { credentials:'same-origin', cache:'force-cache' })
+  const response = await fetch(dataUrl(file), { credentials:'same-origin' })
   if (!response.ok) throw new Error(`Không tải được dữ liệu từ vựng (${response.status})`)
   return response.json()
 }
