@@ -210,7 +210,7 @@ try {
   await corrupt.addInitScript(() => localStorage.setItem('nt_state_v1', '{invalid json'))
   const corruptPage = await corrupt.newPage()
   await corruptPage.goto(`${origin}/dashboard`)
-  await corruptPage.getByText('CURRENT LEVEL', { exact: true }).first().waitFor()
+  await corruptPage.getByText(/CURRENT LEVEL|CẤP ĐỘ HIỆN TẠI/, { exact: true }).first().waitFor()
   await corrupt.close()
 
   const onboarding = await browser.newContext()
