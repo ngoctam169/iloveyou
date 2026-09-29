@@ -160,7 +160,7 @@ try {
   await page.getByRole('heading', { name:'Lịch sử học tập' }).waitFor()
 
   console.log('E2E checkpoint: retired routes redirect into core modules')
-  for (const route of ['/languages', '/progress', '/profile']) {
+  for (const route of ['/languages', '/progress', '/settings']) {
     await page.goto(`${origin}${route}`)
     await page.locator('main.page').waitFor()
     assert((await page.locator('main.page').innerText()).trim().length > 20, `${route} rendered an empty page`)
