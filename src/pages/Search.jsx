@@ -40,7 +40,7 @@ export default function Search() {
   }, [debouncedQuery])
   const vocabularyItems = useMemo(() => {
     const personal = state.personalVocabulary || []
-    const indexed = vocabularyIndex.map((word) => ({ id:`search-vocab-${word.languageId}-${word.level}-${word.id}`,type:'Vocabulary',title:word.word,subtitle:`${word.meaningVi} · ${word.level}`,topic:word.topic || '',path:vocabularyPath(word.languageId,word.level,word.word) }))
+    const indexed = vocabularyIndex.map(([languageId, level, word, meaningVi, topic], index) => ({ id:`search-vocab-${languageId}-${level}-${index}`,type:'Vocabulary',title:word,subtitle:`${meaningVi} · ${level}`,topic:topic || '',path:vocabularyPath(languageId,level,word) }))
     const personalItems = personal.map((word) => ({ id:`search-vocab-personal-${word.id}`,type:'Vocabulary',title:word.word,subtitle:`${word.meaningVi} · ${word.level}`,topic:[word.topic,word.definition,word.example].join(' '),path:vocabularyPath(word.languageId,word.level,word.word) }))
     return [...personalItems, ...indexed]
   }, [vocabularyIndex, state.personalVocabulary])
