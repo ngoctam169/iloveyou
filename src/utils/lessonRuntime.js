@@ -10,7 +10,10 @@ const lookupKey = (value) => normalize(value)
 const tupleFromWord = (word) => [word.word || '', word.ipa || '', word.partOfSpeech || '', word.meaningVi || word.definition || '', word.example || '', word.translation || '']
 
 function optionSet(correct, distractors, seed, limit = 3) {
-  const alternatives = unique(distractors).filter((value) => value !== correct).slice(0, Math.max(0, limit - 1))
+  const candidates = unique(distractors).filter((value) => value !== correct)
+  const take = Math.max(0, limit - 1)
+  const start = candidates.length ? Math.abs(seed * 7) % candidates.length : 0
+  const alternatives = Array.from({ length:Math.min(take,candidates.length) }, (_, offset) => candidates[(start + offset) % candidates.length])
   const position = Math.abs(seed) % (alternatives.length + 1)
   const options = [...alternatives]
   options.splice(position, 0, correct)
@@ -83,7 +86,8 @@ function buildListening(lesson, words, pool, seed) {
   if (type === 'Fill in the Blank') {
     if (focusSentence) {
       const escaped = focus[0].replace(/[.*+?^$()|[\]\\]/g, '\\$&')
-      return { type, audio:focusSentence, prompt:focusSentence.replace(new RegExp(escaped, 'i'), '_____'), expected:focus[0], correctValue:focus[0], evidence:focus[0], explanation:'Từ còn thiếu là “' + focus[0] + '”.' }
+      const audio = focusSentence + ' ' + focusCue(lesson.languageId, focus[0])
+      return { type, audio, prompt:focusSentence.replace(new RegExp(escaped, 'i'), '_____'), expected:focus[0], correctValue:focus[0], evidence:focus[0], explanation:'Từ còn thiếu là “' + focus[0] + '”.' }
     }
     return { type, audio:focus[0], prompt:'Nghe và nhập chính xác từ bạn vừa nghe.', expected:focus[0], correctValue:focus[0], evidence:focus[0], explanation:'Từ đúng là “' + focus[0] + '” (' + focus[3] + ').' }
   }
@@ -132,7 +136,7 @@ function buildQuiz(lesson, words, pool, seed, target, listening) {
   }
   if (requested === 'Listening Quiz') {
     const correct = listening.correctValue || listening.expected || listening.options?.[listening.answer] || focus[0]
-    return { type:requested, audio:listening.audio, question:'Trong phần nghe có từ trọng tâm “' + focus[0] + '”; đáp án nào khớp với nội dung?', explanation:'Đáp án đúng được suy ra trực tiếp từ audio của bài.', ...optionSet(correct, [focus[0], focus[3], words[(seed + 2) % words.length]?.[0]], seed) }
+    return { type:requested, audio:listening.audio, question:'Đáp án nào khớp trực tiếp với nội dung bạn vừa nghe trong bài ' + lesson.number + '?', explanation:'Đáp án đúng được suy ra trực tiếp từ audio của bài.', ...optionSet(correct, [focus[0], focus[3], words[(seed + 2) % words.length]?.[0]], seed) }
   }
   return { type:requested === 'Vocabulary Quiz' ? requested : 'Multiple Choice', question:'“' + focus[0] + '” có nghĩa là gì?', explanation:focus[0] + ': ' + focus[3] + '.', ...optionSet(focus[3], pool.filter((word)=>word[3] !== focus[3]).map((word)=>word[3]), seed) }
 }
