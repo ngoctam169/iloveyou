@@ -40,6 +40,13 @@ function focusCue(languageId, word) {
   return 'The key word is “' + word + '”.'
 }
 
+function lessonAudioCue(languageId, number) {
+  if (languageId === 'chinese') return '这是第' + number + '课的听力练习。'
+  if (languageId === 'japanese') return 'これはレッスン' + number + 'のリスニング練習です。'
+  if (languageId === 'korean') return '이것은 ' + number + '번 듣기 연습입니다.'
+  return 'This is listening practice ' + number + '.'
+}
+
 function targetFor(languageId, words, seed) {
   const ordered = Array.from({ length:words.length }, (_, offset) => words[(seed + offset) % words.length])
   const sourced = ordered.map(sentenceContaining).find(Boolean)
@@ -81,13 +88,13 @@ function buildListening(lesson, words, pool, seed) {
   const second = words[(seed + 1) % words.length]
   const focusSentence = sentenceContaining(focus)
   const secondSentence = sentenceContaining(second)
-  const baseAudio = focusSentence ? (focusSentence + ' ' + focusCue(lesson.languageId, focus[0])) : focusCue(lesson.languageId, focus[0])
+  const neutralCue = lessonAudioCue(lesson.languageId, lesson.number)
+  const baseAudio = focusSentence ? (focusSentence + ' ' + neutralCue) : (focusCue(lesson.languageId, focus[0]) + ' ' + neutralCue)
   if (type === 'Dictation') return { type, audio:baseAudio, prompt:'Nghe và chép lại chính xác nội dung bạn nghe được.', expected:baseAudio, correctValue:baseAudio, evidence:focus[0], explanation:'Nội dung đúng: “' + baseAudio + '”' }
   if (type === 'Fill in the Blank') {
     if (focusSentence) {
       const escaped = focus[0].replace(/[.*+?^$()|[\]\\]/g, '\\$&')
-      const audio = focusSentence + ' ' + focusCue(lesson.languageId, focus[0])
-      return { type, audio, prompt:focusSentence.replace(new RegExp(escaped, 'i'), '_____'), expected:focus[0], correctValue:focus[0], evidence:focus[0], explanation:'Từ còn thiếu là “' + focus[0] + '”.' }
+      return { type, audio:baseAudio, prompt:focusSentence.replace(new RegExp(escaped, 'i'), '_____'), expected:focus[0], correctValue:focus[0], evidence:focus[0], explanation:'Từ còn thiếu là “' + focus[0] + '”.' }
     }
     return { type, audio:focus[0], prompt:'Nghe và nhập chính xác từ bạn vừa nghe.', expected:focus[0], correctValue:focus[0], evidence:focus[0], explanation:'Từ đúng là “' + focus[0] + '” (' + focus[3] + ').' }
   }
@@ -135,8 +142,8 @@ function buildQuiz(lesson, words, pool, seed, target, listening) {
     return { type:requested, question:'Bài ' + lesson.number + ' · ' + lesson.topic + ': cấu trúc nào là trọng tâm khi luyện với từ “' + focus[0] + '”?', explanation:(lesson.grammar?.name || '') + ': ' + correct + '.', ...optionSet(correct, [target, focus[0], words[(seed + 2) % words.length]?.[0]], seed) }
   }
   if (requested === 'Listening Quiz') {
-    const correct = listening.correctValue || listening.expected || listening.options?.[listening.answer] || focus[0]
-    return { type:requested, audio:listening.audio, question:'Đáp án nào khớp trực tiếp với nội dung bạn vừa nghe trong bài ' + lesson.number + '?', explanation:'Đáp án đúng được suy ra trực tiếp từ audio của bài.', ...optionSet(correct, [focus[0], focus[3], words[(seed + 2) % words.length]?.[0]], seed) }
+    const correct = listening.evidence || focus[0]
+    return { type:requested, audio:listening.audio, question:'Từ nào thực sự xuất hiện trong audio của bài ' + lesson.number + '?', explanation:'“' + correct + '” xuất hiện trực tiếp trong audio.', ...optionSet(correct, pool.filter((word)=>normalize(word[0]) !== normalize(correct)).map((word)=>word[0]), seed) }
   }
   return { type:requested === 'Vocabulary Quiz' ? requested : 'Multiple Choice', question:'“' + focus[0] + '” có nghĩa là gì?', explanation:focus[0] + ': ' + focus[3] + '.', ...optionSet(focus[3], pool.filter((word)=>word[3] !== focus[3]).map((word)=>word[3]), seed) }
 }
@@ -151,7 +158,7 @@ function buildPractice(words, target, languageId) {
     fill:{ prompt:'Viết từ phù hợp với nghĩa “' + first[3] + '”.', answer:first[0] },
     reorder:{ tokens:reorder.tokens || [first[0]], answer:reorder.expected || first[0] },
     translation:sourceExample && translation
-      ? { label:'Dịch sang ' + (languageNames[languageId] || 'ngôn ngữ đích'), prompt:translation, answer:sourceExample }
+      ? { label:'Viết lại câu mẫu bằng ' + (languageNames[languageId] || 'ngôn ngữ đích'), prompt:translation, answer:sourceExample }
       : { label:'Gợi nhớ từ', prompt:first[3], answer:first[0] },
   }
 }
