@@ -45,7 +45,7 @@ try {
   await page.getByLabel('Ngôn ngữ').selectOption('chinese')
   await page.locator('.vocabulary-index button').first().waitFor()
   assert(await page.locator('.vocabulary-index button').count() > 0, 'Chinese vocabulary is missing from library')
-  await page.getByLabel('Cấp độ', { exact:true }).selectOption('HSK 4')
+  await page.locator('.vocabulary-filters label', { hasText:'Cấp độ' }).locator('select').selectOption('HSK 4')
   await page.locator('.vocabulary-index button').first().waitFor()
   assert(await page.locator('.vocabulary-index button').count() >= 5, 'HSK 4 vocabulary set is missing')
   assert(!(await page.locator('.vocabulary-index').innerText()).includes('你好'), 'Starter words were incorrectly labelled HSK 4')
