@@ -115,9 +115,9 @@ function buildQuiz(lesson, words, pool, seed, target, listening) {
   }
   if (requested === 'Reorder Sentence') {
     const task = reorderTask(sentenceContaining(focus) || target, focus)
-    return { ...task, explanation:task.type === 'Reorder Sentence' ? 'Câu đúng: “' + task.expected + '”' : focus[0] + ': ' + focus[3] + '.' }
+    return { ...task, question:task.type === 'Reorder Sentence' ? 'Sắp xếp câu sử dụng từ trọng tâm “' + focus[0] + '”.' : task.question, explanation:task.type === 'Reorder Sentence' ? 'Câu đúng: “' + task.expected + '”' : focus[0] + ': ' + focus[3] + '.' }
   }
-  if (requested === 'Matching') return { type:requested, question:'Ghép từng từ với đúng nghĩa của nó.', pairs:words.map((word)=>[word[0],word[3]]), correctValue:words.map((word)=>word[0] + '→' + word[3]).join('|'), explanation:'Mỗi cặp được lấy trực tiếp từ từ vựng của bài.' }
+  if (requested === 'Matching') return { type:requested, question:'Ghép đúng nghĩa cho bộ từ: ' + words.map((word)=>word[0]).join(' · ') + '.', pairs:words.map((word)=>[word[0],word[3]]), correctValue:words.map((word)=>word[0] + '→' + word[3]).join('|'), explanation:'Mỗi cặp được lấy trực tiếp từ từ vựng của bài.' }
   if (requested === 'True False') {
     const wrongMeaning = pool.find((word, index) => index >= (seed * 3) % Math.max(1, pool.length) && word[3] && word[3] !== focus[3])?.[3] || pool.find((word) => word[3] && word[3] !== focus[3])?.[3] || focus[3]
     const statementTrue = Math.floor((seed - 1) / quizTypes.length) % 2 === 0
@@ -132,7 +132,7 @@ function buildQuiz(lesson, words, pool, seed, target, listening) {
   }
   if (requested === 'Listening Quiz') {
     const correct = listening.correctValue || listening.expected || listening.options?.[listening.answer] || focus[0]
-    return { type:requested, audio:listening.audio, question:'Đáp án nào khớp với nội dung nghe trọng tâm?', explanation:'Đáp án đúng được suy ra trực tiếp từ audio của bài.', ...optionSet(correct, [focus[0], focus[3], words[(seed + 2) % words.length]?.[0]], seed) }
+    return { type:requested, audio:listening.audio, question:'Trong phần nghe có từ trọng tâm “' + focus[0] + '”; đáp án nào khớp với nội dung?', explanation:'Đáp án đúng được suy ra trực tiếp từ audio của bài.', ...optionSet(correct, [focus[0], focus[3], words[(seed + 2) % words.length]?.[0]], seed) }
   }
   return { type:requested === 'Vocabulary Quiz' ? requested : 'Multiple Choice', question:'“' + focus[0] + '” có nghĩa là gì?', explanation:focus[0] + ': ' + focus[3] + '.', ...optionSet(focus[3], pool.filter((word)=>word[3] !== focus[3]).map((word)=>word[3]), seed) }
 }
