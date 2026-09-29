@@ -113,7 +113,7 @@ function buildQuiz(lesson, words, pool, seed, target, listening) {
   if (requested === 'Matching') return { type:requested, question:'Ghép từng từ với đúng nghĩa của nó.', pairs:words.map((word)=>[word[0],word[3]]), correctValue:words.map((word)=>word[0] + '→' + word[3]).join('|'), explanation:'Mỗi cặp được lấy trực tiếp từ từ vựng của bài.' }
   if (requested === 'True False') {
     const wrongMeaning = pool.find((word, index) => index >= (seed * 3) % Math.max(1, pool.length) && word[3] && word[3] !== focus[3])?.[3] || pool.find((word) => word[3] && word[3] !== focus[3])?.[3] || focus[3]
-    const statementTrue = seed % 2 === 0
+    const statementTrue = Math.floor((seed - 1) / quizTypes.length) % 2 === 0
     const claimed = statementTrue ? focus[3] : wrongMeaning
     const options = ['True','False']
     const answer = statementTrue ? 0 : 1
