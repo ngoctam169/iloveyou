@@ -54,7 +54,7 @@ const MIN_WORDS_PER_LEVEL = 900
 
 const baseWord = (languageId, level, index, data) => ({
   id: `${languageId}-${level.toLowerCase().replace(/\s+/g, '-')}-${String(index + 1).padStart(4, '0')}-${slug(data.word)}`,
-  languageId, level,
+  languageId, level, appLevel: level,
   word: clean(data.word), ipa: clean(data.ipa), partOfSpeech: clean(data.partOfSpeech),
   meaningVi: compact(data.meaningVi), definition: compact(data.definition),
   example: compact(data.example, 260), translation: compact(data.translation, 260),
@@ -63,6 +63,11 @@ const baseWord = (languageId, level, index, data) => ({
   lessonIds: [], lessons: [], source: data.source,
   levelBasis: data.levelBasis || 'source vocabulary level',
   sourceLevel: data.sourceLevel || level,
+  levelStatus: languageId === 'korean'
+    ? 'study-band'
+    : clean(data.sourceLevel || level) === level && !/estimated|extension/i.test(data.levelBasis || '')
+      ? 'source'
+      : 'extended',
 })
 
 function uniqueByWord(items) {
@@ -270,10 +275,33 @@ async function buildEnglish(db, freq, tatoeba) {
     })
   }
   const output = []
-  const resolvedPool = Object.values(byLevel).flat().sort((a, b) => b.rank - a.rank || a.word.localeCompare(b.word, 'en'))
-  for (const [level, count] of Object.entries(target)) {
-    const core = byLevel[level].sort((a, b) => b.rank - a.rank || a.word.localeCompare(b.word, 'en'))
-    const selected = fillLevel(core, resolvedPool.filter((word) => word.sourceLevel !== level), count, 'estimated CEFR extension from adjacent vocabulary profiles')
+  const levels = Object.keys(target)
+  const reserved = new Set()
+  const selections = new Map()
+  const keyFor = (word) => clean(word.word).normalize('NFKC').toLocaleLowerCase()
+
+  for (const level of levels) {
+    const core = byLevel[level]
+      .sort((a, b) => b.rank - a.rank || a.word.localeCompare(b.word, 'en'))
+      .filter((word) => !reserved.has(keyFor(word)))
+      .slice(0, target[level])
+    core.forEach((word) => reserved.add(keyFor(word)))
+    selections.set(level, core)
+  }
+
+  for (const level of levels) {
+    const selected = selections.get(level)
+    const levelIndex = levels.indexOf(level)
+    const pool = Object.values(byLevel).flat()
+      .filter((word) => !reserved.has(keyFor(word)))
+      .sort((a, b) => Math.abs(levels.indexOf(a.sourceLevel) - levelIndex) - Math.abs(levels.indexOf(b.sourceLevel) - levelIndex) || b.rank - a.rank || a.word.localeCompare(b.word, 'en'))
+    for (const next of pool) {
+      if (selected.length >= target[level]) break
+      const key = keyFor(next)
+      if (reserved.has(key)) continue
+      reserved.add(key)
+      selected.push({ ...next, levelBasis: `estimated CEFR extension for ${level}; source ${next.sourceLevel}` })
+    }
     assertApproxLevel('English', level, selected)
     output.push(...selected.map((word, index) => baseWord('english', level, index, word)))
   }
