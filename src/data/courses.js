@@ -281,7 +281,8 @@ function makeListening(audio, words, topic, lessonNumber) {
   if (type === 'Fill in the Blank') {
     const expected = words.find((word) => word[4] && new RegExp(`\\b${word[0]}\\b`, 'i').test(word[4]))
     if (expected) return { type, audio: expected[4], prompt: expected[4].replace(new RegExp(expected[0], 'i'), '_____'), expected: expected[0], explanation: `Từ còn thiếu là “${expected[0]}”.` }
-    return { type:'Listen & Choose', audio, prompt:'Chọn chủ đề phù hợp nhất với câu bạn nghe.', options:[topic, words[0][3], words[1][3]], answer:0, explanation:`Câu bạn vừa nghe: “${audio}”` }
+    const focus = words[0]
+    return { type, audio:`${audio} ${focus[0]}.`, prompt:'Nghe và nhập từ trọng tâm ở cuối đoạn.', expected:focus[0], explanation:`Từ trọng tâm là “${focus[0]}” (${focus[3]}).` }
   }
   return {
     type,
