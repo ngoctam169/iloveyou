@@ -1,7 +1,7 @@
 import { Search as SearchIcon } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
-import { allSearchItems } from '../data/courses'
+import { allSearchItems } from '../data/searchItems'
 import { loadVocabularySearchIndex } from '../services/vocabularyRuntime'
 import { useApp } from '../context/AppContext'
 import { toeicListeningQuestions, toeicReading } from '../data/toeic'
