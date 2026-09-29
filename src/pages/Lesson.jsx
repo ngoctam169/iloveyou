@@ -13,6 +13,7 @@ import { useVocabularyData } from '../hooks/useVocabularyData'
 import { speak } from '../utils/speech'
 import { wordKey } from '../utils/srs'
 import { buildGrammarQuestion, grammarEntryFor } from '../utils/grammarPractice'
+import { buildLessonRuntimeContent, LESSON_CONTENT_VERSION } from '../utils/lessonRuntime'
 import NotFound from './NotFound'
 import { grammarPath, lessonPath as cleanLessonPath, levelPath, vocabularyPath } from '../utils/routes'
 
@@ -22,24 +23,16 @@ const sections = [
 ]
 const blankAnswers = { grammar: null, listening: null, reading: null, writing: '', writingIdeas: [], speakingScore: null, quiz: null }
 
-const vocabularyLookupKey = (value = '') => String(value).normalize('NFKC').trim().toLocaleLowerCase()
-const asLessonTuple = (word) => [word.word || '', word.ipa || '', word.partOfSpeech || '', word.meaningVi || word.definition || '', word.example || '', word.translation || '']
-function hydrateLessonVocabulary(lesson, vocabulary = []) {
-  if (!lesson?.vocab?.length || !vocabulary.length) return lesson
-  const lookup = new Map(vocabulary.map((word) => [vocabularyLookupKey(word.word), word]))
-  const vocab = lesson.vocab.map((row) => lookup.has(vocabularyLookupKey(row[0])) ? asLessonTuple(lookup.get(vocabularyLookupKey(row[0]))) : row)
-  return { ...lesson, vocab }
-}
-
 export default function Lesson() {
   const { languageId, levelSlug: levelSlugParam, lessonId } = useParams()
   const language = getLanguage(languageId)
   const level = findLevel(language, levelSlugParam)
   const rawLesson = useMemo(() => getLesson(languageId, level?.[0], lessonId), [languageId, level?.[0], lessonId])
   const { state, persistLessonSession, chooseCourse, completeLesson, addMistake, toggleSaved, setToast } = useApp()
-  const { words: levelVocabulary } = useVocabularyData(state, languageId, level?.[0])
-  const lesson = useMemo(() => hydrateLessonVocabulary(rawLesson, levelVocabulary), [rawLesson, levelVocabulary])
-  const savedSession = state.lessonSessions?.[lessonId]
+  const { words: levelVocabulary, loading: vocabularyLoading } = useVocabularyData(state, languageId, level?.[0])
+  const lesson = useMemo(() => buildLessonRuntimeContent(rawLesson, levelVocabulary, languageId, level?.[0]), [rawLesson, levelVocabulary, languageId, level?.[0]])
+  const storedSession = state.lessonSessions?.[lessonId]
+  const savedSession = storedSession?.contentVersion === LESSON_CONTENT_VERSION ? storedSession : null
   const location = useLocation()
   const sectionIndex = sections.findIndex(([name]) => name.toLowerCase() === new URLSearchParams(location.search).get('section')?.toLowerCase())
   const [step, setStep] = useState(() => sectionIndex >= 0 ? sectionIndex : Math.min(8, Number(savedSession?.step) || 0))
@@ -81,16 +74,18 @@ export default function Lesson() {
   useEffect(() => { noteActivity() }, [step, answers, checked])
 
   useEffect(() => {
-    if (lesson && step === 2 && state.settings.autoplay) speak(lesson.listening?.audio || lesson.listen, languageId, rate, setToast)
-  }, [step, lesson?.id, state.settings.autoplay, languageId])
+    if (!vocabularyLoading && lesson && step === 2 && state.settings.autoplay) speak(lesson.listening?.audio || lesson.listen, languageId, rate, setToast)
+  }, [step, lesson?.id, vocabularyLoading, state.settings.autoplay, languageId])
 
   useLayoutEffect(() => {
-    if (!lesson) return
-    persistLessonSession(lesson.id, { step, answers, checked, completed, completedSections, xpEarned, activeSeconds:activeSeconds.current, updatedAt:new Date().toISOString() })
-  }, [step, answers, checked, completed, completedSections, xpEarned, lesson?.id])
+    if (!lesson || vocabularyLoading) return
+    persistLessonSession(lesson.id, { contentVersion:LESSON_CONTENT_VERSION, step, answers, checked, completed, completedSections, xpEarned, activeSeconds:activeSeconds.current, updatedAt:new Date().toISOString() })
+  }, [step, answers, checked, completed, completedSections, xpEarned, lesson?.id, vocabularyLoading])
 
   const lessonSaved = lesson ? state.savedItems.some((item) => item.id === `lesson-${lesson.id}`) : false
-  if (!language || !level || !lesson) return <NotFound compact />
+  if (!language || !level || !rawLesson) return <NotFound compact />
+  if (vocabularyLoading) return <main className="lesson-loading"><div className="empty-inline"><span>◌</span><h1>Đang chuẩn bị bài học</h1><p>Đang tải đúng dữ liệu từ vựng và câu hỏi cho level này…</p></div></main>
+  if (!lesson) return <NotFound compact />
   const totalProgress = completed ? 100 : Math.round((completedSections.length / sections.length) * 100)
   const remainingSections = sections.slice(0, 7).map(([name], index) => completedSections.includes(index) ? null : name).filter(Boolean)
   const levelLessons = getRoadmap(languageId, level[0]).flatMap((unit) => unit.lessons)
@@ -165,7 +160,7 @@ function GrammarSection({ grammar, question, answers, setAnswers, checked, setCh
   const { state, toggleSaved } = useApp()
   const item = { id: `grammar-${languageId}-${level}-${grammar.name}`, type: 'Grammar', title: grammar.name, subtitle: grammar.structure, languageId, level, path: `${lessonPath}?section=grammar` }
   const saved = state.savedItems.some((savedItem) => savedItem.id === item.id)
-  return <div className="grammar-card"><button className={`icon-btn bookmark-heading ${saved ? 'saved' : ''}`} aria-label={saved ? 'Bỏ lưu điểm ngữ pháp' : 'Lưu điểm ngữ pháp'} onClick={() => toggleSaved(item)}><Bookmark fill={saved ? 'currentColor' : 'none'} /></button><span className="grammar-tag">GRAMMAR FOCUS</span><h2>{grammar.name}</h2><p>{grammar.explanation}</p><div className="structure-box"><span>CẤU TRÚC</span><strong>{grammar.structure}</strong></div><h3>Ví dụ</h3><div className="example-list">{grammar.examples.map((example, index) => <p key={example}><span>{index + 1}</span>{example}</p>)}</div><div className="mistake-box"><strong>⚠ Lỗi thường gặp</strong><p>{grammar.mistake}</p></div>{question && <div className="lesson-grammar-quiz"><QuizQuestion question={question} value={answers.grammar} onChange={(value) => setAnswers({ ...answers, grammar:value })} checked={Boolean(checked.grammar)}/>{!checked.grammar && <button className="btn" disabled={answers.grammar === null} onClick={() => setChecked({ ...checked, grammar:true })}>Kiểm tra ngữ pháp</button>}</div>}</div>
+  return <div className="grammar-card"><button className={`icon-btn bookmark-heading ${saved ? 'saved' : ''}`} aria-label={saved ? 'Bỏ lưu điểm ngữ pháp' : 'Lưu điểm ngữ pháp'} onClick={() => toggleSaved(item)}><Bookmark fill={saved ? 'currentColor' : 'none'} /></button><span className="grammar-tag">GRAMMAR FOCUS</span><h2>{grammar.name}</h2><p>{grammar.explanation}</p><div className="structure-box"><span>CẤU TRÚC</span><strong>{grammar.structure}</strong></div>{grammar.examples?.length > 0 && <><h3>Ví dụ</h3><div className="example-list">{grammar.examples.map((example, index) => <p key={example}><span>{index + 1}</span>{example}</p>)}</div></>}<div className="mistake-box"><strong>⚠ Lỗi thường gặp</strong><p>{grammar.mistake}</p></div>{question && <div className="lesson-grammar-quiz"><QuizQuestion question={question} value={answers.grammar} onChange={(value) => setAnswers({ ...answers, grammar:value })} checked={Boolean(checked.grammar)}/>{!checked.grammar && <button className="btn" disabled={answers.grammar === null} onClick={() => setChecked({ ...checked, grammar:true })}>Kiểm tra ngữ pháp</button>}</div>}</div>
 }
 
 function ListeningSection({ lesson, languageId, rate, answers, setAnswers, checked, setChecked, setToast }) {
@@ -227,8 +222,8 @@ function ConsolidationPractice({ lesson }) {
   const fillCorrect = normalizeAnswer(fill) === normalizeAnswer(practice.fill.answer)
   const orderText = order.map((index)=>practice.reorder.tokens[index]).join(' ')
   const orderCorrect = normalizeAnswer(orderText) === normalizeAnswer(practice.reorder.answer)
-  const translationCorrect = normalizeAnswer(translation).split(' ').filter((word)=>normalizeAnswer(practice.translation.answer).includes(word)).length >= 3
-  return <section className="consolidation-card"><span className="overline">BÀI TỔNG KẾT CUỐI BÀI</span><h2>Active recall challenge</h2><p>Hoàn thành ba dạng bài để kiểm tra khả năng sử dụng chủ động.</p><label className="text-answer"><span>1. Điền từ: {practice.fill.prompt}</span><input value={fill} disabled={checkedPractice} onChange={(event)=>setFill(event.target.value)} placeholder="Nhập từ còn thiếu…"/></label><div><strong>2. Sắp xếp câu</strong><ReorderBuilder tokens={practice.reorder.tokens} value={order} onChange={setOrder} disabled={checkedPractice}/></div><label className="text-answer"><span>3. Dịch sang tiếng Anh: {practice.translation.prompt}</span><input value={translation} disabled={checkedPractice} onChange={(event)=>setTranslation(event.target.value)} placeholder="Viết bản dịch của bạn…"/></label>{!checkedPractice ? <button className="btn" disabled={!fill || order.length !== practice.reorder.tokens.length || !translation} onClick={()=>setCheckedPractice(true)}>Chấm bài tổng kết</button> : <div className="practice-feedback-list">{[[fillCorrect,'Điền từ',practice.fill.answer],[orderCorrect,'Sắp xếp câu',practice.reorder.answer],[translationCorrect,'Dịch',practice.translation.answer]].map(([correct,label,answer])=><div className={correct?'correct':'wrong'} key={label}><strong>{correct?'✓':'✕'} {label}</strong>{!correct&&<span>Đáp án gợi ý: {answer}</span>}</div>)}</div>}</section>
+  const translationCorrect = normalizeAnswer(translation) === normalizeAnswer(practice.translation.answer)
+  return <section className="consolidation-card"><span className="overline">BÀI TỔNG KẾT CUỐI BÀI</span><h2>Active recall challenge</h2><p>Hoàn thành ba dạng bài để kiểm tra khả năng sử dụng chủ động.</p><label className="text-answer"><span>1. Điền từ: {practice.fill.prompt}</span><input value={fill} disabled={checkedPractice} onChange={(event)=>setFill(event.target.value)} placeholder="Nhập từ còn thiếu…"/></label><div><strong>2. Sắp xếp câu</strong><ReorderBuilder tokens={practice.reorder.tokens} value={order} onChange={setOrder} disabled={checkedPractice}/></div><label className="text-answer"><span>3. {practice.translation.label || 'Gợi nhớ từ'}: {practice.translation.prompt}</span><input value={translation} disabled={checkedPractice} onChange={(event)=>setTranslation(event.target.value)} placeholder="Viết bản dịch của bạn…"/></label>{!checkedPractice ? <button className="btn" disabled={!fill || order.length !== practice.reorder.tokens.length || !translation} onClick={()=>setCheckedPractice(true)}>Chấm bài tổng kết</button> : <div className="practice-feedback-list">{[[fillCorrect,'Điền từ',practice.fill.answer],[orderCorrect,'Sắp xếp câu',practice.reorder.answer],[translationCorrect,'Dịch',practice.translation.answer]].map(([correct,label,answer])=><div className={correct?'correct':'wrong'} key={label}><strong>{correct?'✓':'✕'} {label}</strong>{!correct&&<span>Đáp án gợi ý: {answer}</span>}</div>)}</div>}</section>
 }
 
 function Feedback({ correct, text }) {
