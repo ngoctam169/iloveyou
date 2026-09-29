@@ -61,6 +61,7 @@ try {
 
   await page.goto(`${origin}/blog/nguyen-ngoc-tam-ninh-thuan`)
   await page.waitForURL('**/blog#nguyen-ngoc-tam-ninh-thuan')
+  await page.locator('#nguyen-ngoc-tam-ninh-thuan').waitFor()
   assert(await page.locator('#nguyen-ngoc-tam-ninh-thuan').count()===1,'Legacy personal story URL must redirect into the Blog section')
 
   await page.goto(`${origin}/blog/bai-viet-khong-ton-tai`)
