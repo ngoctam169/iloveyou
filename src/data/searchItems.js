@@ -1,5 +1,5 @@
-import { getRoadmap } from './courses'
-import { getLanguage, levelSlug } from './languages'
+import { getRoadmap } from './courses.js'
+import { getLanguage, levelSlug } from './languages.js'
 
 const languagesForSearch = () => ['english', 'chinese', 'japanese', 'korean'].map(getLanguage).filter(Boolean)
 
