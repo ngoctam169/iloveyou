@@ -130,8 +130,8 @@ try {
   await page.locator('.vocabulary-load-more').click()
   assert(await page.locator('.vocabulary-index > div > button:not(.vocabulary-load-more)').count() === 100, 'Vocabulary load-more did not reveal the next page')
   await page.locator('.vocabulary-filters select').nth(5).selectOption('alphabetical')
-  await page.locator('.filter-search input').fill('vegetable')
-  await page.getByRole('heading', { name: 'vegetable', exact: true }).waitFor()
+  await page.locator('.filter-search input').fill('family')
+  await page.getByRole('heading', { name: 'family', exact: true }).waitFor()
 
   await page.goto(`${origin}/flashcards?language=english&level=A1&limit=5`)
   await page.locator('.flashcard-progress').getByText('1 / 5', { exact: true }).waitFor()
