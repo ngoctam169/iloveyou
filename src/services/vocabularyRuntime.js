@@ -60,7 +60,7 @@ export async function loadVocabularyKeys(keys = []) {
 
 export async function loadVocabularySearchIndex() {
   if (!searchIndexPromise) {
-    searchIndexPromise = import('../data/vocabulary/generated/runtime/search-index.json', { with:{ type:'json' } })
+    searchIndexPromise = import('../data/vocabulary/generated/runtime/search-index.json')
       .then((module) => module.default || [])
   }
   return searchIndexPromise
