@@ -42,7 +42,7 @@ function targetFor(languageId, words, seed) {
   return 'Today I will use “' + first + '” and “' + second + '” in a clear response.'
 }
 
-function buildReading(lesson, words, seed) {
+function buildReading(lesson, words, pool, seed) {
   const examples = unique(words.map((word) => word[4]))
   const text = examples.length >= 2 ? examples.slice(0, 3).join(' ') : (fallbackStudyText(lesson.languageId, words) + ' ' + (examples[0] || '')).trim()
   const visibleWords = words.filter((word) => normalize(text).includes(normalize(word[0])))
@@ -50,22 +50,22 @@ function buildReading(lesson, words, seed) {
   const focus = focusPool[seed % focusPool.length]
   const mode = seed % 3
   if (mode === 1) {
-    const answer = optionSet(focus[0], words.filter((word) => word !== focus).map((word) => word[0]), seed)
+    const answer = optionSet(focus[0], pool.filter((word) => normalize(word[0]) !== normalize(focus[0])).map((word) => word[0]), seed)
     return { title:lesson.topic + ' · Reading ' + lesson.number, text, question:'Từ nào trong đoạn có nghĩa là “' + focus[3] + '”?', type:'Multiple Choice', evidence:focus[0], ...answer }
   }
   if (mode === 2) {
-    const wrongMeaning = words[(seed + 1) % words.length]?.[3] || focus[3]
+    const wrongMeaning = pool.find((word, index) => index >= seed % Math.max(1, pool.length) && word[3] && word[3] !== focus[3])?.[3] || pool.find((word) => word[3] && word[3] !== focus[3])?.[3] || focus[3]
     const statementTrue = seed % 2 === 0
     const claimed = statementTrue ? focus[3] : wrongMeaning
     const options = ['Đúng','Sai']
     const answer = statementTrue ? 0 : 1
     return { title:lesson.topic + ' · Reading ' + lesson.number, text, question:'Đúng hay sai: “' + focus[0] + '” có nghĩa là “' + claimed + '”.', options, answer, correctValue:options[answer], type:'True / False', evidence:focus[0] }
   }
-  const answer = optionSet(focus[3], words.filter((word) => word !== focus).map((word) => word[3]), seed)
+  const answer = optionSet(focus[3], pool.filter((word) => word[3] !== focus[3]).map((word) => word[3]), seed)
   return { title:lesson.topic + ' · Reading ' + lesson.number, text, question:'Trong đoạn đọc, “' + focus[0] + '” gần nghĩa nhất với đáp án nào?', type:'Multiple Choice', evidence:focus[0], ...answer }
 }
 
-function buildListening(lesson, words, seed) {
+function buildListening(lesson, words, pool, seed) {
   const type = listeningTypes[(seed - 1) % listeningTypes.length]
   const focus = words[seed % words.length]
   const second = words[(seed + 1) % words.length]
@@ -82,10 +82,10 @@ function buildListening(lesson, words, seed) {
   }
   if (type === 'Conversation Listening') {
     const audio = unique([baseAudio, secondSentence || second[0]]).join(' ')
-    return { type, audio, prompt:'Từ nào chắc chắn xuất hiện trong đoạn hội thoại?', evidence:focus[0], explanation:'Bạn có thể nghe thấy “' + focus[0] + '” trong đoạn.', ...optionSet(focus[0], words.filter((word) => word !== focus).map((word) => word[0]), seed) }
+    return { type, audio, prompt:'Từ nào chắc chắn xuất hiện trong đoạn hội thoại?', evidence:focus[0], explanation:'Bạn có thể nghe thấy “' + focus[0] + '” trong đoạn.', ...optionSet(focus[0], pool.filter((word) => normalize(word[0]) !== normalize(focus[0])).map((word) => word[0]), seed) }
   }
-  if (type === 'Listen & Answer') return { type, audio:baseAudio, prompt:'Từ “' + focus[0] + '” trong nội dung vừa nghe có nghĩa là gì?', evidence:focus[0], explanation:focus[0] + ': ' + focus[3] + '.', ...optionSet(focus[3], words.filter((word) => word !== focus).map((word) => word[3]), seed) }
-  return { type, audio:baseAudio, prompt:'Bạn vừa nghe từ/cụm từ trọng tâm nào?', evidence:focus[0], explanation:'Từ trọng tâm là “' + focus[0] + '”.', ...optionSet(focus[0], words.filter((word) => word !== focus).map((word) => word[0]), seed) }
+  if (type === 'Listen & Answer') return { type, audio:baseAudio, prompt:'Từ “' + focus[0] + '” trong nội dung vừa nghe có nghĩa là gì?', evidence:focus[0], explanation:focus[0] + ': ' + focus[3] + '.', ...optionSet(focus[3], pool.filter((word) => word[3] !== focus[3]).map((word) => word[3]), seed) }
+  return { type, audio:baseAudio, prompt:'Bạn vừa nghe từ/cụm từ trọng tâm nào?', evidence:focus[0], explanation:'Từ trọng tâm là “' + focus[0] + '”.', ...optionSet(focus[0], pool.filter((word) => normalize(word[0]) !== normalize(focus[0])).map((word) => word[0]), seed) }
 }
 
 function reorderTask(sentence, fallback) {
@@ -95,7 +95,7 @@ function reorderTask(sentence, fallback) {
   return { type:'Fill Blank', question:'Viết từ phù hợp với nghĩa “' + fallback[3] + '”.', expected:fallback[0], correctValue:fallback[0] }
 }
 
-function buildQuiz(lesson, words, seed, target, listening) {
+function buildQuiz(lesson, words, pool, seed, target, listening) {
   const requested = quizTypes[(seed - 1) % quizTypes.length]
   const focus = words[(seed + 1) % words.length]
   if (requested === 'Fill Blank') {
@@ -112,7 +112,7 @@ function buildQuiz(lesson, words, seed, target, listening) {
   }
   if (requested === 'Matching') return { type:requested, question:'Ghép từng từ với đúng nghĩa của nó.', pairs:words.map((word)=>[word[0],word[3]]), correctValue:words.map((word)=>word[0] + '→' + word[3]).join('|'), explanation:'Mỗi cặp được lấy trực tiếp từ từ vựng của bài.' }
   if (requested === 'True False') {
-    const wrongMeaning = words[(seed + 2) % words.length]?.[3] || focus[3]
+    const wrongMeaning = pool.find((word, index) => index >= (seed * 3) % Math.max(1, pool.length) && word[3] && word[3] !== focus[3])?.[3] || pool.find((word) => word[3] && word[3] !== focus[3])?.[3] || focus[3]
     const statementTrue = seed % 2 === 0
     const claimed = statementTrue ? focus[3] : wrongMeaning
     const options = ['True','False']
@@ -127,7 +127,7 @@ function buildQuiz(lesson, words, seed, target, listening) {
     const correct = listening.correctValue || listening.expected || listening.options?.[listening.answer] || focus[0]
     return { type:requested, audio:listening.audio, question:'Đáp án nào khớp với nội dung nghe trọng tâm?', explanation:'Đáp án đúng được suy ra trực tiếp từ audio của bài.', ...optionSet(correct, [focus[0], focus[3], words[(seed + 2) % words.length]?.[0]], seed) }
   }
-  return { type:requested === 'Vocabulary Quiz' ? requested : 'Multiple Choice', question:'“' + focus[0] + '” có nghĩa là gì?', explanation:focus[0] + ': ' + focus[3] + '.', ...optionSet(focus[3], words.filter((word)=>word !== focus).map((word)=>word[3]), seed) }
+  return { type:requested === 'Vocabulary Quiz' ? requested : 'Multiple Choice', question:'“' + focus[0] + '” có nghĩa là gì?', explanation:focus[0] + ': ' + focus[3] + '.', ...optionSet(focus[3], pool.filter((word)=>word[3] !== focus[3]).map((word)=>word[3]), seed) }
 }
 
 function buildPractice(words, target, languageId) {
@@ -150,12 +150,13 @@ export function buildLessonRuntimeContent(rawLesson, vocabulary = [], languageId
   const lookup = new Map(vocabulary.map((word) => [lookupKey(word.word), word]))
   const words = (rawLesson.vocab || []).map((row) => lookup.has(lookupKey(row[0])) ? tupleFromWord(lookup.get(lookupKey(row[0]))) : row)
   if (!words.length) return rawLesson
+  const pool = vocabulary.length ? vocabulary.map(tupleFromWord) : words
   const seed = Number(rawLesson.number) || 1
   const lesson = { ...rawLesson, languageId, level, vocab:words }
   const target = targetFor(languageId, words, seed)
-  const listening = buildListening(lesson, words, seed)
-  const reading = buildReading(lesson, words, seed)
-  const quiz = buildQuiz(lesson, words, seed, target, listening)
+  const listening = buildListening(lesson, words, pool, seed)
+  const reading = buildReading(lesson, words, pool, seed)
+  const quiz = buildQuiz(lesson, words, pool, seed, target, listening)
   const practice = buildPractice(words, target, languageId)
   return { ...lesson, target, listen:listening.audio, listening, reading, quiz, practice }
 }
