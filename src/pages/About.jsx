@@ -1,3 +1,4 @@
+import '../styles/blog.css'
 import { BriefcaseBusiness, Code2, ExternalLink, GraduationCap, MapPin } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import Breadcrumbs from '../components/common/Breadcrumbs'

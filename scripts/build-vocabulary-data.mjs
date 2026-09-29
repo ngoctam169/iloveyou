@@ -6,6 +6,7 @@ import { tmpdir } from 'node:os'
 
 const cacheDir = tmpdir()
 const outputDir = new URL('../src/data/vocabulary/generated/', import.meta.url)
+const runtimeDir = new URL('../src/data/vocabulary/generated/runtime/', import.meta.url)
 
 const sources = {
   dictionary: ['nt-en-vi.db', 'https://raw.githubusercontent.com/skypediacode/english-vietnamese-dictionary/main/dictionary_en_vi.db'],
@@ -493,6 +494,7 @@ async function buildKorean() {
 
 
 await mkdir(outputDir, { recursive: true })
+await mkdir(runtimeDir, { recursive: true })
 const dbPath = await cached(sources.dictionary)
 const db = new DatabaseSync(dbPath, { readOnly: true })
 const [frequency, tatoeba] = await Promise.all([loadFrequencyWords(), loadTatoeba()])
@@ -509,6 +511,37 @@ for (const [language, words] of Object.entries(datasets)) {
   console.log(`${language}: ${words.length}`)
 }
 
+const lessonPools = {}
+for (const [languageId, words] of Object.entries(datasets)) {
+  const levels = [...new Set(words.map((word) => word.level))]
+  lessonPools[languageId] = {}
+  for (const level of levels) {
+    const rows = words.filter((word) => word.level === level).slice(0, 180).map((word) => [
+      word.word || '', word.ipa || '', word.partOfSpeech || '', word.meaningVi || word.definition || '',
+      word.example || '', word.translation || '',
+    ])
+    lessonPools[languageId][level] = rows
+  }
+}
+await writeFile(new URL('lesson-pools.json', outputDir), `${JSON.stringify(lessonPools)}\n`)
+
+
 await writeFile(new URL('index.js', outputDir), `import english from './english.json' with { type: 'json' }\nimport chinese from './chinese.json' with { type: 'json' }\nimport japanese from './japanese.json' with { type: 'json' }\nimport korean from './korean.json' with { type: 'json' }\n\nexport const generatedVocabulary = [...english, ...chinese, ...japanese, ...korean]\n`)
 console.log(`total: ${Object.values(datasets).flat().length}`)
+
+const { vocabularyCatalog } = await import('../src/data/vocabulary/catalog.js')
+const runtimeGroups = new Map()
+for (const word of vocabularyCatalog) {
+  const key = `${word.languageId}::${word.level}`
+  if (!runtimeGroups.has(key)) runtimeGroups.set(key, [])
+  runtimeGroups.get(key).push(word)
+}
+for (const [key, words] of runtimeGroups) {
+  const [languageId, level] = key.split('::')
+  const fileName = `${languageId}-${slug(level)}.json`
+  await writeFile(new URL(fileName, runtimeDir), `${JSON.stringify(words)}\n`)
+}
+const searchIndex = vocabularyCatalog.map(({ languageId, level, word, meaningVi, topic }) => [languageId, level, word, meaningVi, topic || ''])
+await writeFile(new URL('search-index.json', runtimeDir), `${JSON.stringify(searchIndex)}\n`)
+console.log(`runtime vocabulary chunks: ${runtimeGroups.size}; search index: ${searchIndex.length}`)
 

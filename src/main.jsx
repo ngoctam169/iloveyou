@@ -10,9 +10,7 @@ import './styles/responsive.css'
 import './styles/addons.css'
 import './styles/bookmarks.css'
 import './styles/platform.css'
-import './styles/personal-vocabulary.css'
 import './styles/seo.css'
-import './styles/blog.css'
 
 const routerBase = import.meta.env.BASE_URL === '/' ? '' : import.meta.env.BASE_URL.replace(/\/$/, '')
 

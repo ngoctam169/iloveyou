@@ -1,8 +1,9 @@
+import '../styles/personal-vocabulary.css'
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useApp } from '../context/AppContext'
 import { languages } from '../data/languages'
-import { allVocabulary } from '../services/vocabularyService'
+import { useVocabularyKeys } from '../hooks/useVocabularyData'
 import { wordKey } from '../utils/srs'
 import { vocabularyPath } from '../utils/routes'
 
@@ -18,9 +19,9 @@ export default function MyVocabulary() {
   const [query, setQuery] = useState('')
   const [confirmDelete, setConfirmDelete] = useState(null)
   const language = languages.find((item) => item.id === form.languageId) || languages[0]
-  const words = allVocabulary(state)
   const personal = state.personalVocabulary || []
   const selectedList = state.vocabularyLists.find((list) => list.id === activeList)
+  const { words } = useVocabularyKeys(state, selectedList?.wordKeys || [])
   const shown = (activeList === 'all' ? personal : words.filter((word) => selectedList?.wordKeys.includes(wordKey(word))))
     .filter((word) => `${word.word} ${word.meaningVi} ${word.topic}`.toLocaleLowerCase().includes(query.toLocaleLowerCase()))
   const change = (name, value) => setForm((current) => ({ ...current, [name]: value }))

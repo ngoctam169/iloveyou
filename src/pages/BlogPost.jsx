@@ -1,3 +1,4 @@
+import '../styles/blog.css'
 import { ArrowLeft, CalendarDays, Clock3 } from 'lucide-react'
 import { Link, Navigate, useParams } from 'react-router-dom'
 import AuthorBox from '../components/blog/AuthorBox'

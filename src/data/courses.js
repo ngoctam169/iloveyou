@@ -1,6 +1,6 @@
 import { getLanguage, levelSlug } from './languages.js'
 import { getLevelMeta } from './levels.js'
-import { generatedVocabulary } from './vocabulary/generated/index.js'
+import lessonPools from './vocabulary/generated/lesson-pools.json' with { type: 'json' }
 
 const packs = {
   english: [
@@ -177,20 +177,8 @@ const distributeLessonCounts = (unitCount, total = TARGET_LESSONS_PER_LEVEL) => 
   return Array.from({ length:unitCount }, (_, index) => base + (index < remainder ? 1 : 0))
 }
 
-const wordRow = (word) => [
-  word.word || '',
-  word.ipa || '',
-  word.partOfSpeech || '',
-  word.meaningVi || word.definition || '',
-  word.example || '',
-  word.translation || '',
-]
-
 const vocabularyRows = (languageId, levelName, fallback = []) => {
-  const rows = generatedVocabulary
-    .filter((word) => word.languageId === languageId && word.level === levelName)
-    .map(wordRow)
-    .filter((word) => word[0])
+  const rows = lessonPools?.[languageId]?.[levelName] || []
   return rows.length >= 3 ? rows : fallback
 }
 
@@ -383,21 +371,6 @@ function makePracticeLessons(languageId, levelName, unitIndex, lessonOffset, top
 }
 export function getLesson(languageId, levelName, lessonId) {
   return getRoadmap(languageId, levelName).flatMap((unit) => unit.lessons).find((lesson) => lesson.id === lessonId)
-}
-
-export const allSearchItems = languagesForSearch().flatMap((language) => language.levels.flatMap(([level]) =>
-  getRoadmap(language.id, level).flatMap((unit) => unit.lessons.flatMap((lesson) => {
-    const path = `/${language.id}/${levelSlug(level)}/lessons/${lesson.id}`
-    return [
-      { id: `${lesson.id}-lesson`, type: 'Lesson', title: lesson.title, subtitle: `${language.name} · ${level} · ${unit.title}`, languageId: language.id, level, topic: unit.title, path },
-      { id: `${lesson.id}-grammar`, type: 'Grammar', title: lesson.grammar.name, subtitle: `${lesson.grammar.structure} · ${level}`, languageId: language.id, level, topic: unit.title, path },
-      ...lesson.vocab.map((word, wordIndex) => ({ id: `${lesson.id}-vocab-${wordIndex}`, type: 'Vocabulary', title: word[0], subtitle: `${word[3]} · ${level} · ${unit.title}`, languageId: language.id, level, topic: unit.title, path })),
-    ]
-  }))
-))
-
-function languagesForSearch() {
-  return ['english', 'chinese', 'japanese', 'korean'].map(getLanguage).filter(Boolean)
 }
 
 export function getStarterLessons(languageId) { return packs[languageId] || [] }

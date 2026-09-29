@@ -1,3 +1,4 @@
+import '../styles/blog.css'
 import { BookOpenText, CalendarDays, Clock3 } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import BlogCard from '../components/blog/BlogCard'

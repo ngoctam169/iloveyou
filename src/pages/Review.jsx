@@ -4,7 +4,7 @@ import StatisticsCard from '../components/common/StatisticsCard'
 import { useApp } from '../context/AppContext'
 import { getRoadmap } from '../data/courses'
 import { getLanguage } from '../data/languages'
-import { vocabularyForState } from '../services/vocabularyService'
+import { useVocabularyData } from '../hooks/useVocabularyData'
 import { getLevelProgress } from '../utils/progress'
 import { isDue, isMastered, isWeakVocabulary, wordKey } from '../utils/srs'
 import { lessonPath, vocabularyPath } from '../utils/routes'
@@ -13,7 +13,7 @@ export default function Review() {
   const { state } = useApp()
   const language = getLanguage(state.selectedLanguage) || getLanguage('english')
   const level = language.levels.some(([name]) => name === state.selectedLevel) ? state.selectedLevel : language.levels[0][0]
-  const words = vocabularyForState(state, language.id, level)
+  const { words } = useVocabularyData(state, language.id, level)
   const due = words.filter((word) => isDue(state.flashcardProgress[wordKey(word)]))
   const fresh = words.filter((word) => !state.flashcardProgress[wordKey(word)] && !state.vocabularyMeta?.[wordKey(word)]?.started)
   const weak = words.filter((word) => isWeakVocabulary(state.flashcardProgress[wordKey(word)], state.vocabularyMeta?.[wordKey(word)]?.difficult))
