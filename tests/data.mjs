@@ -7,6 +7,7 @@ import { averageSkillScores, getLevelProgress, progressKey } from '../src/utils/
 import { ieltsListening, ieltsReading, ieltsSpeaking, ieltsWriting } from '../src/data/ielts/index.js'
 import { vocabulary } from '../src/data/vocabulary/index.js'
 import { vocabularyCatalog } from '../src/data/vocabulary/catalog.js'
+import { generatedVocabulary } from '../src/data/vocabulary/generated/index.js'
 import { toeicListeningQuestions, toeicMiniTest, toeicReading } from '../src/data/toeic/index.js'
 import { toeicFullSections, toeicFullStats } from '../src/data/exams/toeicFull.js'
 import { ieltsFullListening, ieltsFullReading, ieltsFullSections, ieltsAcademicWritingTasks } from '../src/data/exams/ieltsFull.js'
@@ -112,6 +113,12 @@ assert(averageSkillScores({ one: { Listening: 60 }, two: { Listening: 100 } }).L
 assert(vocabularyCatalog.length >= 150, 'Vocabulary catalogue did not include lesson words')
 assert(new Set(vocabularyCatalog.map(wordKey)).size === vocabularyCatalog.length, 'Vocabulary catalogue contains duplicate schedule keys')
 assert(vocabularyCatalog.every((word) => word.word && word.meaningVi && word.level && word.languageId), 'Vocabulary catalogue contains incomplete core fields')
+assert(generatedVocabulary.every((word) => word.appLevel === word.level && word.sourceLevel && ['source','extended','study-band'].includes(word.levelStatus)), 'Generated vocabulary provenance metadata is incomplete')
+for (const language of ['english','chinese','japanese','korean']) {
+  const entries = generatedVocabulary.filter((word) => word.languageId === language)
+  assert(new Set(entries.map((word) => word.word.normalize('NFKC').toLocaleLowerCase())).size === entries.length, `${language} generated vocabulary repeats a word across app levels`)
+}
+assert(generatedVocabulary.filter((word) => word.languageId === 'korean').every((word) => word.levelStatus === 'study-band'), 'Korean vocabulary must be labelled as app study bands, not official TOPIK levels')
 for (const [language, minimumExampleShare] of [['english', .4], ['chinese', .05], ['japanese', .2], ['korean', .6]]) {
   const entries = vocabularyCatalog.filter((word) => word.languageId === language)
   assert(entries.filter((word) => word.example).length / entries.length >= minimumExampleShare, `${language} has insufficient sourced examples`)
@@ -136,7 +143,8 @@ assert(allVocabulary(combined).length === vocabularyCatalog.length + 1, 'Persona
 for (const language of ['english', 'chinese', 'japanese', 'korean']) {
   assert(vocabularyCatalog.some((word) => word.languageId === language), `${language} vocabulary is missing`)
 }
-for (const language of ['chinese', 'japanese', 'korean']) assert(new Set(vocabularyCatalog.filter((word) => word.languageId === language).map((word) => word.word)).size === vocabularyCatalog.filter((word) => word.languageId === language).length, `${language} vocabulary is duplicated across app levels`)
+for (const language of ['chinese', 'japanese', 'korean']) assert(new Set(vocabularyCatalog.filter((word) => word.languageId === language).map((word) => word.word.normalize('NFKC'))).size === vocabularyCatalog.filter((word) => word.languageId === language).length, `${language} vocabulary is duplicated across app levels`)
+assert(new Set(vocabularyCatalog.filter((word) => word.languageId === 'english').map((word) => `${word.word.normalize('NFKC').toLocaleLowerCase()}::${word.meaningVi.normalize('NFKC').toLocaleLowerCase()}`)).size === vocabularyCatalog.filter((word) => word.languageId === 'english').length, 'English contains duplicate word+sense entries across app levels')
 assert(getVocabularyByLanguage({}, 'english').length >= 5400, 'Language vocabulary helper returned too few words')
 assert(getVocabularyByLevel({}, 'chinese', 'HSK 1').every((word) => word.languageId === 'chinese' && word.level === 'HSK 1'), 'Level vocabulary helper leaked another scope')
 const topicSample = vocabularyCatalog.find((word) => word.languageId === 'english' && word.topic)
