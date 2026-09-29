@@ -4,7 +4,6 @@ import { Link } from 'react-router-dom'
 import ProgressBar from '../components/common/ProgressBar'
 import { useApp } from '../context/AppContext'
 import { getLanguage } from '../data/languages'
-import { allVocabulary } from '../services/vocabularyService'
 import { getLevelProgress, summarizeProgress, totalStudyMinutes } from '../utils/progress'
 import { localDate, wordKey } from '../utils/srs'
 
@@ -22,7 +21,9 @@ export default function Progress() {
   const level = language.levels.some(([name]) => name === state.selectedLevel) ? state.selectedLevel : language.levels[0][0]
   const current = getLevelProgress(state, language.id, level)
   const totals = summarizeProgress(state)
-  const vocabularyLearned = allVocabulary(state).filter((word) => state.flashcardProgress[wordKey(word)] || state.vocabularyMeta?.[wordKey(word)]?.learned).length
+  const learnedWordKeys = new Set(Object.keys(state.flashcardProgress || {}))
+  Object.entries(state.vocabularyMeta || {}).forEach(([key, meta]) => { if (meta?.learned) learnedWordKeys.add(key) })
+  const vocabularyLearned = learnedWordKeys.size
   const skillNames = ['Listening', 'Speaking', 'Reading', 'Writing', 'Vocabulary', 'Grammar']
   const overall = Math.round(skillNames.reduce((sum, name) => sum + (current.skillScores[name] || 0), 0) / skillNames.length)
   const activity = [...Array(Math.max(0, 7 - state.activityHistory.length)).fill(0), ...state.activityHistory.slice(-7)]
