@@ -16,6 +16,8 @@ import { buildVocabularyPractice, checkVocabularyAnswer } from '../src/utils/voc
 import { isWeakVocabulary, nextSchedule, vocabularyStatus, wordKey } from '../src/utils/srs.js'
 import { allVocabulary, getRandomVocabulary, getReviewVocabulary, getVocabularyByLanguage, getVocabularyByLevel, getVocabularyByTopic, normalizePersonalWord, searchVocabulary, vocabularyForState } from '../src/services/vocabularyService.js'
 import { grammarEntries } from '../src/data/grammar.js'
+import { buildGrammarQuestion, grammarEntryFor } from '../src/utils/grammarPractice.js'
+import { buildLessonRuntimeContent, hasValidChoiceAnswer, lessonContentFingerprint } from '../src/utils/lessonRuntime.js'
 
 function assert(condition, message) {
   if (!condition) throw new Error(message)
@@ -98,6 +100,35 @@ for (const [language,highLevel,forbidden] of [['chinese','HSK 6','Subject + 是 
   assert(new Set(lessons.map((lesson)=>lesson.grammar.structure)).size >= 4, `${language} ${highLevel} must rotate advanced grammar, not beginner seed grammar`)
   assert(!lessons.some((lesson)=>lesson.grammar.structure === forbidden), `${language} ${highLevel} leaked beginner grammar into advanced curriculum`)
   assert(new Set(lessons.map((lesson)=>lesson.topic)).size >= 6, `${language} ${highLevel} needs distinct advanced themes`)
+}
+
+for (const language of ['english','chinese','japanese','korean']) {
+  for (const [level] of getLanguage(language).levels) {
+    const rawLessons = getRoadmap(language, level).flatMap((unit) => unit.lessons)
+    const levelVocabulary = vocabularyCatalog.filter((word) => word.languageId === language && word.level === level)
+    const lessons = rawLessons.map((lesson) => buildLessonRuntimeContent(lesson, levelVocabulary, language, level))
+    assert(lessons.length === 60, `${language} ${level} runtime lesson count changed`)
+    assert(new Set(lessons.map(lessonContentFingerprint)).size === lessons.length, `${language} ${level} contains repeated runtime lesson content`)
+    assert(new Set(lessons.map((lesson) => lesson.listening.audio)).size === lessons.length, `${language} ${level} repeats listening audio across lessons`)
+    assert(new Set(lessons.map((lesson) => lesson.reading.text)).size === lessons.length, `${language} ${level} repeats reading content across lessons`)
+    assert(new Set(lessons.map((lesson) => lesson.quiz.question)).size === lessons.length, `${language} ${level} repeats quiz questions across lessons`)
+    const answerPositions = new Set()
+    for (const lesson of lessons) {
+      assert(lesson.reading.evidence && lesson.reading.text.normalize('NFKC').toLocaleLowerCase().includes(lesson.reading.evidence.normalize('NFKC').toLocaleLowerCase()), `${lesson.id} reading question is not grounded in its passage`)
+      assert(lesson.listening.evidence && lesson.listening.audio.normalize('NFKC').toLocaleLowerCase().includes(lesson.listening.evidence.normalize('NFKC').toLocaleLowerCase()), `${lesson.id} listening question is not grounded in its audio`)
+      assert(hasValidChoiceAnswer(lesson.reading), `${lesson.id} reading has an invalid answer/options pair`)
+      assert(hasValidChoiceAnswer(lesson.listening), `${lesson.id} listening has an invalid answer/options pair`)
+      assert(hasValidChoiceAnswer(lesson.quiz), `${lesson.id} quiz has an invalid answer/options pair`)
+      if (lesson.reading.options) answerPositions.add(`r${lesson.reading.answer}`)
+      if (lesson.listening.options) answerPositions.add(`l${lesson.listening.answer}`)
+      if (lesson.quiz.options) answerPositions.add(`q${lesson.quiz.answer}`)
+      const entry = grammarEntryFor(language, level, lesson.grammar.name)
+      assert(entry, `${lesson.id} grammar is missing from the grammar library`)
+      const grammarQuestion = buildGrammarQuestion(entry)
+      assert(grammarQuestion.options[grammarQuestion.answer] === lesson.grammar.name, `${lesson.id} grammar question answer does not match lesson grammar`)
+    }
+    assert(answerPositions.size >= 4, `${language} ${level} answer positions are still effectively hard-coded`)
+  }
 }
 
 for (const level of Object.keys(expectedTopics)) {
