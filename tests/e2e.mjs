@@ -65,6 +65,7 @@ try {
   await page.locator('.answer-list button').nth(1).click()
   await page.getByRole('button', { name: 'Kiểm tra', exact: true }).click()
   await page.getByRole('button', { name: /Tiếp tục/ }).click()
+  await page.getByRole('button', { name: 'Start Speaking' }).click()
   await page.getByRole('button', { name: /Tiếp tục/ }).click()
   await page.locator('.answer-list button').first().click()
   await page.getByRole('button', { name: 'Kiểm tra', exact: true }).click()
@@ -76,6 +77,7 @@ try {
   await page.getByRole('button', { name: /Tiếp tục/ }).click()
   await page.getByRole('button', { name: /Hoàn thành bài học/ }).click()
   await page.getByText('LESSON COMPLETE!').waitFor()
+  await page.waitForFunction(() => JSON.parse(localStorage.getItem('nt_state_v1'))?.levelProgress?.['english:B2']?.completedLessons?.includes('english-b2-1-1'))
   const b2State = await page.evaluate(() => JSON.parse(localStorage.getItem('nt_state_v1')))
   assert(b2State.levelProgress['english:B2'].completedLessons.includes('english-b2-1-1'), 'B2 completion was not saved in its own level bucket')
   assert(b2State.mistakes.some((item) => item.type === 'Listening'), 'Incorrect listening answer was not saved to Mistakes')
@@ -204,6 +206,10 @@ try {
   const migrationPage = await migration.newPage()
   await migrationPage.goto(`${origin}/learn-english`)
   await migrationPage.locator('.level-card', { hasText: 'A1' }).getByText('In Progress').waitFor()
+  await migrationPage.waitForFunction(() => {
+    const state = JSON.parse(localStorage.getItem('nt_state_v1'))
+    return state?.schemaVersion === 2 && state?.levelProgress?.['english:A1']?.completedLessons?.[0] === 'english-a1-1-1'
+  })
   const migrated = await migrationPage.evaluate(() => JSON.parse(localStorage.getItem('nt_state_v1')))
   assert(migrated.schemaVersion === 2 && migrated.levelProgress['english:A1'].completedLessons[0] === 'english-a1-1-1', 'Legacy A1 progress migration failed')
   await migration.close()

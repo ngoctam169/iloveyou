@@ -14,12 +14,13 @@ export default function SpeakingExercise({ target, languageId, onComplete, setTo
 
   const record = () => {
     const recognition = recognitionFor(languageId)
-    if (!recognition) { setUnsupported(true); return }
+    if (!recognition) { setUnsupported(true); onComplete?.(0); return }
     recognitionRef.current?.abort()
     recognitionRef.current = recognition
     setUnsupported(false)
     setHeard('')
     setRecording(true)
+    onComplete?.(0)
     recognition.onresult = (event) => {
       const transcript = event.results?.[0]?.[0]?.transcript || ''
       setHeard(transcript)
@@ -28,7 +29,10 @@ export default function SpeakingExercise({ target, languageId, onComplete, setTo
     }
     recognition.onerror = (event) => {
       setRecording(false)
-      if (event.error !== 'aborted') setToast(event.error === 'not-allowed' ? 'Microphone đang bị chặn. Hãy cấp quyền trong trình duyệt rồi thử lại.' : 'Không nhận được giọng nói. Hãy kiểm tra microphone và thử lại.')
+      if (event.error !== 'aborted') {
+        onComplete?.(0)
+        setToast(event.error === 'not-allowed' ? 'Microphone đang bị chặn. Hãy cấp quyền trong trình duyệt rồi thử lại.' : 'Không nhận được giọng nói. Hãy kiểm tra microphone và thử lại.')
+      }
     }
     recognition.onend = () => setRecording(false)
     try { recognition.start() } catch { setRecording(false); setToast('Không thể khởi động microphone lúc này. Vui lòng thử lại.') }
