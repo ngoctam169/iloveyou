@@ -5,6 +5,12 @@ const q = (id, part, type, question, options, answer, extra = {}) => ({ id, part
 const base = toeicFullSections.flatMap((section) => section.questions)
 const basePart = (part) => base.filter((item) => item.part === part)
 const baseGroups = (part, keyFor) => grouped(basePart(part), keyFor)
+const audioOnlyPart2 = (item) => ({
+  ...item,
+  audioOnlyChoices:true,
+  choiceLabelsOnly:true,
+  audio:`${item.audio} ${item.options.map((option,index)=>`Choice ${String.fromCharCode(65+index)}. ${option}`).join(' ')}`,
+})
 
 const part1Bank = [
   ['Two employees are reviewing information displayed on a wall.','Several chairs are being carried out of the room.','A woman is plugging a projector into the ceiling.','The conference table has been covered with boxes.'],
@@ -300,18 +306,21 @@ export function buildToeicExamSections(random = createExamRandom()) {
   const formId = examFormId('toeic')
 
   const part1 = sample(part1Bank,6,random)
-  const part2 = sample(part2Bank,25,random)
+  const part2 = shuffled([
+    ...sample(part2Bank,18,random),
+    ...sample(basePart(2),7,random).map(audioOnlyPart2),
+  ],random)
 
   const basePart3 = baseGroups(3,(item)=>item.audio)
   const part3Groups = shuffled([
-    ...sample(advancedConversationGroups,Math.min(6,advancedConversationGroups.length),random),
-    ...sample(basePart3,7,random),
+    ...sample(advancedConversationGroups,Math.min(4,advancedConversationGroups.length),random),
+    ...sample(basePart3,9,random),
   ],random)
 
   const basePart4 = baseGroups(4,(item)=>item.audio)
   const part4Groups = shuffled([
-    ...sample(advancedTalkGroups,Math.min(5,advancedTalkGroups.length),random),
-    ...sample(basePart4,5,random),
+    ...sample(advancedTalkGroups,Math.min(3,advancedTalkGroups.length),random),
+    ...sample(basePart4,7,random),
   ],random)
 
   const part5 = shuffled([
@@ -319,7 +328,11 @@ export function buildToeicExamSections(random = createExamRandom()) {
     ...sample(basePart(5),10,random),
   ],random)
 
-  const part6Groups = shuffled(advancedPart6Groups,random)
+  const basePart6Groups = baseGroups(6,(item)=>item.passageTitle || item.passage)
+  const part6Groups = shuffled([
+    ...sample(advancedPart6Groups,Math.min(3,advancedPart6Groups.length),random),
+    ...sample(basePart6Groups,1,random),
+  ],random)
 
   const basePart7Groups = baseGroups(7,(item)=>item.passageTitle || item.passage)
   const part7Groups = shuffled([
