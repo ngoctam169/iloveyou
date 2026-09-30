@@ -1,7 +1,7 @@
 import { findLevel, getLanguage, languages, levelSlug } from './languages.js'
 import { blogPostMeta, findBlogMeta } from './blogMeta.js'
 
-export const SITE_NAME = 'Ngọc Tâm Dev'
+export const SITE_NAME = 'NT Language Learning'
 export const DEFAULT_SITE_URL = 'https://ngoctam169.github.io/iloveyou'
 export const DEFAULT_OG_IMAGE = '/og-image.png'
 export const PERSONAL_SEO_KEYWORDS = [
@@ -49,10 +49,10 @@ const personalIndexRoutes = ['/', '/about', '/blog']
 
 const staticMeta = {
   '/': {
-    title: 'Nguyễn Ngọc Tâm | Full-stack Developer · Backend & Realtime Systems',
-    description: 'Engineering profile của Nguyễn Ngọc Tâm (Ngọc Tâm Dev), Full-stack Developer tại South Telecom từ 07/2022, chuyên backend, realtime communication, WebSocket/WebRTC, MongoDB/Redis, enterprise integration, performance và production reliability.',
-    keywords: PERSONAL_SEO_KEYWORDS,
-    pageType:'person-home',
+    title: 'NT Language Learning | Học ngoại ngữ · Nguyễn Ngọc Tâm',
+    description: 'NT Language Learning giúp học tiếng Anh, Trung, Nhật, Hàn theo level, luyện vocabulary, grammar, bốn kỹ năng, TOEIC và IELTS. Project được phát triển bởi Nguyễn Ngọc Tâm (Ngọc Tâm Dev).',
+    keywords: `NT Language Learning, học tiếng Anh online, học tiếng Trung HSK, học tiếng Nhật JLPT, học tiếng Hàn TOPIK, TOEIC, IELTS, Nguyễn Ngọc Tâm, Ngọc Tâm Dev`,
+    pageType:'website-home',
   },
   '/about': {
     title: 'Nguyễn Ngọc Tâm | Engineering Profile – Backend, Realtime, WebRTC',

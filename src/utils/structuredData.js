@@ -25,12 +25,11 @@ export function buildStructuredData({ siteUrl, meta, path, breadcrumbs = default
       '@id':websiteId,
       url:`${siteUrl}/`,
       name:SITE_NAME,
-      alternateName:['Nguyễn Ngọc Tâm','Ngoc Tam Dev','NT'],
-      description:'Engineering profile và project portfolio của Nguyễn Ngọc Tâm (Ngọc Tâm Dev), Full-stack Developer tại South Telecom tập trung vào backend, realtime communication, WebSocket/WebRTC, enterprise integration và production reliability.',
+      alternateName:['NT','NT Language Learning','Ngọc Tâm Dev'],
+      description:'Website học ngoại ngữ theo level với tiếng Anh, Trung, Nhật, Hàn, vocabulary, grammar, bốn kỹ năng, TOEIC và IELTS; được phát triển bởi Nguyễn Ngọc Tâm (Ngọc Tâm Dev).',
       inLanguage:['vi','en'],
       creator:{ '@id':personId },
       author:{ '@id':personId },
-      about:{ '@id':personId },
       potentialAction:{ '@type':'SearchAction', target:`${siteUrl}/search?q={search_term_string}`, 'query-input':'required name=search_term_string' },
     },
   ]
@@ -55,7 +54,9 @@ export function buildStructuredData({ siteUrl, meta, path, breadcrumbs = default
       name:meta.title,
       description:meta.description,
       isPartOf:{ '@id':websiteId },
-      ...(path === '/' || meta.pageType === 'blog' || meta.pageType === 'article' ? {
+      ...(path === '/' ? {
+        author:{ '@id':personId },
+      } : meta.pageType === 'blog' || meta.pageType === 'article' ? {
         about:{ '@id':personId },
         author:{ '@id':personId },
       } : {}),
