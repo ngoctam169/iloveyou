@@ -1,5 +1,5 @@
-import { ieltsFullListening, ieltsFullReading } from './ieltsFull'
-import { createExamRandom, examFormId, grouped, sample, stampQuestions } from './examRandom'
+import { ieltsFullListening, ieltsFullReading } from './ieltsFull.js'
+import { createExamRandom, examFormId, grouped, sample, stampQuestions } from './examRandom.js'
 
 const makeQuestion = (id, type, question, answer, options = null, extra = {}) => ({
   id,
