@@ -52,6 +52,11 @@ export function AppProvider({ children }) {
         const wordId = wordKey({ languageId, level, word })
         vocabularyMeta[wordId] = { ...vocabularyMeta[wordId], started: true }
       })
+      const levelWordPrefix = `${languageId}:${level}:`
+      const actualVocabularyLearned = new Set([
+        ...Object.entries(vocabularyMeta).filter(([key, meta]) => key.startsWith(levelWordPrefix) && meta?.learned).map(([key]) => key),
+        ...Object.keys(current.flashcardProgress || {}).filter((key) => key.startsWith(levelWordPrefix)),
+      ]).size
       const normalizedScore = Math.max(0, Math.min(100, Number(score) || 0))
       const xpGain = isNew
         ? 40 + Math.round(normalizedScore * 0.6) + (normalizedScore === 100 ? 20 : 0)
@@ -68,7 +73,7 @@ export function AppProvider({ children }) {
             lessonScores: { ...(previous.lessonScores || {}), [lessonId]: score },
             lessonSkillScores,
             skillScores: averageSkillScores(lessonSkillScores),
-            vocabularyLearned: (Number(previous.vocabularyLearned) || 0) + (isNew ? vocabularyCount : 0),
+            vocabularyLearned: Math.max(Number(previous.vocabularyLearned) || 0, actualVocabularyLearned),
             studyMinutes: (Number(previous.studyMinutes) || 0) + minutes,
             lastLessonId: lessonId,
           },
