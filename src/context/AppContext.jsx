@@ -16,11 +16,22 @@ export function AppProvider({ children }) {
   useEffect(() => {
     document.documentElement.dataset.theme = state.theme
     document.documentElement.lang = 'vi'
-    const saved = saveState(state)
-    if (!saved && !storageWarningShown.current) {
-      storageWarningShown.current = true
-      setToast('Không thể lưu tiến độ trên thiết bị này. Hãy kiểm tra dung lượng hoặc quyền lưu trữ của trình duyệt.')
-    } else if (saved) storageWarningShown.current = false
+  }, [state.theme])
+
+  useEffect(() => {
+    const persist = () => {
+      const saved = saveState(state)
+      if (!saved && !storageWarningShown.current) {
+        storageWarningShown.current = true
+        setToast('Không thể lưu tiến độ trên thiết bị này. Hãy kiểm tra dung lượng hoặc quyền lưu trữ của trình duyệt.')
+      } else if (saved) storageWarningShown.current = false
+    }
+    const timer = window.setTimeout(persist, 400)
+    window.addEventListener('pagehide', persist)
+    return () => {
+      window.clearTimeout(timer)
+      window.removeEventListener('pagehide', persist)
+    }
   }, [state])
 
   useEffect(() => {
