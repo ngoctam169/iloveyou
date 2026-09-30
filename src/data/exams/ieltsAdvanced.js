@@ -230,8 +230,7 @@ const writingTask2Bank = [
   },
 ]
 
-export function buildIeltsExamSections() {
-  const random = createExamRandom()
+export function buildIeltsExamSections(random = createExamRandom()) {
   const formId = examFormId('ielts')
   const baseListening = grouped(ieltsFullListening,(item)=>item.section)
   const baseReading = grouped(ieltsFullReading,(item)=>item.passageTitle)
@@ -266,8 +265,7 @@ export function buildIeltsExamSections() {
   ]
 }
 
-export function buildIeltsWritingTasks() {
-  const random = createExamRandom()
+export function buildIeltsWritingTasks(random = createExamRandom()) {
   const [task1] = sample(writingTask1Bank,1,random)
   const [task2] = sample(writingTask2Bank,1,random)
   return [task1,task2].map((task,index)=>({ ...task,id:task.id+'-'+Date.now().toString(36)+'-'+index }))
