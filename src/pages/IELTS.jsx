@@ -8,7 +8,7 @@ import QuizQuestion, { isCorrectAnswer } from '../components/common/QuizQuestion
 import StatisticsCard from '../components/common/StatisticsCard'
 import { useApp } from '../context/AppContext'
 import { ieltsSpeaking } from '../data/ielts'
-import { buildIeltsObjectiveResult, ieltsAcademicWritingTasks, ieltsFullListening, ieltsFullReading, ieltsFullSections } from '../data/exams/ieltsFull'
+import { buildIeltsObjectiveResult, createIeltsExamSections, createIeltsWritingTasks, ieltsAcademicWritingTasks, ieltsFullListening, ieltsFullReading, ieltsFullSections } from '../data/exams/ieltsFull'
 import { buildIeltsExamSections, buildIeltsWritingTasks } from '../data/exams/ieltsAdvanced'
 import { recognitionFor } from '../utils/speech'
 
@@ -83,11 +83,13 @@ function IELTSFullMock({ onSpeaking,onHistory }) {
     title="IELTS Academic Full Mock"
     subtitle="Mỗi lần bắt đầu sẽ tạo một form khác; phần lớn Listening/Reading lấy từ ngân hàng nâng cao với nhiều paraphrase, inference và distractor sát nghĩa hơn."
     sections={ieltsFullSections}
+    createSections={createIeltsExamSections}
     sectionsFactory={buildIeltsExamSections}
     startNotes={[
       'Listening: 4 parts, 40 câu, 30 phút.',
       'Academic Reading: 3 passages, 40 câu, 60 phút.',
       'Sau Reading, tiếp tục Writing 60 phút với Task 1 và Task 2.',
+      'Mỗi lượt thi sinh một form khác: 3/4 phần Listening lấy từ bank khó hơn, Reading luân phiên passage và Writing đổi prompt.',
       'Mỗi Full Mock đổi form Listening/Reading và đổi cả đề Writing; không chỉ đảo vị trí đáp án.',
     ]}
     buildResult={buildIeltsObjectiveResult}
