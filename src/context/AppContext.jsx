@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useMemo, useState } from 'react'
+import { createContext, useContext, useEffect, useMemo, useRef, useState } from 'react'
 import { clearState, defaultState, loadState, saveState } from '../utils/storage'
 import { averageSkillScores, emptyLevelProgress, progressKey } from '../utils/progress'
 import { applyActivity } from '../utils/activity'
@@ -11,11 +11,16 @@ const AppContext = createContext(null)
 export function AppProvider({ children }) {
   const [state, setState] = useState(loadState)
   const [toast, setToast] = useState('')
+  const storageWarningShown = useRef(false)
 
   useEffect(() => {
     document.documentElement.dataset.theme = state.theme
     document.documentElement.lang = 'vi'
-    saveState(state)
+    const saved = saveState(state)
+    if (!saved && !storageWarningShown.current) {
+      storageWarningShown.current = true
+      setToast('Không thể lưu tiến độ trên thiết bị này. Hãy kiểm tra dung lượng hoặc quyền lưu trữ của trình duyệt.')
+    } else if (saved) storageWarningShown.current = false
   }, [state])
 
   useEffect(() => {
