@@ -19,6 +19,7 @@ export default function SectionedExamRunner({
   const { setToast } = useApp()
   const [started, setStarted] = useState(false)
   const [examSections, setExamSections] = useState(sections)
+  const [examSections, setExamSections] = useState(sections)
   const [sectionIndex, setSectionIndex] = useState(0)
   const [questionIndex, setQuestionIndex] = useState(0)
   const [answers, setAnswers] = useState({})
