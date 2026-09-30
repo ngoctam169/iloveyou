@@ -59,6 +59,8 @@ try {
   await page.waitForURL('**/english/b2/lessons/**')
   await page.locator('.vocab-card button[aria-label^="Lưu"]').first().click()
   await page.getByRole('button', { name: /Tiếp tục/ }).click()
+  await page.locator('.lesson-grammar-quiz .answer-list button').first().click()
+  await page.getByRole('button', { name: 'Kiểm tra ngữ pháp' }).click()
   await page.getByRole('button', { name: /Tiếp tục/ }).click()
   await page.locator('.answer-list button').nth(1).click()
   await page.getByRole('button', { name: 'Kiểm tra', exact: true }).click()
