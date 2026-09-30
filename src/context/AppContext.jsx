@@ -52,6 +52,10 @@ export function AppProvider({ children }) {
         const wordId = wordKey({ languageId, level, word })
         vocabularyMeta[wordId] = { ...vocabularyMeta[wordId], started: true }
       })
+      const normalizedScore = Math.max(0, Math.min(100, Number(score) || 0))
+      const xpGain = isNew
+        ? 40 + Math.round(normalizedScore * 0.6) + (normalizedScore === 100 ? 20 : 0)
+        : Math.max(5, Math.round(normalizedScore * 0.15))
       return {
         ...activity,
         selectedLanguage: languageId,
@@ -71,7 +75,7 @@ export function AppProvider({ children }) {
         },
         vocabularyMeta,
         skillReview,
-        xp: (Number(current.xp) || 0) + (isNew ? 100 + (score === 100 ? 50 : 0) : 20),
+        xp: (Number(current.xp) || 0) + xpGain,
       }
     })
   }
