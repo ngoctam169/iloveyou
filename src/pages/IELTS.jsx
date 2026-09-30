@@ -148,7 +148,6 @@ function IELTSFullMock({ onSpeaking,onHistory }) {
   }}/>
 
   if (!finalResult) {
-    clearLocal(IELTS_FLOW_KEY)
     return <section className="practice-result exam-result"><p>Phiên Full Mock không còn hợp lệ.</p><button className="btn" onClick={reset}>Bắt đầu lại</button></section>
   }
 
