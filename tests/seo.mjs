@@ -29,6 +29,8 @@ assert(person.disambiguatingDescription?.includes('Ninh Thuận'),'Person entity
 assert(aboutHtml.includes('<h1>Nguyễn Ngọc Tâm – Engineering Profile · Backend, Realtime &amp; WebRTC</h1>') || aboutHtml.includes('<h1>Nguyễn Ngọc Tâm – Engineering Profile · Backend, Realtime & WebRTC</h1>'),'About prerender is missing the engineering-profile H1')
 assert(aboutHtml.includes('Ninh Thuận'),'About page is missing the Ninh Thuận identity signal')
 assert(aboutHtml.includes('85%') && aboutHtml.includes('PVcomBank') && aboutHtml.includes('Shinhan Life'),'About page is missing CV-backed engineering evidence')
+assert(person.email === `mailto:${AUTHOR.email}`,'Person entity is missing the public contact email')
+assert(aboutHtml.includes(`mailto:${AUTHOR.email}`) && aboutHtml.includes("Let's work together"),'About prerender is missing the recruiter contact CTA')
 assert(person.description?.includes('realtime communication') && person.knowsAbout?.includes('WebRTC') && person.knowsAbout?.includes('Salesforce Integration'),'Person entity is missing engineering capability signals')
 
 const inlineStory = blogPosts.find((post) => post.inline)
