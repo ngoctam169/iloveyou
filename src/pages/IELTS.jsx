@@ -11,8 +11,21 @@ import { ieltsSpeaking } from '../data/ielts'
 import { buildIeltsObjectiveResult, ieltsAcademicWritingTasks, ieltsFullListening, ieltsFullReading, ieltsFullSections } from '../data/exams/ieltsFull'
 import { buildIeltsExamSections, buildIeltsWritingTasks } from '../data/exams/ieltsAdvanced'
 import { recognitionFor } from '../utils/speech'
+import { buildExamMistakes } from '../utils/examMistakes'
 
 const tabs = ['Overview','Full Mock','Listening Practice','Reading Practice','Writing','Speaking','History']
+const IELTS_FLOW_KEY = 'nt_ielts_full_flow_v1'
+const IELTS_WRITING_KEY = 'nt_ielts_writing_session_v1'
+
+function readLocal(key, fallback = null) {
+  try { return JSON.parse(localStorage.getItem(key)) ?? fallback } catch { return fallback }
+}
+function writeLocal(key, value) {
+  try { localStorage.setItem(key, JSON.stringify(value)); return true } catch { return false }
+}
+function clearLocal(key) {
+  try { localStorage.removeItem(key) } catch { /* storage may be unavailable */ }
+}
 
 export default function IELTS() {
   const { state, update } = useApp()
