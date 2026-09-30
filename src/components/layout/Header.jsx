@@ -30,8 +30,6 @@ const examItems = [
 const moreItems = [
   ['/progress','Progress'],
   ['/saved','Saved'],
-  ['/blog','Blog'],
-  ['/about','About'],
   ['/contact','Contact'],
   ['/settings','Settings'],
 ]
@@ -41,6 +39,8 @@ const desktopItems = [
   { label:'Học', items:learnItems },
   { label:'Luyện tập', items:practiceItems },
   { label:'Kỳ thi', items:examItems },
+  { to:'/blog', label:'Blog' },
+  { to:'/about', label:'About Me' },
   { label:'Thêm', items:moreItems },
 ]
 
@@ -116,6 +116,7 @@ export default function Header() {
 
     {menuOpen && <nav className="mobile-menu grouped-mobile-menu" id="mobile-menu" aria-label="Điều hướng di động">
       <Link className="mobile-dashboard-link" to="/dashboard">Dashboard</Link>
+      <div className="mobile-public-links"><Link to="/blog">Blog</Link><Link to="/about">About Me</Link></div>
       {mobileSections.map(([title,items]) => <section key={title}>
         <strong>{title}</strong>
         <div>{items.map(([to,label]) => <Link key={to} to={to}>{label}</Link>)}</div>
