@@ -145,7 +145,7 @@ const localizeLevelGrammar = (languageId, levelName, source, lessonNumber) => {
   const profile = levelCurriculum[languageId]?.[levelName]
   if (!profile?.grammar?.length) return source.grammar
   const [name,structure,explanation] = profile.grammar[(lessonNumber - 1) % profile.grammar.length]
-  return { name, structure, explanation, examples: source.grammar.examples, mistake: `Tập trung dùng đúng cấu trúc ${structure} trong ngữ cảnh ${profile.themes[(lessonNumber - 1) % profile.themes.length]}.` }
+  return { name, structure, explanation, examples: [structure, `${name}: ${explanation}`], mistake: `Tập trung dùng đúng cấu trúc ${structure} trong ngữ cảnh ${profile.themes[(lessonNumber - 1) % profile.themes.length]}.`, referenceOnly:true }
 }
 
 const contextualTarget = (languageId, levelName, words, topic, lessonNumber, fallback) => {
@@ -154,6 +154,44 @@ const contextualTarget = (languageId, levelName, words, topic, lessonNumber, fal
   const theme = profile.themes[(lessonNumber - 1) % profile.themes.length] || topic
   const vocabulary = words.map((word)=>word[0]).filter(Boolean).slice(0,2).join(' / ')
   return languageId === 'chinese' ? `围绕“${theme}”表达一个完整观点，并尽量使用 ${vocabulary}。` : languageId === 'japanese' ? `「${theme}」について、${vocabulary}を使いながら自分の考えを一文で述べてください。` : `“${theme}”에 대해 ${vocabulary}를 활용해서 자신의 생각을 한 문장으로 말해 보세요.`
+}
+
+
+const nonEnglishReading = (languageId, words, lessonNumber) => {
+  const [a,b,c] = words
+  if (languageId === 'chinese') return {
+    title:`词汇阅读 · ${lessonNumber}`,
+    text:`本课学习“${a[0]}”、“${b[0]}”和“${c[0]}”。重点词是“${a[0]}”，它的越南语意思是“${a[3]}”。`,
+    question:'文中的重点词是哪一个？', options:[a[0],b[0],c[0]], answer:0, type:'Multiple Choice',
+  }
+  if (languageId === 'japanese') return {
+    title:`語彙リーディング · ${lessonNumber}`,
+    text:`このレッスンでは「${a[0]}」「${b[0]}」「${c[0]}」を学びます。中心となる語は「${a[0]}」です。`,
+    question:'中心となる語はどれですか。', options:[a[0],b[0],c[0]], answer:0, type:'Multiple Choice',
+  }
+  return {
+    title:`어휘 읽기 · ${lessonNumber}`,
+    text:`이 수업에서는 ‘${a[0]}’, ‘${b[0]}’, ‘${c[0]}’를 배웁니다. 중심 단어는 ‘${a[0]}’입니다.`,
+    question:'중심 단어는 무엇입니까?', options:[a[0],b[0],c[0]], answer:0, type:'Multiple Choice',
+  }
+}
+
+const nonEnglishListeningText = (languageId, words, lessonNumber) => {
+  const [a,b,c] = words
+  if (languageId === 'chinese') return `第${lessonNumber}课。重点词是${a[0]}。另外两个词是${b[0]}和${c[0]}。`
+  if (languageId === 'japanese') return `第${lessonNumber}課です。中心の語は${a[0]}です。ほかの語は${b[0]}と${c[0]}です。`
+  return `${lessonNumber}번째 수업입니다. 중심 단어는 ${a[0]}입니다. 다른 단어는 ${b[0]}와 ${c[0]}입니다.`
+}
+
+const makeVocabularyListening = (languageId, words, lessonNumber) => {
+  const type = listeningTypes[(lessonNumber - 1) % listeningTypes.length]
+  const audio = nonEnglishListeningText(languageId, words, lessonNumber)
+  const [a,b,c] = words
+  if (type === 'Dictation') return { type, audio:a[0], prompt:'Nghe và chép lại chính xác từ bạn nghe.', expected:a[0], explanation:`Đáp án: “${a[0]}”.` }
+  if (type === 'Fill in the Blank') return { type, audio:`${a[0]} ${b[0]}`, prompt:'Nghe hai từ và nhập từ thứ hai.', expected:b[0], explanation:`Từ thứ hai là “${b[0]}”.` }
+  if (type === 'Listen & Answer') return { type, audio:a[0], prompt:'Từ vừa nghe có nghĩa là gì?', options:[a[3],b[3],c[3]], answer:0, explanation:`${a[0]}: ${a[3]}.` }
+  if (type === 'Conversation Listening') return { type, audio, prompt:'Từ nào được giới thiệu là từ trọng tâm?', options:[a[0],b[0],c[0]], answer:0, explanation:`Đoạn nghe nói rõ từ trọng tâm là “${a[0]}”.` }
+  return { type:'Listen & Choose', audio:a[0], prompt:'Bạn vừa nghe từ nào?', options:[a[0],b[0],c[0]], answer:0, explanation:`Bạn vừa nghe “${a[0]}”.` }
 }
 
 const generatedEnglishListening = (meta, topic, words, lessonNumber) => {
@@ -309,7 +347,7 @@ function makeQuiz(grammar, words, listen, target, lessonNumber) {
   if (type === 'Reorder Sentence') return { type, question: 'Sắp xếp thành câu hoàn chỉnh.', expected: target, tokens: target.replace(/[.!?]/g, '').split(/\s+/).sort((a, b) => a.localeCompare(b)), explanation: `Câu đúng: “${target}”` }
   if (type === 'Matching') return { type, question: 'Ghép từ với nghĩa phù hợp.', pairs: words.map((item) => [item[0], item[3]]), explanation: 'Các cặp từ và nghĩa được lấy từ phần từ vựng của bài.' }
   if (type === 'True False') return { type, question: `“${word[0]}” có nghĩa là “${word[3]}”.`, options: ['True', 'False'], answer: 0, explanation: `${word[0]}: ${word[3]}.` }
-  if (type === 'Grammar Quiz') return { type, question: `Câu nào minh họa đúng “${grammar.name}”?`, options: [grammar.examples[0], `Not ${grammar.examples[0]}`, 'None of the above'], answer: 0, explanation: `${grammar.structure}. ${grammar.explanation}` }
+  if (type === 'Grammar Quiz') return { type, question: `Cấu trúc nào là trọng tâm của “${grammar.name}”?`, options: [grammar.structure, target, words[0][0]], answer: 0, explanation: `${grammar.name}: ${grammar.structure}. ${grammar.explanation}` }
   if (type === 'Listening Quiz') return { type, audio: listen, question: 'Chọn chính xác câu bạn vừa nghe.', options: [listen, target, `${words[0][0]} — ${words[0][3]}`], answer: 0, explanation: `Câu đúng là: “${listen}”` }
   return { type, question: `“${word[0]}” gần nghĩa nhất với đáp án nào?`, options: [word[3], words[1][3], words[2][3]], answer: 0, explanation: `${word[0]} (${word[2]}) có nghĩa là “${word[3]}”.` }
 }
@@ -320,32 +358,20 @@ function makePracticeLessons(languageId, levelName, unitIndex, lessonOffset, top
   return Array.from({ length:6 }, (_, index) => {
     const source = packs[languageId][(unitIndex + index) % packs[languageId].length]
     const lessonNumber = lessonOffset + index + 1
-    const words = keepStarterCore && unitIndex === 0 && index < 3
-      ? source.vocab
-      : sliceVocabulary(vocabPool,(lessonNumber - 1) * 3,3)
+    const words = sliceVocabulary(vocabPool,(lessonNumber - 1) * 3,3)
     const focus = lessonFocuses[index]
     const profile = levelCurriculum[languageId]?.[levelName]
     const lessonTheme = profile?.themes?.[(lessonNumber - 1) % profile.themes.length] || topic
     const grammar = localizeLevelGrammar(languageId, levelName, source, lessonNumber)
-    const listen = words.find((word) => word[4])?.[4] || source.listen
+    const listen = nonEnglishListeningText(languageId, words, lessonNumber)
     const target = contextualTarget(languageId, levelName, words, lessonTheme, lessonNumber, source.target)
-    const examples = words.map((word) => word[4]).filter(Boolean)
-    const reading = {
-      title:`${lessonTheme} · Context Practice`,
-      text:examples.join(' ') || source.reading.text,
-      question:`Từ nào có nghĩa gần nhất với “${words[0][3]}”?`,
-      options:words.map((word) => word[0]),
-      answer:0,
-      type:'Multiple Choice',
-    }
+    const reading = nonEnglishReading(languageId, words, lessonNumber)
     const writing = levelIndex >= 4
       ? { type:'Extended Writing', prompt:`Viết khoảng 120–150 từ về “${lessonTheme}”, cố gắng dùng ${words[0][0]} và ${words[1][0]}.`, keywords:words.slice(0,2).map((word) => word[0]), minWords:120, maxWords:180 }
       : levelIndex >= 2
         ? { type:'Guided Writing', prompt:`Viết 5–7 câu về “${lessonTheme}” và dùng ít nhất hai từ mới của bài.`, keywords:words.slice(0,2).map((word) => word[0]), minWords:35, maxWords:100 }
         : { ...source.writing, type:source.writing.type || 'Guided Writing', keywords:words.slice(0,2).map((word) => word[0]) }
-    const quiz = index % 3 === 2
-      ? { type:'Grammar Quiz', question:'Cấu trúc nào là trọng tâm của bài?', options:[grammar.structure,target,words[0][0]], answer:0, explanation:`${grammar.name}: ${grammar.structure}` }
-      : { type:'Vocabulary Quiz', question:`“${words[0][0]}” có nghĩa là gì?`, options:words.map((word) => word[3]), answer:0, explanation:`${words[0][0]}: ${words[0][3]}.` }
+    const quiz = makeQuiz(grammar, words, listen, target, lessonNumber)
 
     return {
       ...source,
@@ -360,7 +386,7 @@ function makePracticeLessons(languageId, levelName, unitIndex, lessonOffset, top
       grammar,
       listen,
       target,
-      listening:makeListening(listen,words,lessonTheme,lessonNumber),
+      listening:makeVocabularyListening(languageId,words,lessonNumber),
       reading,
       writing,
       quiz,
