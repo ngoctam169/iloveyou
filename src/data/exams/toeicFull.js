@@ -1,3 +1,6 @@
+import { createExamRandom, grouped, sample, stampQuestions } from './examRandom'
+import { toeicHardPart1, toeicHardPart2, toeicHardPart3Sets, toeicHardPart4Sets, toeicHardPart5, toeicHardPart6Sets, toeicHardPart7Sets } from './toeicHardPool'
+
 const q = (id, part, type, question, options, answer, extra = {}) => ({ id, part, type, question, options, answer, ...extra })
 
 const part1 = [
@@ -295,6 +298,51 @@ export const toeicFullStats = {
     1:part1.length,2:part2.length,3:part3.length,4:part4.length,
     5:part5.length,6:part6.length,7:part7.length,
   },
+}
+
+
+const hardPart3 = toeicHardPart3Sets.flatMap((set) => set.questions.map((item) => ({ ...item,audio:set.audio })))
+const hardPart4 = toeicHardPart4Sets.flatMap((set) => set.questions.map((item) => ({ ...item,audio:set.audio })))
+const hardPart6 = toeicHardPart6Sets.flatMap((set) => set.items.map((item) => ({ ...item,passageTitle:set.title,passage:set.text })))
+const hardPart7 = toeicHardPart7Sets.flatMap((set) => set.questions.map((item) => ({ ...item,passageTitle:set.title,passage:set.passage })))
+
+const chooseGroups = (items, groupKey, groupCount, random) => sample(grouped(items, groupKey),groupCount,random).flatMap((group) => group)
+
+export function createToeicExamSections({ random = createExamRandom() } = {}) {
+  const formId = `toeic-${Math.floor(random() * 1e9).toString(36)}`
+  const selectedPart1 = sample([...part1,...toeicHardPart1],6,random)
+  const selectedPart2 = sample([...part2,...toeicHardPart2],25,random)
+  const selectedPart3 = chooseGroups([...part3,...hardPart3],(item) => item.audio,13,random)
+  const selectedPart4 = chooseGroups([...part4,...hardPart4],(item) => item.audio,10,random)
+  const selectedPart5 = sample([...part5,...toeicHardPart5],30,random)
+  const selectedPart6 = chooseGroups([...part6,...hardPart6],(item) => item.passageTitle,4,random)
+  const selectedPart7 = chooseGroups([...part7,...hardPart7],(item) => item.passageTitle,18,random)
+
+  const listening = stampQuestions(
+    [...selectedPart1,...selectedPart2,...selectedPart3,...selectedPart4],
+    `${formId}-l`,
+    random,
+  )
+  const reading = stampQuestions(
+    [...selectedPart5,...selectedPart6,...selectedPart7],
+    `${formId}-r`,
+    random,
+  )
+
+  return [
+    { id:`${formId}-listening`, label:'Listening', duration:45*60, questions:listening },
+    { id:`${formId}-reading`, label:'Reading', duration:75*60, questions:reading },
+  ]
+}
+
+export const toeicExamPoolStats = {
+  part1:part1.length + toeicHardPart1.length,
+  part2:part2.length + toeicHardPart2.length,
+  part3:grouped([...part3,...hardPart3],(item) => item.audio).length * 3,
+  part4:grouped([...part4,...hardPart4],(item) => item.audio).length * 3,
+  part5:part5.length + toeicHardPart5.length,
+  part6:grouped([...part6,...hardPart6],(item) => item.passageTitle).length * 4,
+  part7:grouped([...part7,...hardPart7],(item) => item.passageTitle).length * 3,
 }
 
 export function estimatedToeicSectionScore(raw) {
