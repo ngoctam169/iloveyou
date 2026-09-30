@@ -16,6 +16,7 @@ import { buildVocabularyPractice, checkVocabularyAnswer } from '../src/utils/voc
 import { isWeakVocabulary, nextSchedule, vocabularyStatus, wordKey } from '../src/utils/srs.js'
 import { allVocabulary, getRandomVocabulary, getReviewVocabulary, getVocabularyByLanguage, getVocabularyByLevel, getVocabularyByTopic, normalizePersonalWord, searchVocabulary, vocabularyForState } from '../src/services/vocabularyService.js'
 import { grammarEntries } from '../src/data/grammar.js'
+import { buildGrammarQuestion, grammarEntryFor } from '../src/utils/grammarPractice.js'
 
 function assert(condition, message) {
   if (!condition) throw new Error(message)
@@ -82,6 +83,13 @@ for (const item of allSearchItems) {
   assert(route === 'lessons' && level && getLesson(languageId, level, lessonId), `Broken search path: ${item.path}`)
 }
 
+const normalizedContent = (value = '') => String(value).normalize('NFKC').toLocaleLowerCase().replace(/\s+/g,' ').trim()
+const validateChoiceAnswer = (item, label) => {
+  if (!item?.options) return
+  assert(Number.isInteger(item.answer) && item.answer >= 0 && item.answer < item.options.length, `${label} has an invalid answer index`)
+  assert(new Set(item.options.map(normalizedContent)).size === item.options.length, `${label} has duplicate answer options`)
+}
+
 for (const language of ['chinese','japanese','korean']) {
   const languageMeta = getLanguage(language)
   for (const [level] of languageMeta.levels) {
@@ -90,6 +98,30 @@ for (const language of ['chinese','japanese','korean']) {
     assert(lessons.length === 60, `${language} ${level} must have exactly 60 lessons`)
     assert(new Set(lessons.map((lesson) => lesson.id)).size === 60, `${language} ${level} contains duplicate lesson ids`)
     assert(lessons.every((lesson) => lesson.vocab?.length >= 3 && lesson.listening?.audio && lesson.reading?.text && lesson.writing && lesson.quiz), `${language} ${level} has incomplete expanded lessons`)
+
+    const vocabularyFingerprints = lessons.map((lesson) => lesson.vocab.map((word) => normalizedContent(word[0])).join('|'))
+    assert(new Set(vocabularyFingerprints).size === lessons.length, `${language} ${level} repeats the same vocabulary set across lessons`)
+    const contentFingerprints = lessons.map((lesson) => [
+      normalizedContent(lesson.title),
+      normalizedContent(lesson.listening?.audio || lesson.listen),
+      normalizedContent(lesson.reading?.text),
+      normalizedContent(lesson.quiz?.question),
+      normalizedContent(lesson.writing?.prompt),
+    ].join('::'))
+    assert(new Set(contentFingerprints).size === lessons.length, `${language} ${level} contains duplicated lesson content`)
+
+    for (const lesson of lessons) {
+      validateChoiceAnswer(lesson.listening, `${lesson.id} listening`)
+      validateChoiceAnswer(lesson.reading, `${lesson.id} reading`)
+      validateChoiceAnswer(lesson.quiz, `${lesson.id} quiz`)
+      assert(normalizedContent(lesson.reading.text).includes(normalizedContent(lesson.reading.options[lesson.reading.answer])), `${lesson.id} reading answer is not supported by the passage`)
+      if (lesson.listening.type === 'Listen & Choose') assert(normalizedContent(lesson.listening.options[lesson.listening.answer]) === normalizedContent(lesson.listening.audio), `${lesson.id} Listen & Choose answer does not match the audio`)
+      if (lesson.listening.type === 'Conversation Listening') assert(normalizedContent(lesson.listening.audio).includes(normalizedContent(lesson.listening.options[lesson.listening.answer])), `${lesson.id} conversation answer is not stated in the audio`)
+      if (lesson.listening.type === 'Listen & Answer') assert(normalizedContent(lesson.listening.options[lesson.listening.answer]) === normalizedContent(lesson.vocab[0][3]), `${lesson.id} Listen & Answer meaning is wrong`)
+      if (lesson.quiz.type === 'Vocabulary Quiz' || lesson.quiz.type === 'Multiple Choice') assert(normalizedContent(lesson.quiz.options[lesson.quiz.answer]) === normalizedContent(lesson.vocab[0][3]), `${lesson.id} vocabulary quiz answer mismatches the lesson word`)
+      if (lesson.quiz.type === 'True False') assert(lesson.quiz.answer === 0 && normalizedContent(lesson.quiz.question).includes(normalizedContent(lesson.vocab[0][0])) && normalizedContent(lesson.quiz.question).includes(normalizedContent(lesson.vocab[0][3])), `${lesson.id} true/false statement does not match its marked answer`)
+      if (lesson.quiz.type === 'Grammar Quiz') assert(normalizedContent(lesson.quiz.options[lesson.quiz.answer]) === normalizedContent(lesson.grammar.structure), `${lesson.id} grammar quiz answer does not match the declared structure`)
+    }
   }
 }
 
@@ -102,8 +134,18 @@ for (const [language,highLevel,forbidden] of [['chinese','HSK 6','Subject + 是 
 
 for (const level of Object.keys(expectedTopics)) {
   const lessons = getRoadmap('english',level).flatMap((unit)=>unit.lessons)
-  assert(new Set(lessons.map((lesson)=>lesson.listening.audio)).size >= 20, `${level} listening content is still too repetitive`)
-  assert(new Set(lessons.map((lesson)=>lesson.reading.text)).size >= 20, `${level} reading content is still too repetitive`)
+  assert(new Set(lessons.map((lesson)=>lesson.listening.audio)).size >= 50, `${level} listening content is still too repetitive`)
+  assert(new Set(lessons.map((lesson)=>lesson.reading.text)).size >= 50, `${level} reading content is still too repetitive`)
+  assert(new Set(lessons.map((lesson)=>lesson.vocab.map((word)=>normalizedContent(word[0])).join('|'))).size === lessons.length, `${level} repeats the same vocabulary set across lessons`)
+  assert(new Set(lessons.map((lesson)=>[normalizedContent(lesson.title),normalizedContent(lesson.listening.audio),normalizedContent(lesson.reading.text),normalizedContent(lesson.quiz.question),normalizedContent(lesson.writing.prompt)].join('::'))).size === lessons.length, `${level} contains duplicated lesson content`)
+  for (const lesson of lessons) {
+    validateChoiceAnswer(lesson.listening, `${lesson.id} listening`)
+    validateChoiceAnswer(lesson.reading, `${lesson.id} reading`)
+    validateChoiceAnswer(lesson.quiz, `${lesson.id} quiz`)
+    assert(normalizedContent(lesson.reading.text).includes(normalizedContent(lesson.reading.options[lesson.reading.answer])), `${lesson.id} reading answer is not supported by its passage`)
+    if (lesson.quiz.type === 'Grammar Quiz') assert(normalizedContent(lesson.quiz.options[lesson.quiz.answer]) === normalizedContent(lesson.grammar.structure), `${lesson.id} grammar quiz answer does not match the declared structure`)
+    if (lesson.quiz.type === 'True False') assert(lesson.quiz.answer === 0, `${lesson.id} true/false answer contract is inconsistent`)
+  }
 }
 
 const independent = { levelProgress: { [progressKey('english', 'B2')]: { completedLessons: ['english-b2-1-1'] } } }
@@ -133,6 +175,15 @@ for (const language of ['english','chinese','japanese','korean']) {
 }
 assert(grammarEntries.length >= 50 && grammarEntries.every((item) => item.name && item.structure && item.explanation && item.examples.length >= 2 && item.mistake), 'Grammar library has incomplete topics')
 for (const language of ['english','chinese','japanese','korean']) for (const [level] of getLanguage(language).levels) assert(grammarEntries.some((item) => item.languageId === language && item.level === level), `${language} ${level} has no grammar topic`)
+for (const language of ['english','chinese','japanese','korean']) for (const [level] of getLanguage(language).levels) {
+  for (const lesson of getRoadmap(language, level).flatMap((unit) => unit.lessons)) {
+    const entry = grammarEntryFor(language, level, lesson.grammar.name)
+    assert(entry, `${lesson.id} has no grammar library entry`)
+    const question = buildGrammarQuestion(entry)
+    assert(question.options[question.answer] === (entry.referenceOnly ? entry.structure : entry.name), `${lesson.id} grammar practice answer is incorrect`)
+    assert(new Set(question.options).size === question.options.length, `${lesson.id} grammar practice contains duplicate options`)
+  }
+}
 for (const level of Object.keys(expectedTopics)) {
   const entries = vocabularyCatalog.filter((word) => word.languageId === 'english' && word.level === level)
   assert(entries.length >= 900, `${level} has fewer than about 1000 vocabulary entries`)
