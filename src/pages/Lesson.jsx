@@ -108,7 +108,7 @@ export default function Lesson() {
     const missingActivities = [
       !checked.grammar && 'Grammar',
       !checked.listening && 'Listening',
-      answers.speakingScore === undefined && 'Speaking',
+      answers.speakingScore == null && 'Speaking',
       !checked.reading && 'Reading',
       !writingAttempted && 'Writing',
       !checked.quiz && 'Quiz',
