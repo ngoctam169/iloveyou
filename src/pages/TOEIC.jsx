@@ -7,7 +7,7 @@ import StatisticsCard from '../components/common/StatisticsCard'
 import AudioPlayer from '../components/common/AudioPlayer'
 import { useApp } from '../context/AppContext'
 import { toeicListeningQuestions, toeicReading } from '../data/toeic'
-import { buildToeicFullResult, toeicFullSections, toeicFullStats } from '../data/exams/toeicFull'
+import { buildToeicFullResult, createToeicExamSections, toeicFullSections, toeicFullStats } from '../data/exams/toeicFull'
 import { buildToeicExamSections } from '../data/exams/toeicAdvanced'
 
 const tabs = ['Overview','Full Test','Listening Practice','Reading Practice','History']
@@ -78,11 +78,13 @@ function TOEICFullTest({ onHistory }) {
     title="TOEIC Listening & Reading Full Test"
     subtitle="Mỗi lần bắt đầu sẽ sinh một form khác từ ngân hàng câu hỏi khó hơn, vẫn giữ đủ 200 câu và đúng phân bố Part 1–7."
     sections={toeicFullSections}
+    createSections={createToeicExamSections}
     sectionsFactory={buildToeicExamSections}
     startNotes={[
       'Listening: 100 câu trong 45 phút; khi chuyển sang Reading sẽ không quay lại Listening.',
       'Reading: 100 câu trong 75 phút.',
       'Không hiện đáp án khi đang thi; câu chưa trả lời được tính là bỏ trống.',
+      'Mỗi lần bắt đầu/thi lại tạo một form mới từ ngân hàng câu hỏi; câu khó, distractor và passage được luân phiên.',
       'Part 2 dùng audio-only choices; Part 7 có double/triple-passage và câu suy luận/paraphrase khó hơn.',
     ]}
     buildResult={buildToeicFullResult}
