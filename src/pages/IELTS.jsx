@@ -84,45 +84,73 @@ function IELTSOverview({ state, latest, onOpen }) {
 }
 
 function IELTSFullMock({ onSpeaking,onHistory }) {
-  const { saveExamResult } = useApp()
-  const [phase,setPhase] = useState('objective')
-  const [objective,setObjective] = useState(null)
+  const { saveExamResult, addMistakes } = useApp()
+  const [savedFlow] = useState(() => readLocal(IELTS_FLOW_KEY, null))
+  const [phase,setPhase] = useState(savedFlow?.phase || 'objective')
+  const [objective,setObjective] = useState(savedFlow?.objective || null)
   const [finalResult,setFinalResult] = useState(null)
-  const [writingTasks,setWritingTasks] = useState(() => buildIeltsWritingTasks())
+  const [writingTasks,setWritingTasks] = useState(() => savedFlow?.writingTasks || buildIeltsWritingTasks())
 
-  const reset = () => { setPhase('objective'); setObjective(null); setFinalResult(null); setWritingTasks(buildIeltsWritingTasks()) }
+  useEffect(() => {
+    if (phase === 'result') return
+    writeLocal(IELTS_FLOW_KEY, { phase, objective, writingTasks, savedAt:Date.now() })
+  }, [phase, objective, writingTasks])
+
+  const reset = () => {
+    clearLocal(IELTS_FLOW_KEY)
+    clearLocal(IELTS_WRITING_KEY)
+    clearLocal('nt_exam_session_v1:ielts-full')
+    setPhase('objective')
+    setObjective(null)
+    setFinalResult(null)
+    setWritingTasks(buildIeltsWritingTasks())
+  }
 
   if (phase === 'objective') return <SectionedExamRunner
     title="IELTS Academic Full Mock"
-    subtitle="Mỗi lần bắt đầu sẽ tạo một form khác; phần lớn Listening/Reading lấy từ ngân hàng nâng cao với nhiều paraphrase, inference và distractor sát nghĩa hơn."
+    subtitle="Mỗi lần bắt đầu sẽ tạo một form khác; hệ thống ưu tiên form ít trùng với các lần thi gần đây."
     sections={ieltsFullSections}
     sectionsFactory={buildIeltsExamSections}
+    sessionKey="ielts-full"
     startNotes={[
       'Listening: 4 parts, 40 câu, 30 phút.',
       'Academic Reading: 3 passages, 40 câu, 60 phút.',
       'Sau Reading, tiếp tục Writing 60 phút với Task 1 và Task 2.',
-      'Mỗi Full Mock đổi form Listening/Reading và đổi cả đề Writing; không chỉ đảo vị trí đáp án.',
+      'Bài đang làm được tự lưu trên thiết bị để có thể tiếp tục sau khi refresh.',
     ]}
     buildResult={buildIeltsObjectiveResult}
-    onComplete={setObjective}
-    renderResult={({ result }) => <section className="practice-result exam-result">
-      <CheckCircle2/>
-      <h2>Listening & Reading hoàn thành</h2>
-      <div className="result-breakdown">
-        <div><b>{result.bands.Listening.toFixed(1)}</b><span>Listening band</span><small>{result.listeningCorrect}/40 đúng</small></div>
-        <div><b>{result.bands.Reading.toFixed(1)}</b><span>Reading band</span><small>{result.readingCorrect}/40 đúng</small></div>
-        <div><b>{result.unanswered}</b><span>Unanswered</span><small>câu bỏ trống</small></div>
-      </div>
-      <button className="btn large" onClick={() => setPhase('writing')}>Tiếp tục Writing · 60 phút <ChevronRight/></button>
-    </section>}
+    onComplete={(report, attempt) => {
+      setObjective(report)
+      addMistakes(buildExamMistakes('IELTS',attempt.sections,attempt.answers,'/ielts'))
+      setPhase('objective-result')
+    }}
+    renderResult={() => null}
   />
 
-  if (phase === 'writing') return <IELTSWritingExam objective={objective} tasks={writingTasks} onComplete={(report) => {
+  if (phase === 'objective-result' && objective) return <section className="practice-result exam-result">
+    <CheckCircle2/>
+    <h2>Listening & Reading hoàn thành</h2>
+    <div className="result-breakdown">
+      <div><b>{objective.bands.Listening.toFixed(1)}</b><span>Listening band</span><small>{objective.listeningCorrect}/40 đúng</small></div>
+      <div><b>{objective.bands.Reading.toFixed(1)}</b><span>Reading band</span><small>{objective.readingCorrect}/40 đúng</small></div>
+      <div><b>{objective.unanswered}</b><span>Unanswered</span><small>câu bỏ trống</small></div>
+    </div>
+    <button className="btn large" onClick={() => setPhase('writing')}>Tiếp tục Writing · 60 phút <ChevronRight/></button>
+  </section>
+
+  if (phase === 'writing' && objective) return <IELTSWritingExam objective={objective} tasks={writingTasks} persistKey={IELTS_WRITING_KEY} onComplete={(report) => {
     const merged={ ...objective,...report,type:'Academic Full Mock',bands:objective.bands,timeUsed:objective.timeUsed + report.writingTimeUsed }
     saveExamResult('ielts',merged)
+    clearLocal(IELTS_FLOW_KEY)
+    clearLocal(IELTS_WRITING_KEY)
     setFinalResult(merged)
     setPhase('result')
   }}/>
+
+  if (!finalResult) {
+    clearLocal(IELTS_FLOW_KEY)
+    return <section className="practice-result exam-result"><p>Phiên Full Mock không còn hợp lệ.</p><button className="btn" onClick={reset}>Bắt đầu lại</button></section>
+  }
 
   return <section className="practice-result exam-result full-score-report">
     <span>🏁</span>
