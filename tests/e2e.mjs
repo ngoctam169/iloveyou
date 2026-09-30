@@ -206,6 +206,10 @@ try {
   const migrationPage = await migration.newPage()
   await migrationPage.goto(`${origin}/learn-english`)
   await migrationPage.locator('.level-card', { hasText: 'A1' }).getByText('In Progress').waitFor()
+  await migrationPage.waitForFunction(() => {
+    const state = JSON.parse(localStorage.getItem('nt_state_v1'))
+    return state?.schemaVersion === 2 && state?.levelProgress?.['english:A1']?.completedLessons?.[0] === 'english-a1-1-1'
+  })
   const migrated = await migrationPage.evaluate(() => JSON.parse(localStorage.getItem('nt_state_v1')))
   assert(migrated.schemaVersion === 2 && migrated.levelProgress['english:A1'].completedLessons[0] === 'english-a1-1-1', 'Legacy A1 progress migration failed')
   await migration.close()
