@@ -1,10 +1,81 @@
 import { ChevronLeft, ChevronRight, Flag, TimerReset, Volume2 } from 'lucide-react'
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import ExamTimer from '../common/ExamTimer'
 import ProgressBar from '../common/ProgressBar'
 import QuizQuestion, { hasAnswer } from '../common/QuizQuestion'
 import { useApp } from '../../context/AppContext'
 import { speak } from '../../utils/speech'
+
+const SESSION_PREFIX = 'nt_exam_session_v1:'
+const FORM_HISTORY_PREFIX = 'nt_exam_forms_v1:'
+const MAX_SESSION_AGE = 3 * 60 * 60 * 1000
+
+function readJson(key, fallback) {
+  try {
+    const value = JSON.parse(localStorage.getItem(key))
+    return value ?? fallback
+  } catch {
+    return fallback
+  }
+}
+
+function questionSourceIds(sections = []) {
+  return sections.flatMap((section) => section.questions || []).map((question) => question.sourceId || question.id)
+}
+
+function pickFreshForm(factory, fallback, historyKey) {
+  if (!factory) return fallback
+  const recent = historyKey ? readJson(FORM_HISTORY_PREFIX + historyKey, []) : []
+  const frequency = new Map()
+  recent.slice(0, 5).forEach((ids, attemptIndex) => ids.forEach((id) => {
+    frequency.set(id, (frequency.get(id) || 0) + (5 - attemptIndex))
+  }))
+  let best = null
+  let bestScore = Number.POSITIVE_INFINITY
+  for (let attempt = 0; attempt < 8; attempt += 1) {
+    const candidate = factory()
+    const score = questionSourceIds(candidate).reduce((sum, id) => sum + (frequency.get(id) || 0), 0)
+    if (score < bestScore) {
+      best = candidate
+      bestScore = score
+    }
+    if (score === 0) break
+  }
+  return best || factory()
+}
+
+function rememberForm(historyKey, sections) {
+  if (!historyKey) return
+  try {
+    const key = FORM_HISTORY_PREFIX + historyKey
+    const recent = readJson(key, [])
+    localStorage.setItem(key, JSON.stringify([questionSourceIds(sections), ...recent].slice(0, 5)))
+  } catch { /* storage may be unavailable */ }
+}
+
+function loadExamSession(sessionKey, fallbackSections) {
+  if (!sessionKey) return null
+  const saved = readJson(SESSION_PREFIX + sessionKey, null)
+  if (!saved?.started || !Array.isArray(saved.examSections) || !saved.examSections.length) return null
+  const totalDuration = saved.examSections.reduce((sum, section) => sum + (Number(section.duration) || 0), 0) * 1000
+  const startedAt = Number(saved.sessionStartedAt) || Number(saved.savedAt) || 0
+  if (!startedAt || Date.now() - startedAt > Math.max(MAX_SESSION_AGE, totalDuration + 5 * 60 * 1000)) {
+    try { localStorage.removeItem(SESSION_PREFIX + sessionKey) } catch { /* storage may be unavailable */ }
+    return null
+  }
+  const sectionIndex = Math.max(0, Math.min(saved.examSections.length - 1, Number(saved.sectionIndex) || 0))
+  const section = saved.examSections[sectionIndex] || fallbackSections[0]
+  return {
+    ...saved,
+    sectionIndex,
+    questionIndex:Math.max(0, Math.min((section?.questions?.length || 1) - 1, Number(saved.questionIndex) || 0)),
+  }
+}
+
+function clearExamSession(sessionKey) {
+  if (!sessionKey) return
+  try { localStorage.removeItem(SESSION_PREFIX + sessionKey) } catch { /* storage may be unavailable */ }
+}
 
 export default function SectionedExamRunner({
   title,
@@ -15,19 +86,27 @@ export default function SectionedExamRunner({
   buildResult,
   renderResult,
   onComplete,
+  sessionKey,
 }) {
   const { setToast } = useApp()
-  const [started, setStarted] = useState(false)
-  const [examSections, setExamSections] = useState(sections)
-  const [sectionIndex, setSectionIndex] = useState(0)
-  const [questionIndex, setQuestionIndex] = useState(0)
-  const [answers, setAnswers] = useState({})
-  const [remaining, setRemaining] = useState(sections[0]?.duration || 0)
-  const [deadline, setDeadline] = useState(null)
-  const [elapsed, setElapsed] = useState({})
+  const [initialSession] = useState(() => loadExamSession(sessionKey, sections))
+  const initialSections = initialSession?.examSections || sections
+  const initialSectionIndex = initialSession?.sectionIndex || 0
+  const initialDeadline = Number(initialSession?.deadline) || null
+  const [started, setStarted] = useState(Boolean(initialSession?.started))
+  const [examSections, setExamSections] = useState(initialSections)
+  const [sectionIndex, setSectionIndex] = useState(initialSectionIndex)
+  const [questionIndex, setQuestionIndex] = useState(initialSession?.questionIndex || 0)
+  const [answers, setAnswers] = useState(initialSession?.answers || {})
+  const [remaining, setRemaining] = useState(() => initialDeadline
+    ? Math.max(0, Math.ceil((initialDeadline - Date.now()) / 1000))
+    : initialSections[initialSectionIndex]?.duration || 0)
+  const [deadline, setDeadline] = useState(initialDeadline)
+  const [elapsed, setElapsed] = useState(initialSession?.elapsed || {})
   const [result, setResult] = useState(null)
-  const [flagged, setFlagged] = useState({})
-  const [playedAudio, setPlayedAudio] = useState({})
+  const [flagged, setFlagged] = useState(initialSession?.flagged || {})
+  const [playedAudio, setPlayedAudio] = useState(initialSession?.playedAudio || {})
+  const [sessionStartedAt, setSessionStartedAt] = useState(Number(initialSession?.sessionStartedAt) || null)
 
   const section = examSections[sectionIndex]
   const questions = section?.questions || []
@@ -37,8 +116,10 @@ export default function SectionedExamRunner({
   const totalAnswered = examSections.reduce((sum, item) => sum + item.questions.filter((q) => hasAnswer(answers[q.id])).length, 0)
 
   const begin = () => {
-    const nextSections = sectionsFactory?.() || sections
+    const nextSections = pickFreshForm(sectionsFactory, sections, sessionKey)
+    rememberForm(sessionKey, nextSections)
     const duration = nextSections[0]?.duration || 0
+    const now = Date.now()
     setExamSections(nextSections)
     setStarted(true)
     setSectionIndex(0)
@@ -49,8 +130,38 @@ export default function SectionedExamRunner({
     setElapsed({})
     setResult(null)
     setRemaining(duration)
-    setDeadline(Date.now() + duration * 1000)
+    setSessionStartedAt(now)
+    setDeadline(now + duration * 1000)
   }
+
+  useEffect(() => {
+    if (!sessionKey || !started || result || !deadline) return undefined
+    const persist = () => {
+      try {
+        localStorage.setItem(SESSION_PREFIX + sessionKey, JSON.stringify({
+          started:true,
+          examSections,
+          sectionIndex,
+          questionIndex,
+          answers,
+          deadline,
+          elapsed,
+          flagged,
+          playedAudio,
+          sessionStartedAt,
+          savedAt:Date.now(),
+        }))
+      } catch {
+        setToast('Không thể tự lưu bài thi trên thiết bị này.')
+      }
+    }
+    const timer = window.setTimeout(persist, 250)
+    window.addEventListener('pagehide', persist)
+    return () => {
+      window.clearTimeout(timer)
+      window.removeEventListener('pagehide', persist)
+    }
+  }, [sessionKey, started, result, examSections, sectionIndex, questionIndex, answers, deadline, elapsed, flagged, playedAudio, sessionStartedAt, setToast])
 
   const finish = () => {
     if (result) return
@@ -61,7 +172,8 @@ export default function SectionedExamRunner({
     const report = buildResult({ answers, sections:examSections, elapsed: currentElapsed })
     setElapsed(currentElapsed)
     setResult(report)
-    onComplete?.(report)
+    clearExamSession(sessionKey)
+    onComplete?.(report, { answers, sections:examSections })
   }
 
   const advanceSection = () => {
