@@ -1,5 +1,5 @@
 import { ArrowLeft, ArrowRight, Bookmark, BookOpen, Check, CheckCircle2, ChevronLeft, CircleHelp, Headphones, Mic, PenLine, RotateCcw, Sparkles, Star, Volume2, X } from 'lucide-react'
-import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { Link, useLocation, useNavigate, useParams } from 'react-router-dom'
 import AudioPlayer from '../components/common/AudioPlayer'
 import ProgressBar from '../components/common/ProgressBar'
@@ -84,9 +84,12 @@ export default function Lesson() {
     if (lesson && step === 2 && state.settings.autoplay) speak(lesson.listening?.audio || lesson.listen, languageId, rate, setToast)
   }, [step, lesson?.id, state.settings.autoplay, languageId])
 
-  useLayoutEffect(() => {
-    if (!lesson) return
-    persistLessonSession(lesson.id, { step, answers, checked, completed, completedSections, xpEarned, activeSeconds:activeSeconds.current, updatedAt:new Date().toISOString() })
+  useEffect(() => {
+    if (!lesson) return undefined
+    const timer = window.setTimeout(() => {
+      persistLessonSession(lesson.id, { step, answers, checked, completed, completedSections, xpEarned, activeSeconds:activeSeconds.current, updatedAt:new Date().toISOString() })
+    }, 350)
+    return () => window.clearTimeout(timer)
   }, [step, answers, checked, completed, completedSections, xpEarned, lesson?.id])
 
   const lessonSaved = lesson ? state.savedItems.some((item) => item.id === `lesson-${lesson.id}`) : false
@@ -101,10 +104,26 @@ export default function Lesson() {
   const finishLesson = () => {
     if (completed) return
     if (remainingSections.length) { setToast(`Hãy đi qua các phần còn lại: ${remainingSections.join(', ')}`); return }
+    const writingAttempted = Array.isArray(answers.writing) ? answers.writing.length > 0 : String(answers.writing || '').trim().length > 0
+    const missingActivities = [
+      !checked.grammar && 'Grammar',
+      !checked.listening && 'Listening',
+      !checked.reading && 'Reading',
+      !writingAttempted && 'Writing',
+      !checked.quiz && 'Quiz',
+    ].filter(Boolean)
+    if (missingActivities.length) {
+      setToast(`Hãy làm các hoạt động bắt buộc trước khi hoàn thành: ${missingActivities.join(', ')}`)
+      return
+    }
     noteActivity()
     setCompleted(true)
     setCompletedSections(sections.map((_, index) => index))
-    setXpEarned(state.levelProgress?.[`${languageId}:${level[0]}`]?.completedLessons?.includes(lesson.id) ? 20 : 100 + (resultScore === 100 ? 50 : 0))
+    const alreadyCompleted = state.levelProgress?.[`${languageId}:${level[0]}`]?.completedLessons?.includes(lesson.id)
+    const earnedXp = alreadyCompleted
+      ? Math.max(5, Math.round(resultScore * 0.15))
+      : 40 + Math.round(resultScore * 0.6) + (resultScore === 100 ? 20 : 0)
+    setXpEarned(earnedXp)
     const path = lessonPath
     if (checked.listening && !listeningIsCorrect(lesson.listening, answers.listening, lesson)) addMistake({ id: `listening-${lesson.id}`, type: 'Listening', prompt: lesson.listening?.prompt || 'Đoạn ghi âm nói về điều gì?', answer: answerLabel(lesson.listening, lesson), yourAnswer: responseLabel(lesson.listening, answers.listening), path })
     if (checked.grammar && grammarQuestion && answers.grammar !== grammarQuestion.answer) addMistake({ id:`grammar-${lesson.id}`, type:'Grammar', prompt:grammarQuestion.question, answer:grammarQuestion.options[grammarQuestion.answer], yourAnswer:grammarQuestion.options[answers.grammar] || 'Chưa trả lời', explanation:grammarQuestion.explanation, path:`${path}?section=grammar` })

@@ -11,8 +11,21 @@ import { ieltsSpeaking } from '../data/ielts'
 import { buildIeltsObjectiveResult, ieltsAcademicWritingTasks, ieltsFullListening, ieltsFullReading, ieltsFullSections } from '../data/exams/ieltsFull'
 import { buildIeltsExamSections, buildIeltsWritingTasks } from '../data/exams/ieltsAdvanced'
 import { recognitionFor } from '../utils/speech'
+import { buildExamMistakes } from '../utils/examMistakes'
 
 const tabs = ['Overview','Full Mock','Listening Practice','Reading Practice','Writing','Speaking','History']
+const IELTS_FLOW_KEY = 'nt_ielts_full_flow_v1'
+const IELTS_WRITING_KEY = 'nt_ielts_writing_session_v1'
+
+function readLocal(key, fallback = null) {
+  try { return JSON.parse(localStorage.getItem(key)) ?? fallback } catch { return fallback }
+}
+function writeLocal(key, value) {
+  try { localStorage.setItem(key, JSON.stringify(value)); return true } catch { return false }
+}
+function clearLocal(key) {
+  try { localStorage.removeItem(key) } catch { /* storage may be unavailable */ }
+}
 
 export default function IELTS() {
   const { state, update } = useApp()
@@ -71,45 +84,76 @@ function IELTSOverview({ state, latest, onOpen }) {
 }
 
 function IELTSFullMock({ onSpeaking,onHistory }) {
-  const { saveExamResult } = useApp()
-  const [phase,setPhase] = useState('objective')
-  const [objective,setObjective] = useState(null)
+  const { saveExamResult, addMistakes } = useApp()
+  const [savedFlow] = useState(() => {
+    const saved = readLocal(IELTS_FLOW_KEY, null)
+    return saved?.savedAt && Date.now() - saved.savedAt < 3 * 60 * 60 * 1000 ? saved : null
+  })
+  const [phase,setPhase] = useState(savedFlow?.phase || 'objective')
+  const [objective,setObjective] = useState(savedFlow?.objective || null)
   const [finalResult,setFinalResult] = useState(null)
-  const [writingTasks,setWritingTasks] = useState(() => buildIeltsWritingTasks())
+  const [writingTasks,setWritingTasks] = useState(() => savedFlow?.writingTasks || buildIeltsWritingTasks())
 
-  const reset = () => { setPhase('objective'); setObjective(null); setFinalResult(null); setWritingTasks(buildIeltsWritingTasks()) }
+  useEffect(() => {
+    if (phase === 'result') return
+    writeLocal(IELTS_FLOW_KEY, { phase, objective, writingTasks, savedAt:Date.now() })
+  }, [phase, objective, writingTasks])
+
+  const reset = () => {
+    clearLocal(IELTS_FLOW_KEY)
+    clearLocal(IELTS_WRITING_KEY)
+    clearLocal('nt_exam_session_v1:ielts-full')
+    setPhase('objective')
+    setObjective(null)
+    setFinalResult(null)
+    setWritingTasks(buildIeltsWritingTasks())
+  }
 
   if (phase === 'objective') return <SectionedExamRunner
     title="IELTS Academic Full Mock"
-    subtitle="Mỗi lần bắt đầu sẽ tạo một form khác; phần lớn Listening/Reading lấy từ ngân hàng nâng cao với nhiều paraphrase, inference và distractor sát nghĩa hơn."
+    subtitle="Mỗi lần bắt đầu sẽ tạo một form khác; hệ thống ưu tiên form ít trùng với các lần thi gần đây."
     sections={ieltsFullSections}
     sectionsFactory={buildIeltsExamSections}
+    sessionKey="ielts-full"
     startNotes={[
       'Listening: 4 parts, 40 câu, 30 phút.',
       'Academic Reading: 3 passages, 40 câu, 60 phút.',
       'Sau Reading, tiếp tục Writing 60 phút với Task 1 và Task 2.',
-      'Mỗi Full Mock đổi form Listening/Reading và đổi cả đề Writing; không chỉ đảo vị trí đáp án.',
+      'Bài đang làm được tự lưu trên thiết bị để có thể tiếp tục sau khi refresh.',
     ]}
     buildResult={buildIeltsObjectiveResult}
-    onComplete={setObjective}
-    renderResult={({ result }) => <section className="practice-result exam-result">
-      <CheckCircle2/>
-      <h2>Listening & Reading hoàn thành</h2>
-      <div className="result-breakdown">
-        <div><b>{result.bands.Listening.toFixed(1)}</b><span>Listening band</span><small>{result.listeningCorrect}/40 đúng</small></div>
-        <div><b>{result.bands.Reading.toFixed(1)}</b><span>Reading band</span><small>{result.readingCorrect}/40 đúng</small></div>
-        <div><b>{result.unanswered}</b><span>Unanswered</span><small>câu bỏ trống</small></div>
-      </div>
-      <button className="btn large" onClick={() => setPhase('writing')}>Tiếp tục Writing · 60 phút <ChevronRight/></button>
-    </section>}
+    onComplete={(report, attempt) => {
+      writeLocal(IELTS_FLOW_KEY, { phase:'objective-result', objective:report, writingTasks, savedAt:Date.now() })
+      setObjective(report)
+      addMistakes(buildExamMistakes('IELTS',attempt.sections,attempt.answers,'/ielts'))
+      setPhase('objective-result')
+    }}
+    renderResult={() => null}
   />
 
-  if (phase === 'writing') return <IELTSWritingExam objective={objective} tasks={writingTasks} onComplete={(report) => {
+  if (phase === 'objective-result' && objective) return <section className="practice-result exam-result">
+    <CheckCircle2/>
+    <h2>Listening & Reading hoàn thành</h2>
+    <div className="result-breakdown">
+      <div><b>{objective.bands.Listening.toFixed(1)}</b><span>Listening band</span><small>{objective.listeningCorrect}/40 đúng</small></div>
+      <div><b>{objective.bands.Reading.toFixed(1)}</b><span>Reading band</span><small>{objective.readingCorrect}/40 đúng</small></div>
+      <div><b>{objective.unanswered}</b><span>Unanswered</span><small>câu bỏ trống</small></div>
+    </div>
+    <button className="btn large" onClick={() => setPhase('writing')}>Tiếp tục Writing · 60 phút <ChevronRight/></button>
+  </section>
+
+  if (phase === 'writing' && objective) return <IELTSWritingExam objective={objective} tasks={writingTasks} persistKey={IELTS_WRITING_KEY} onComplete={(report) => {
     const merged={ ...objective,...report,type:'Academic Full Mock',bands:objective.bands,timeUsed:objective.timeUsed + report.writingTimeUsed }
     saveExamResult('ielts',merged)
+    clearLocal(IELTS_FLOW_KEY)
+    clearLocal(IELTS_WRITING_KEY)
     setFinalResult(merged)
     setPhase('result')
   }}/>
+
+  if (!finalResult) {
+    return <section className="practice-result exam-result"><p>Phiên Full Mock không còn hợp lệ.</p><button className="btn" onClick={reset}>Bắt đầu lại</button></section>
+  }
 
   return <section className="practice-result exam-result full-score-report">
     <span>🏁</span>
@@ -131,16 +175,30 @@ function IELTSFullMock({ onSpeaking,onHistory }) {
   </section>
 }
 
-function IELTSWritingExam({ objective,onComplete,tasks=ieltsAcademicWritingTasks }) {
-  const [task1,setTask1] = useState('')
-  const [task2,setTask2] = useState('')
-  const [seconds,setSeconds] = useState(60*60)
-  const [deadline] = useState(() => Date.now() + 60*60*1000)
+function IELTSWritingExam({ objective,onComplete,tasks=ieltsAcademicWritingTasks,persistKey=null }) {
+  const [saved] = useState(() => persistKey ? readLocal(persistKey, null) : null)
+  const [task1,setTask1] = useState(saved?.task1 || '')
+  const [task2,setTask2] = useState(saved?.task2 || '')
+  const [deadline] = useState(() => Number(saved?.deadline) || Date.now() + 60*60*1000)
+  const [seconds,setSeconds] = useState(() => Math.max(0, Math.ceil((deadline-Date.now())/1000)))
   const submitted=useRef(false)
   const words=(value)=>value.trim() ? value.trim().split(/\s+/).length : 0
+
+  useEffect(() => {
+    if (!persistKey || submitted.current) return undefined
+    const persist = () => writeLocal(persistKey, { task1, task2, deadline, savedAt:Date.now() })
+    const timer = window.setTimeout(persist, 250)
+    window.addEventListener('pagehide',persist)
+    return () => {
+      window.clearTimeout(timer)
+      window.removeEventListener('pagehide',persist)
+    }
+  }, [persistKey, task1, task2, deadline])
+
   const finish=()=> {
     if (submitted.current) return
     submitted.current=true
+    if (persistKey) clearLocal(persistKey)
     onComplete({
       writingWords:{ task1:words(task1),task2:words(task2) },
       writingComplete:words(task1)>=150 && words(task2)>=250,
@@ -163,7 +221,7 @@ function IELTSWritingExam({ objective,onComplete,tasks=ieltsAcademicWritingTasks
       })}
     </div>
     <div className="mock-actions"><span/><button className="btn large" onClick={finish}>Nộp Writing</button></div>
-    <p className="exam-disclaimer">Task 2 nên dành khoảng 40 phút và có trọng số lớn hơn Task 1 trong kỳ thi thật. App lưu bài và word count nhưng không giả lập examiner band.</p>
+    <p className="exam-disclaimer">Task 2 nên dành khoảng 40 phút và có trọng số lớn hơn Task 1 trong kỳ thi thật. App tự lưu bài viết đang làm trên thiết bị nhưng không giả lập examiner band.</p>
   </section>
 }
 

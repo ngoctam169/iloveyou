@@ -9,6 +9,7 @@ import { useApp } from '../context/AppContext'
 import { toeicListeningQuestions, toeicReading } from '../data/toeic'
 import { buildToeicFullResult, toeicFullSections, toeicFullStats } from '../data/exams/toeicFull'
 import { buildToeicExamSections } from '../data/exams/toeicAdvanced'
+import { buildExamMistakes } from '../utils/examMistakes'
 
 const tabs = ['Overview','Full Test','Listening Practice','Reading Practice','History']
 
@@ -73,12 +74,13 @@ function TOEICOverview({ state, latest, onOpen }) {
 }
 
 function TOEICFullTest({ onHistory }) {
-  const { saveExamResult } = useApp()
+  const { saveExamResult, addMistakes } = useApp()
   return <SectionedExamRunner
     title="TOEIC Listening & Reading Full Test"
     subtitle="Mỗi lần bắt đầu sẽ sinh một form khác từ ngân hàng câu hỏi khó hơn, vẫn giữ đủ 200 câu và đúng phân bố Part 1–7."
     sections={toeicFullSections}
     sectionsFactory={buildToeicExamSections}
+    sessionKey="toeic-full"
     startNotes={[
       'Listening: 100 câu trong 45 phút; khi chuyển sang Reading sẽ không quay lại Listening.',
       'Reading: 100 câu trong 75 phút.',
@@ -86,7 +88,10 @@ function TOEICFullTest({ onHistory }) {
       'Part 2 dùng audio-only choices; Part 7 có double/triple-passage và câu suy luận/paraphrase khó hơn.',
     ]}
     buildResult={buildToeicFullResult}
-    onComplete={(report) => saveExamResult('toeic',report)}
+    onComplete={(report, attempt) => {
+      saveExamResult('toeic',report)
+      addMistakes(buildExamMistakes('TOEIC',attempt.sections,attempt.answers,'/toeic'))
+    }}
     renderResult={({ result,restart }) => <section className="practice-result exam-result full-score-report">
       <span>🏅</span>
       <h2>Estimated TOEIC Score</h2>

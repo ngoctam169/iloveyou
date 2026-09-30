@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useMemo, useState } from 'react'
+import { createContext, useContext, useEffect, useMemo, useRef, useState } from 'react'
 import { clearState, defaultState, loadState, saveState } from '../utils/storage'
 import { averageSkillScores, emptyLevelProgress, progressKey } from '../utils/progress'
 import { applyActivity } from '../utils/activity'
@@ -11,11 +11,16 @@ const AppContext = createContext(null)
 export function AppProvider({ children }) {
   const [state, setState] = useState(loadState)
   const [toast, setToast] = useState('')
+  const storageWarningShown = useRef(false)
 
   useEffect(() => {
     document.documentElement.dataset.theme = state.theme
     document.documentElement.lang = 'vi'
-    saveState(state)
+    const saved = saveState(state)
+    if (!saved && !storageWarningShown.current) {
+      storageWarningShown.current = true
+      setToast('Không thể lưu tiến độ trên thiết bị này. Hãy kiểm tra dung lượng hoặc quyền lưu trữ của trình duyệt.')
+    } else if (saved) storageWarningShown.current = false
   }, [state])
 
   useEffect(() => {
@@ -25,11 +30,10 @@ export function AppProvider({ children }) {
   }, [toast])
 
   const update = (partial) => setState((current) => ({ ...current, ...(typeof partial === 'function' ? partial(current) : partial) }))
-  const persistLessonSession = (lessonId, session) => setState((current) => {
-    const next = { ...current, lessonSessions: { ...(current.lessonSessions || {}), [lessonId]: session } }
-    saveState(next)
-    return next
-  })
+  const persistLessonSession = (lessonId, session) => setState((current) => ({
+    ...current,
+    lessonSessions: { ...(current.lessonSessions || {}), [lessonId]: session },
+  }))
   const chooseCourse = (language, level) => update({ selectedLanguage: language, selectedLevel: level })
 
   const completeLesson = ({ lessonId, languageId, level, score, skills, vocabularyCount = 0, vocabularyWords = [], minutes = 8 }) => {
@@ -53,6 +57,15 @@ export function AppProvider({ children }) {
         const wordId = wordKey({ languageId, level, word })
         vocabularyMeta[wordId] = { ...vocabularyMeta[wordId], started: true }
       })
+      const levelWordPrefix = `${languageId}:${level}:`
+      const actualVocabularyLearned = new Set([
+        ...Object.entries(vocabularyMeta).filter(([key, meta]) => key.startsWith(levelWordPrefix) && meta?.learned).map(([key]) => key),
+        ...Object.keys(current.flashcardProgress || {}).filter((key) => key.startsWith(levelWordPrefix)),
+      ]).size
+      const normalizedScore = Math.max(0, Math.min(100, Number(score) || 0))
+      const xpGain = isNew
+        ? 40 + Math.round(normalizedScore * 0.6) + (normalizedScore === 100 ? 20 : 0)
+        : Math.max(5, Math.round(normalizedScore * 0.15))
       return {
         ...activity,
         selectedLanguage: languageId,
@@ -65,14 +78,14 @@ export function AppProvider({ children }) {
             lessonScores: { ...(previous.lessonScores || {}), [lessonId]: score },
             lessonSkillScores,
             skillScores: averageSkillScores(lessonSkillScores),
-            vocabularyLearned: (Number(previous.vocabularyLearned) || 0) + (isNew ? vocabularyCount : 0),
+            vocabularyLearned: Math.max(Number(previous.vocabularyLearned) || 0, actualVocabularyLearned),
             studyMinutes: (Number(previous.studyMinutes) || 0) + minutes,
             lastLessonId: lessonId,
           },
         },
         vocabularyMeta,
         skillReview,
-        xp: (Number(current.xp) || 0) + (isNew ? 100 + (score === 100 ? 50 : 0) : 20),
+        xp: (Number(current.xp) || 0) + xpGain,
       }
     })
   }
@@ -86,10 +99,31 @@ export function AppProvider({ children }) {
   }
 
   const removeMistake = (id) => setState((current) => ({ ...current, mistakes: current.mistakes.filter((item) => item.id !== id) }))
-  const addMistake = (mistake) => setState((current) => ({
-    ...current,
-    mistakes: [{ ...mistake, mistakeCount: (current.mistakes.find((item) => item.id === mistake.id)?.mistakeCount || 0) + 1, createdAt: new Date().toISOString(), lastAttempted: new Date().toISOString() }, ...current.mistakes.filter((item) => item.id !== mistake.id)],
-  }))
+  const addMistakes = (mistakes) => setState((current) => {
+    const incoming = Array.isArray(mistakes) ? mistakes.filter(Boolean) : [mistakes].filter(Boolean)
+    if (!incoming.length) return current
+    const now = new Date().toISOString()
+    const byId = new Map((current.mistakes || []).map((item) => [item.id, item]))
+    incoming.forEach((mistake) => {
+      const previous = byId.get(mistake.id)
+      byId.set(mistake.id, {
+        ...previous,
+        ...mistake,
+        mistakeCount: (previous?.mistakeCount || 0) + 1,
+        createdAt: previous?.createdAt || now,
+        lastAttempted: now,
+      })
+    })
+    const incomingIds = new Set(incoming.map((item) => item.id))
+    return {
+      ...current,
+      mistakes: [
+        ...incoming.map((item) => byId.get(item.id)),
+        ...(current.mistakes || []).filter((item) => !incomingIds.has(item.id)),
+      ].slice(0, 1000),
+    }
+  })
+  const addMistake = (mistake) => addMistakes([mistake])
 
   const reviewVocabulary = (word, quality) => {
     setState((current) => {
@@ -195,7 +229,7 @@ export function AppProvider({ children }) {
   }
 
   const value = useMemo(() => ({
-    state, update, persistLessonSession, chooseCourse, completeLesson, toggleSaved, removeMistake, addMistake, reviewVocabulary, setVocabularyMeta, savePersonalWord, deletePersonalWord, createVocabularyList, toggleWordInList, deleteVocabularyList, recordSelfStudy, recordStudyTime, recordGrammarAnswer, saveExamResult, reset,
+    state, update, persistLessonSession, chooseCourse, completeLesson, toggleSaved, removeMistake, addMistake, addMistakes, reviewVocabulary, setVocabularyMeta, savePersonalWord, deletePersonalWord, createVocabularyList, toggleWordInList, deleteVocabularyList, recordSelfStudy, recordStudyTime, recordGrammarAnswer, saveExamResult, reset,
     toast, setToast,
   }), [state, toast])
 
