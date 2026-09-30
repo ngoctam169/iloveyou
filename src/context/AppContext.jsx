@@ -9,19 +9,41 @@ import { vocabularyPath } from '../utils/routes'
 const AppContext = createContext(null)
 
 export function AppProvider({ children }) {
-  const [state, setState] = useState(loadState)
+  const [state, setState] = useState(() => {
+    const initial = loadState()
+    saveState(initial)
+    return initial
+  })
   const [toast, setToast] = useState('')
   const storageWarningShown = useRef(false)
+  const latestState = useRef(state)
+  latestState.current = state
+
+  const persistState = (value, notify = true) => {
+    const saved = saveState(value)
+    if (!saved && notify && !storageWarningShown.current) {
+      storageWarningShown.current = true
+      setToast('Không thể lưu tiến độ trên thiết bị này. Hãy kiểm tra dung lượng hoặc quyền lưu trữ của trình duyệt.')
+    } else if (saved) storageWarningShown.current = false
+    return saved
+  }
 
   useEffect(() => {
     document.documentElement.dataset.theme = state.theme
     document.documentElement.lang = 'vi'
-    const saved = saveState(state)
-    if (!saved && !storageWarningShown.current) {
-      storageWarningShown.current = true
-      setToast('Không thể lưu tiến độ trên thiết bị này. Hãy kiểm tra dung lượng hoặc quyền lưu trữ của trình duyệt.')
-    } else if (saved) storageWarningShown.current = false
+    const timer = window.setTimeout(() => persistState(state), 350)
+    return () => window.clearTimeout(timer)
   }, [state])
+
+  useEffect(() => {
+    const flush = () => persistState(latestState.current, false)
+    window.addEventListener('pagehide', flush)
+    document.addEventListener('visibilitychange', flush)
+    return () => {
+      window.removeEventListener('pagehide', flush)
+      document.removeEventListener('visibilitychange', flush)
+    }
+  }, [])
 
   useEffect(() => {
     if (!toast) return undefined
@@ -66,7 +88,7 @@ export function AppProvider({ children }) {
       const xpGain = isNew
         ? 40 + Math.round(normalizedScore * 0.6) + (normalizedScore === 100 ? 20 : 0)
         : Math.max(5, Math.round(normalizedScore * 0.15))
-      return {
+      const nextState = {
         ...activity,
         selectedLanguage: languageId,
         selectedLevel: level,
@@ -87,6 +109,8 @@ export function AppProvider({ children }) {
         skillReview,
         xp: (Number(current.xp) || 0) + xpGain,
       }
+      persistState(nextState)
+      return nextState
     })
   }
 
@@ -115,13 +139,15 @@ export function AppProvider({ children }) {
       })
     })
     const incomingIds = new Set(incoming.map((item) => item.id))
-    return {
+    const nextState = {
       ...current,
       mistakes: [
         ...incoming.map((item) => byId.get(item.id)),
         ...(current.mistakes || []).filter((item) => !incomingIds.has(item.id)),
       ].slice(0, 1000),
     }
+    persistState(nextState)
+    return nextState
   })
   const addMistake = (mistake) => addMistakes([mistake])
 
@@ -217,10 +243,14 @@ export function AppProvider({ children }) {
     })
   }
 
-  const saveExamResult = (kind, result) => setState((current) => ({
-    ...current,
-    [`${kind}History`]: [{ ...result, id: `${kind}-${Date.now()}`, date: new Date().toISOString() }, ...(current[`${kind}History`] || [])].slice(0, 20),
-  }))
+  const saveExamResult = (kind, result) => setState((current) => {
+    const nextState = {
+      ...current,
+      [`${kind}History`]: [{ ...result, id: `${kind}-${Date.now()}`, date: new Date().toISOString() }, ...(current[`${kind}History`] || [])].slice(0, 20),
+    }
+    persistState(nextState)
+    return nextState
+  })
 
   const reset = () => {
     clearState()
