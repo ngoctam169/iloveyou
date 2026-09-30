@@ -20,6 +20,7 @@ export default function SpeakingExercise({ target, languageId, onComplete, setTo
     setUnsupported(false)
     setHeard('')
     setRecording(true)
+    onComplete?.(0)
     recognition.onresult = (event) => {
       const transcript = event.results?.[0]?.[0]?.transcript || ''
       setHeard(transcript)
