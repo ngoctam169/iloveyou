@@ -296,8 +296,7 @@ const advancedPart7Groups = multiPassageSets.map(([title,passage,items],setIndex
   'adv-t7-'+String(setIndex*5+itemIndex+1).padStart(2,'0'),7,'Multiple Passages',question,options,answer,{passageTitle:title,passage}
 )))
 
-export function buildToeicExamSections() {
-  const random = createExamRandom()
+export function buildToeicExamSections(random = createExamRandom()) {
   const formId = examFormId('toeic')
 
   const part1 = sample(part1Bank,6,random)
