@@ -85,7 +85,10 @@ function IELTSOverview({ state, latest, onOpen }) {
 
 function IELTSFullMock({ onSpeaking,onHistory }) {
   const { saveExamResult, addMistakes } = useApp()
-  const [savedFlow] = useState(() => readLocal(IELTS_FLOW_KEY, null))
+  const [savedFlow] = useState(() => {
+    const saved = readLocal(IELTS_FLOW_KEY, null)
+    return saved?.savedAt && Date.now() - saved.savedAt < 3 * 60 * 60 * 1000 ? saved : null
+  })
   const [phase,setPhase] = useState(savedFlow?.phase || 'objective')
   const [objective,setObjective] = useState(savedFlow?.objective || null)
   const [finalResult,setFinalResult] = useState(null)
