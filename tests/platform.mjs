@@ -127,13 +127,11 @@ try {
   })
   console.log('PLATFORM checkpoint: IELTS Reading/Writing/Speaking plus full-mock Writing refresh resume')
 
-  await page.goto(`${origin}/about`)
-  await page.locator('footer').getByRole('link',{ name:'Đọc bài hành trình' }).click()
-  await page.waitForURL('**/blog#nguyen-ngoc-tam-ninh-thuan')
-  await page.locator('#nguyen-ngoc-tam-ninh-thuan').waitFor()
-  await page.waitForFunction(() => { const node=document.getElementById('nguyen-ngoc-tam-ninh-thuan'); return node && Math.abs(node.getBoundingClientRect().top) < 220 })
-  assert(true,'Footer blog hash link scrolled to the personal story')
-  console.log('PLATFORM checkpoint: footer hash link scrolls to blog story')
+  await page.goto(`${origin}/`)
+  await page.locator('footer').getByRole('link',{ name:'Nguyễn Ngọc Tâm', exact:true }).click()
+  await page.waitForURL('**/about')
+  await page.getByRole('heading',{ name:'Nguyễn Ngọc Tâm – Full-stack Developer tập trung Backend & Realtime Systems',level:1 }).waitFor()
+  console.log('PLATFORM checkpoint: footer creator link opens the dedicated engineering profile')
 
   await page.setViewportSize({ width:1440,height:900 })
   await page.goto(`${origin}/`)
