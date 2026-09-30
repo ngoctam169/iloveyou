@@ -51,6 +51,7 @@ export function stampQuestions(items, prefix, random = fallbackRandom, { shuffle
     const prepared = shuffleChoices ? shuffleQuestionOptions(item, random) : { ...item }
     return {
       ...prepared,
+      sourceId:item.sourceId || item.id,
       id:`${prefix}-${String(index + 1).padStart(3,'0')}-${item.id}`,
     }
   })
