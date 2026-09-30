@@ -172,16 +172,30 @@ function IELTSFullMock({ onSpeaking,onHistory }) {
   </section>
 }
 
-function IELTSWritingExam({ objective,onComplete,tasks=ieltsAcademicWritingTasks }) {
-  const [task1,setTask1] = useState('')
-  const [task2,setTask2] = useState('')
-  const [seconds,setSeconds] = useState(60*60)
-  const [deadline] = useState(() => Date.now() + 60*60*1000)
+function IELTSWritingExam({ objective,onComplete,tasks=ieltsAcademicWritingTasks,persistKey=null }) {
+  const [saved] = useState(() => persistKey ? readLocal(persistKey, null) : null)
+  const [task1,setTask1] = useState(saved?.task1 || '')
+  const [task2,setTask2] = useState(saved?.task2 || '')
+  const [deadline] = useState(() => Number(saved?.deadline) > Date.now() ? Number(saved.deadline) : Date.now() + 60*60*1000)
+  const [seconds,setSeconds] = useState(() => Math.max(0, Math.ceil((deadline-Date.now())/1000)))
   const submitted=useRef(false)
   const words=(value)=>value.trim() ? value.trim().split(/\s+/).length : 0
+
+  useEffect(() => {
+    if (!persistKey || submitted.current) return undefined
+    const persist = () => writeLocal(persistKey, { task1, task2, deadline, savedAt:Date.now() })
+    const timer = window.setTimeout(persist, 250)
+    window.addEventListener('pagehide',persist)
+    return () => {
+      window.clearTimeout(timer)
+      window.removeEventListener('pagehide',persist)
+    }
+  }, [persistKey, task1, task2, deadline])
+
   const finish=()=> {
     if (submitted.current) return
     submitted.current=true
+    if (persistKey) clearLocal(persistKey)
     onComplete({
       writingWords:{ task1:words(task1),task2:words(task2) },
       writingComplete:words(task1)>=150 && words(task2)>=250,
@@ -204,7 +218,7 @@ function IELTSWritingExam({ objective,onComplete,tasks=ieltsAcademicWritingTasks
       })}
     </div>
     <div className="mock-actions"><span/><button className="btn large" onClick={finish}>Nộp Writing</button></div>
-    <p className="exam-disclaimer">Task 2 nên dành khoảng 40 phút và có trọng số lớn hơn Task 1 trong kỳ thi thật. App lưu bài và word count nhưng không giả lập examiner band.</p>
+    <p className="exam-disclaimer">Task 2 nên dành khoảng 40 phút và có trọng số lớn hơn Task 1 trong kỳ thi thật. App tự lưu bài viết đang làm trên thiết bị nhưng không giả lập examiner band.</p>
   </section>
 }
 
