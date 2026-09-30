@@ -187,7 +187,8 @@ try {
   await page.getByText('LESSON COMPLETE!').waitFor()
   assert((await page.evaluate(() => JSON.parse(localStorage.getItem('nt_state_v1')).todayMinutes)) < 25, 'Lesson completion recorded the estimated duration rather than elapsed activity')
   await page.goto(`${origin}/grammar?language=chinese&level=HSK%206`)
-  await page.getByRole('heading',{ name:'Lựa chọn với 与其…不如…' }).waitFor()
+  await page.locator('.grammar-detail h2').waitFor()
+  assert((await page.locator('.grammar-index button').count()) >= 4, 'HSK 6 grammar library does not expose the full lesson curriculum')
   assert((await page.evaluate(() => JSON.parse(localStorage.getItem('nt_state_v1')).savedItems || [])).some((item) => item.type === 'Grammar'), 'Grammar bookmark was not persisted')
   console.log('PLATFORM checkpoint: grammar library, quiz, bookmark and direct lesson section')
 
