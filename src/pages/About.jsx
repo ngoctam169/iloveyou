@@ -1,47 +1,162 @@
 import '../styles/blog.css'
-import { BriefcaseBusiness, Code2, ExternalLink, GraduationCap, Mail, MapPin } from 'lucide-react'
+import { ArrowRight, BriefcaseBusiness, Check, Code2, ExternalLink, GraduationCap, Mail, MapPin } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import Breadcrumbs from '../components/common/Breadcrumbs'
 import { AUTHOR } from '../data/author'
 
 const skillGroups = [
   ['Backend',['PHP 7.x / 8.x','Laravel','CodeIgniter','PHPUnit','JWT / Firebase JWT','Guzzle','RESTful API']],
-  ['Data & async processing',['MongoDB','PostgreSQL','SQL Server','Redis','Beanstalkd','Laravel Queue']],
-  ['Realtime communication',['WebSocket','WebRTC','Custom signaling','Janus WebRTC Server','Jitsi']],
-  ['Enterprise integration',['Salesforce','HubSpot','Internal APIs','Webhooks','Postback','Zalo','WhatsApp','LiveChat','LINE']],
+  ['Data & async',['MongoDB','PostgreSQL','SQL Server','Redis','Beanstalkd','Laravel Queue']],
+  ['Realtime',['WebSocket','WebRTC','Custom signaling','Janus WebRTC Server','Jitsi']],
+  ['Integration',['Salesforce','HubSpot','Internal APIs','Webhooks','Postback','Zalo','WhatsApp','LiveChat','LINE']],
   ['Cloud & DevOps',['AWS EC2','AWS S3','Docker','Kubernetes','GitLab CI/CD','GitHub Actions','Nginx','Linux']],
   ['Quality & security',['SonarQube','Unit testing','XSS remediation','Production troubleshooting','Performance optimization']],
 ]
 
 const capabilityGroups = [
-  ['Realtime systems','Thiết kế và phát triển luồng chat/call realtime, WebSocket, WebRTC, signaling, room events và các luồng xử lý cần độ trễ thấp.'],
-  ['Performance & reliability','Điều tra production issue, đọc log và dữ liệu thực tế, tối ưu throughput/latency, queue, cache, database và luồng xử lý bất đồng bộ.'],
-  ['Enterprise integration','Tích hợp CRM, internal API, webhook và các kênh OTT; xử lý mapping dữ liệu, đồng bộ workflow và các yêu cầu vận hành doanh nghiệp.'],
-  ['Security & maintainability','Khắc phục XSS, xử lý SonarQube/code smells, bổ sung unit test và cải thiện khả năng bảo trì của các module business-critical.'],
+  ['Realtime systems','Chat/call realtime, WebSocket, WebRTC, signaling, room events và các luồng cần độ trễ thấp.'],
+  ['Performance & reliability','Điều tra production issue, tối ưu throughput/latency, queue, cache, database và xử lý bất đồng bộ.'],
+  ['Enterprise integration','CRM, internal API, webhook, OTT channels, mapping dữ liệu và đồng bộ workflow doanh nghiệp.'],
+  ['Security & maintainability','XSS remediation, SonarQube/code smells, unit test và cải thiện khả năng bảo trì module business-critical.'],
+]
+
+const stats = [
+  ['2022 → nay','Production experience'],
+  ['4','Selected systems'],
+  ['85%','Code smells reduced'],
+  ['Realtime','WebSocket · WebRTC'],
 ]
 
 export default function About() {
-  return <article className="inner-page section-shell about-author">
-    <Breadcrumbs items={[{ label:'Trang chủ',to:'/' },{ label:'Engineering Profile – Nguyễn Ngọc Tâm' }]}/>
-    <header className="about-hero"><div><span className="overline">NGUYỄN NGỌC TÂM · NGỌC TÂM DEV</span><h1>Nguyễn Ngọc Tâm – Full-stack Developer tập trung Backend & Realtime Systems</h1><p className="about-summary">Nguyễn Ngọc Tâm (Nguyen Ngoc Tam / Ngọc Tâm Dev) là Full-stack Developer tại South Telecom từ 07/2022. Trọng tâm công việc là backend, realtime communication, enterprise integration và production reliability với PHP/Laravel, MongoDB, Redis, WebSocket, WebRTC, queue processing, CRM/API integration, cloud và CI/CD.</p><div className="about-actions"><a className="btn" href={AUTHOR.sameAs[0]} target="_blank" rel="me noopener noreferrer">LinkedIn <ExternalLink/></a><a className="btn secondary" href={AUTHOR.sameAs[1]} target="_blank" rel="me noopener noreferrer">GitHub <ExternalLink/></a><Link className="btn ghost" to="/blog">Đọc Engineering Notes</Link></div></div><div className="about-identity-card"><div className="author-monogram large" aria-hidden="true">NT</div><strong>{AUTHOR.name}</strong><span>{AUTHOR.jobTitle}</span><small><MapPin/> {AUTHOR.location}</small><small>South Telecom · 07/2022 – Present</small><small>Quê Ninh Thuận, Vietnam</small></div></header>
+  return <article className="inner-page section-shell about-author portfolio-page">
+    <Breadcrumbs items={[{ label:'Trang chủ',to:'/' },{ label:'About Me' }]}/>
 
-    <section className="about-section" aria-labelledby="profile-title"><div className="about-section-heading"><BriefcaseBusiness/><div><span className="overline">ENGINEERING PROFILE</span><h2 id="profile-title">Kinh nghiệm không chỉ dừng ở việc viết feature</h2></div></div><div className="about-prose"><p>Tại South Telecom, Tâm tham gia phát triển và duy trì các hệ thống communication, tích hợp Salesforce và HubSpot, kết nối các kênh Zalo, WhatsApp, LiveChat, LINE, xử lý production issue và tối ưu các luồng realtime. Công việc trải từ application logic, database/cache/queue đến integration và vận hành production.</p><p>Tâm cũng phối hợp với Product, QA và Support trong môi trường Agile/Scrum; hỗ trợ đào tạo developer mới, điều phối sprint ceremony và xử lý blocker. Trước South Telecom, Tâm thực tập Backend Developer tại R-Digital từ 04/2022 đến 07/2022.</p><p>Điểm tập trung hiện tại là các bài toán backend/realtime cần tính ổn định: message delivery, WebSocket/WebRTC, asynchronous processing, data consistency, API integration, performance troubleshooting, security và khả năng quan sát khi hệ thống chạy thật.</p></div></section>
+    <header className="portfolio-hero">
+      <div className="portfolio-hero-copy">
+        <div className="portfolio-status"><span aria-hidden="true"/> AVAILABLE FOR THE RIGHT OPPORTUNITY</div>
+        <span className="overline">ABOUT ME · NGUYỄN NGỌC TÂM / NGỌC TÂM DEV</span>
+        <h1>Nguyễn Ngọc Tâm – Full-stack Developer tập trung Backend & Realtime Systems</h1>
+        <p className="portfolio-lead">Tôi xây và vận hành các hệ thống backend/realtime cho môi trường production — từ business logic, database, cache, queue đến WebSocket, WebRTC, CRM/API integration và CI/CD.</p>
+        <p className="portfolio-intro">Hiện làm việc tại South Telecom từ 07/2022. Kinh nghiệm nổi bật nằm ở communication platform, enterprise integration, banking communication, performance troubleshooting, application security và các luồng bất đồng bộ cần tính ổn định cao.</p>
+        <div className="portfolio-actions">
+          <a className="btn large" href={`mailto:${AUTHOR.email}`}><Mail/> Liên hệ công việc</a>
+          <a className="btn secondary large" href={AUTHOR.sameAs[0]} target="_blank" rel="me noopener noreferrer">LinkedIn <ExternalLink/></a>
+          <a className="btn ghost large" href={AUTHOR.sameAs[1]} target="_blank" rel="me noopener noreferrer">GitHub <ExternalLink/></a>
+        </div>
+        <div className="portfolio-meta">
+          <span><MapPin/> Ho Chi Minh City, Vietnam</span>
+          <span><BriefcaseBusiness/> South Telecom</span>
+          <span><Code2/> Backend · Realtime · Integration</span>
+        </div>
+      </div>
 
-    <section className="about-section" aria-labelledby="impact-title"><div className="section-intro left"><span className="overline">SELECTED ENGINEERING IMPACT</span><h2 id="impact-title">Những kết quả và bài toán đã trực tiếp tham gia</h2><p>Thay vì tự gắn nhãn “expert”, hồ sơ này tập trung vào các đầu việc và kết quả có thể kiểm chứng từ kinh nghiệm dự án.</p></div><div className="about-projects">{AUTHOR.impactHighlights.map((item,index) => <article key={item}><span className="overline">IMPACT {String(index + 1).padStart(2,'0')}</span><p>{item}</p></article>)}</div></section>
+      <aside className="portfolio-terminal" aria-label="Tóm tắt hồ sơ kỹ thuật">
+        <div className="portfolio-terminal-top"><span/><span/><span/><code>profile.ts</code></div>
+        <pre><code>{`const developer = {
+  name: "Nguyễn Ngọc Tâm",
+  role: "Full-stack Developer",
+  focus: [
+    "Backend systems",
+    "Realtime communication",
+    "Enterprise integration"
+  ],
+  stack: [
+    "PHP / Laravel",
+    "MongoDB / Redis",
+    "WebSocket / WebRTC"
+  ],
+  mindset: "production-first"
+}`}</code></pre>
+        <div className="portfolio-terminal-foot"><span>● production</span><span>● realtime</span><span>● enterprise</span></div>
+      </aside>
+    </header>
 
-    <section className="about-section" aria-labelledby="experience-title"><div className="about-section-heading"><BriefcaseBusiness/><div><span className="overline">WORK EXPERIENCE</span><h2 id="experience-title">Kinh nghiệm làm việc</h2></div></div><div className="experience-timeline"><article><time>07/2022 – Present</time><h3>Full-stack Developer</h3><strong>South Telecom</strong><p>Phát triển sản phẩm, CRM/API integration, realtime messaging/calling, production troubleshooting, cloud-cost optimization, mentoring developer và Scrum facilitation.</p></article><article><time>04/2022 – 07/2022</time><h3>Backend Developer Intern</h3><strong>R-Digital</strong><p>Phối hợp với frontend và các thành viên trong nhóm để xây dựng backend, cải thiện chức năng và báo cáo tiến độ dự án.</p></article></div></section>
+    <section className="portfolio-stats" aria-label="Tổng quan kinh nghiệm">
+      {stats.map(([value,label]) => <div key={label}><strong>{value}</strong><span>{label}</span></div>)}
+    </section>
 
-    <section className="about-section" aria-labelledby="skills-title"><div className="about-section-heading"><Code2/><div><span className="overline">TECHNICAL STACK</span><h2 id="skills-title">Công nghệ đã sử dụng trong công việc và dự án</h2></div></div><div className="skill-group-grid">{skillGroups.map(([group,items]) => <article key={group}><h3>{group}</h3><div>{items.map((item) => <span key={item}>{item}</span>)}</div></article>)}</div></section>
+    <section className="portfolio-section portfolio-overview" aria-labelledby="overview-title">
+      <div className="portfolio-section-kicker"><span>01</span><div><span className="overline">ENGINEERING PROFILE</span><h2 id="overview-title">Tập trung vào hệ thống chạy thật, không chỉ feature chạy được</h2></div></div>
+      <div className="portfolio-overview-grid">
+        <div className="portfolio-copy">
+          <p>Tại South Telecom, Tâm tham gia phát triển và duy trì các hệ thống communication, tích hợp Salesforce và HubSpot, kết nối Zalo, WhatsApp, LiveChat và LINE, xử lý production issue và tối ưu các luồng realtime.</p>
+          <p>Công việc trải từ application logic, database/cache/queue đến API integration, realtime delivery và vận hành. Tâm cũng phối hợp với Product, QA, Support; hỗ trợ developer mới và điều phối Scrum ceremony khi cần.</p>
+        </div>
+        <div className="portfolio-capability-list">
+          {capabilityGroups.map(([title,description]) => <article key={title}><span><Check/></span><div><h3>{title}</h3><p>{description}</p></div></article>)}
+        </div>
+      </div>
+    </section>
 
-    <section className="about-section" aria-labelledby="projects-title"><div className="section-intro left"><span className="overline">SELECTED PROJECT EXPERIENCE</span><h2 id="projects-title">Các hệ thống tiêu biểu đã tham gia</h2><p>Thông tin được tóm tắt ở mức năng lực và trách nhiệm, không công bố source code, credential hay dữ liệu nội bộ của khách hàng.</p></div><div className="about-projects">{AUTHOR.selectedProjects.map((project) => <article key={project.name}><h3>{project.name}</h3><p>{project.summary}</p><div>{project.technologies.map((item) => <span key={item}>{item}</span>)}</div></article>)}</div></section>
+    <section className="portfolio-section" aria-labelledby="impact-title">
+      <div className="portfolio-section-kicker"><span>02</span><div><span className="overline">SELECTED IMPACT</span><h2 id="impact-title">Bằng chứng kỹ thuật thay cho những tính từ hoa mỹ</h2></div></div>
+      <div className="portfolio-impact-grid">
+        {AUTHOR.impactHighlights.map((item,index) => <article key={item} className={index < 2 ? 'featured' : ''}>
+          <span className="portfolio-card-index">{String(index + 1).padStart(2,'0')}</span>
+          <p>{item}</p>
+        </article>)}
+      </div>
+    </section>
 
-    <section className="about-section" aria-labelledby="capability-title"><div className="section-intro left"><span className="overline">WHAT I CAN HANDLE</span><h2 id="capability-title">Nhóm bài toán phù hợp với kinh nghiệm hiện tại</h2></div><div className="skill-group-grid">{capabilityGroups.map(([title,description]) => <article key={title}><h3>{title}</h3><p>{description}</p></article>)}</div></section>
+    <section className="portfolio-section" aria-labelledby="experience-title">
+      <div className="portfolio-section-kicker"><span>03</span><div><span className="overline">EXPERIENCE</span><h2 id="experience-title">Kinh nghiệm làm việc</h2></div></div>
+      <div className="portfolio-timeline">
+        <article>
+          <div className="portfolio-timeline-marker"><span/></div>
+          <div className="portfolio-timeline-date">07/2022 — Present</div>
+          <div className="portfolio-timeline-content">
+            <span className="portfolio-company">SOUTH TELECOM</span>
+            <h3>Full-stack Developer</h3>
+            <p>Phát triển sản phẩm, CRM/API integration, realtime messaging/calling, production troubleshooting, cloud-cost optimization, mentoring developer và Scrum facilitation.</p>
+            <div className="portfolio-tags">{['PHP','MongoDB','Redis','WebSocket','WebRTC','CRM Integration','CI/CD'].map((item) => <span key={item}>{item}</span>)}</div>
+          </div>
+        </article>
+        <article>
+          <div className="portfolio-timeline-marker"><span/></div>
+          <div className="portfolio-timeline-date">04/2022 — 07/2022</div>
+          <div className="portfolio-timeline-content">
+            <span className="portfolio-company">R-DIGITAL</span>
+            <h3>Backend Developer Intern</h3>
+            <p>Phối hợp với frontend và các thành viên trong nhóm để xây dựng backend, cải thiện chức năng và báo cáo tiến độ dự án.</p>
+            <div className="portfolio-tags">{['Backend','API','Team delivery'].map((item) => <span key={item}>{item}</span>)}</div>
+          </div>
+        </article>
+      </div>
+    </section>
 
-    <section className="about-section education-card" aria-labelledby="education-title"><GraduationCap/><div><span className="overline">EDUCATION</span><h2 id="education-title">Industrial University of Ho Chi Minh City</h2><p>Information Technology · 09/2019 – 02/2022</p></div></section>
+    <section className="portfolio-section" aria-labelledby="projects-title">
+      <div className="portfolio-section-kicker"><span>04</span><div><span className="overline">SELECTED WORK</span><h2 id="projects-title">Các hệ thống tiêu biểu đã tham gia</h2><p>Thông tin được trình bày ở mức trách nhiệm và năng lực, không công bố source code, credential hoặc dữ liệu nội bộ.</p></div></div>
+      <div className="portfolio-project-grid">
+        {AUTHOR.selectedProjects.map((project,index) => <article key={project.name} className={index === 0 ? 'portfolio-project-featured' : ''}>
+          <div className="portfolio-project-head"><span>PROJECT {String(index + 1).padStart(2,'0')}</span><Code2/></div>
+          <h3>{project.name}</h3>
+          <p>{project.summary}</p>
+          <div className="portfolio-tags">{project.technologies.map((item) => <span key={item}>{item}</span>)}</div>
+        </article>)}
+      </div>
+    </section>
 
-    <section className="about-blog-cta"><div><span className="overline">ENGINEERING NOTES</span><h2>Đọc cách Nguyễn Ngọc Tâm tiếp cận backend và realtime systems</h2><p>Blog tập trung vào PHP, MongoDB, Redis, Laravel Queue, WebSocket, WebRTC, performance và các quyết định kỹ thuật trong production.</p></div><Link className="btn light" to="/blog">Mở Blog</Link></section>
+    <section className="portfolio-section" aria-labelledby="stack-title">
+      <div className="portfolio-section-kicker"><span>05</span><div><span className="overline">TECHNICAL TOOLBOX</span><h2 id="stack-title">Stack dùng để giải quyết bài toán, không phải danh sách để trưng bày</h2></div></div>
+      <div className="portfolio-stack-grid">
+        {skillGroups.map(([group,items]) => <article key={group}><h3>{group}</h3><div>{items.map((item) => <span key={item}>{item}</span>)}</div></article>)}
+      </div>
+    </section>
 
-    <section className="about-hire-cta" aria-labelledby="hire-title">
+    <section className="portfolio-section portfolio-education" aria-labelledby="education-title">
+      <div className="portfolio-section-kicker"><span>06</span><div><span className="overline">EDUCATION</span><h2 id="education-title">Nền tảng học tập</h2></div></div>
+      <div className="portfolio-education-card">
+        <GraduationCap/>
+        <div><span>09/2019 — 02/2022</span><h3>Industrial University of Ho Chi Minh City</h3><p>Information Technology</p></div>
+      </div>
+    </section>
+
+    <section className="portfolio-notes-cta">
+      <div><span className="overline">ENGINEERING NOTES</span><h2>Không chỉ show kết quả — tôi cũng viết về cách xử lý bài toán kỹ thuật.</h2><p>PHP, MongoDB, Redis, Laravel Queue, WebSocket, WebRTC, performance và các quyết định trong production.</p></div>
+      <Link className="btn light" to="/blog">Đọc Blog <ArrowRight/></Link>
+    </section>
+
+    <section className="about-hire-cta portfolio-hire-cta" aria-labelledby="hire-title">
       <div className="about-hire-copy">
         <span className="overline">LET'S WORK TOGETHER</span>
         <h2 id="hire-title">Đang tìm một Full-stack / Backend Developer?</h2>
