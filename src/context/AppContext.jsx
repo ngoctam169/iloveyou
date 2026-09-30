@@ -9,7 +9,11 @@ import { vocabularyPath } from '../utils/routes'
 const AppContext = createContext(null)
 
 export function AppProvider({ children }) {
-  const [state, setState] = useState(loadState)
+  const [state, setState] = useState(() => {
+    const initial = loadState()
+    saveState(initial)
+    return initial
+  })
   const [toast, setToast] = useState('')
   const storageWarningShown = useRef(false)
   const latestState = useRef(state)
