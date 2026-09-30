@@ -8,6 +8,7 @@ import AudioPlayer from '../components/common/AudioPlayer'
 import { useApp } from '../context/AppContext'
 import { toeicListeningQuestions, toeicReading } from '../data/toeic'
 import { buildToeicFullResult, toeicFullSections, toeicFullStats } from '../data/exams/toeicFull'
+import { buildToeicExamSections } from '../data/exams/toeicAdvanced'
 
 const tabs = ['Overview','Full Test','Listening Practice','Reading Practice','History']
 
@@ -75,12 +76,14 @@ function TOEICFullTest({ onHistory }) {
   const { saveExamResult } = useApp()
   return <SectionedExamRunner
     title="TOEIC Listening & Reading Full Test"
-    subtitle="Bộ đề mô phỏng tự viết theo cấu trúc TOEIC L&R: 200 câu, hai phần thi có timer riêng."
+    subtitle="Mỗi lần bắt đầu sẽ sinh một form khác từ ngân hàng câu hỏi khó hơn, vẫn giữ đủ 200 câu và đúng phân bố Part 1–7."
     sections={toeicFullSections}
+    sectionsFactory={buildToeicExamSections}
     startNotes={[
       'Listening: 100 câu trong 45 phút; khi chuyển sang Reading sẽ không quay lại Listening.',
       'Reading: 100 câu trong 75 phút.',
       'Không hiện đáp án khi đang thi; câu chưa trả lời được tính là bỏ trống.',
+      'Part 2 dùng audio-only choices; Part 7 có double/triple-passage và câu suy luận/paraphrase khó hơn.',
     ]}
     buildResult={buildToeicFullResult}
     onComplete={(report) => saveExamResult('toeic',report)}

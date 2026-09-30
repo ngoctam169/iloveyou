@@ -12,6 +12,8 @@ import { generatedVocabulary } from '../src/data/vocabulary/generated/index.js'
 import { toeicListeningQuestions, toeicMiniTest, toeicReading } from '../src/data/toeic/index.js'
 import { toeicFullSections, toeicFullStats } from '../src/data/exams/toeicFull.js'
 import { ieltsFullListening, ieltsFullReading, ieltsFullSections, ieltsAcademicWritingTasks } from '../src/data/exams/ieltsFull.js'
+import { buildToeicExamSections } from '../src/data/exams/toeicAdvanced.js'
+import { buildIeltsExamSections, buildIeltsWritingTasks } from '../src/data/exams/ieltsAdvanced.js'
 import { buildVocabularyPractice, checkVocabularyAnswer } from '../src/utils/vocabularyPractice.js'
 import { isWeakVocabulary, nextSchedule, vocabularyStatus, wordKey } from '../src/utils/srs.js'
 import { allVocabulary, getRandomVocabulary, getReviewVocabulary, getVocabularyByLanguage, getVocabularyByLevel, getVocabularyByTopic, normalizePersonalWord, searchVocabulary, vocabularyForState } from '../src/services/vocabularyService.js'
@@ -51,6 +53,46 @@ assert(ieltsFullListening.length === 40 && ieltsFullReading.length === 40, 'IELT
 assert(ieltsFullSections[0].duration === 30*60 && ieltsFullSections[1].duration === 60*60, 'IELTS objective timing is incorrect')
 assert(ieltsAcademicWritingTasks.length === 2 && ieltsAcademicWritingTasks[0].minWords === 150 && ieltsAcademicWritingTasks[1].minWords === 250, 'IELTS Writing full mock must contain Task 1 and Task 2')
 assert(new Set([...toeicFullSections.flatMap((section)=>section.questions),...ieltsFullListening,...ieltsFullReading].map((item)=>item.id)).size === 280, 'Full exam question ids must be unique')
+
+const seededRandom = (initial) => {
+  let seed = initial >>> 0
+  return () => {
+    seed = (Math.imul(seed,1664525) + 1013904223) >>> 0
+    return seed / 4294967296
+  }
+}
+const examFingerprint = (sections) => sections.flatMap((section)=>section.questions).map((item)=>[
+  item.part || '',
+  item.type || '',
+  item.question || '',
+  item.passageTitle || '',
+  Array.isArray(item.passage) ? item.passage.join(' ') : (item.passage || ''),
+  item.audio || '',
+].join('::')).join('||')
+
+const toeicFormA = buildToeicExamSections(seededRandom(101))
+const toeicFormB = buildToeicExamSections(seededRandom(202))
+assert(toeicFormA[0].questions.length === 100 && toeicFormA[1].questions.length === 100, 'Random TOEIC form must stay 100 Listening + 100 Reading')
+const toeicGenerated = toeicFormA.flatMap((section)=>section.questions)
+const toeicPartCounts = Object.fromEntries([1,2,3,4,5,6,7].map((part)=>[part,toeicGenerated.filter((item)=>item.part===part).length]))
+assert(JSON.stringify(toeicPartCounts) === JSON.stringify({1:6,2:25,3:39,4:30,5:30,6:16,7:54}), 'Random TOEIC form changed the official part distribution')
+assert(toeicGenerated.filter((item)=>item.part===2).every((item)=>item.audioOnlyChoices && item.choiceLabelsOnly), 'TOEIC Part 2 must hide response text and deliver choices through audio')
+assert(toeicGenerated.filter((item)=>item.part===7 && item.type==='Multiple Passages').length === 30, 'TOEIC Part 7 should include 30 harder multiple-passage questions')
+assert(new Set(toeicGenerated.map((item)=>item.id)).size === 200, 'Random TOEIC form contains duplicate question ids')
+assert(examFingerprint(toeicFormA) !== examFingerprint(toeicFormB), 'TOEIC generator must create different forms for different random sequences')
+
+const ieltsFormA = buildIeltsExamSections(seededRandom(303))
+const ieltsFormB = buildIeltsExamSections(seededRandom(707))
+assert(ieltsFormA[0].questions.length === 40 && ieltsFormA[1].questions.length === 40, 'Random IELTS form must stay 40 Listening + 40 Reading')
+const ieltsGenerated = ieltsFormA.flatMap((section)=>section.questions)
+assert(ieltsFormA[0].questions.filter((item)=>item.id.includes('ial-')).length >= 30, 'IELTS Listening should primarily use the harder bank')
+assert(ieltsFormA[1].questions.filter((item)=>item.id.includes('iar-')).length >= 26, 'IELTS Reading should primarily use the harder bank')
+assert(new Set(ieltsGenerated.map((item)=>item.id)).size === 80, 'Random IELTS form contains duplicate question ids')
+assert(examFingerprint(ieltsFormA) !== examFingerprint(ieltsFormB), 'IELTS generator must create different forms for different random sequences')
+const writingA = buildIeltsWritingTasks(seededRandom(505))
+const writingB = buildIeltsWritingTasks(seededRandom(606))
+assert(writingA.length === 2 && writingA[0].minWords === 150 && writingA[1].minWords === 250, 'Random IELTS Writing must keep Task 1 and Task 2 requirements')
+assert(writingA.map((item)=>item.prompt).join('|') !== writingB.map((item)=>item.prompt).join('|'), 'IELTS Writing generator must rotate prompts')
 
 for (const level of Object.keys(expectedTopics)) {
   assert(englishLevels[level], `Missing English metadata for ${level}`)

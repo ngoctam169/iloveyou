@@ -10,6 +10,7 @@ export default function SectionedExamRunner({
   title,
   subtitle,
   sections,
+  sectionsFactory,
   startNotes = [],
   buildResult,
   renderResult,
@@ -17,6 +18,7 @@ export default function SectionedExamRunner({
 }) {
   const { setToast } = useApp()
   const [started, setStarted] = useState(false)
+  const [examSections, setExamSections] = useState(sections)
   const [sectionIndex, setSectionIndex] = useState(0)
   const [questionIndex, setQuestionIndex] = useState(0)
   const [answers, setAnswers] = useState({})
@@ -27,15 +29,17 @@ export default function SectionedExamRunner({
   const [flagged, setFlagged] = useState({})
   const [playedAudio, setPlayedAudio] = useState({})
 
-  const section = sections[sectionIndex]
+  const section = examSections[sectionIndex]
   const questions = section?.questions || []
   const question = questions[questionIndex]
   const answered = useMemo(() => questions.filter((item) => hasAnswer(answers[item.id])).length, [questions, answers])
-  const totalQuestions = sections.reduce((sum, item) => sum + item.questions.length, 0)
-  const totalAnswered = sections.reduce((sum, item) => sum + item.questions.filter((q) => hasAnswer(answers[q.id])).length, 0)
+  const totalQuestions = examSections.reduce((sum, item) => sum + item.questions.length, 0)
+  const totalAnswered = examSections.reduce((sum, item) => sum + item.questions.filter((q) => hasAnswer(answers[q.id])).length, 0)
 
   const begin = () => {
-    const duration = sections[0]?.duration || 0
+    const nextSections = sectionsFactory?.() || sections
+    const duration = nextSections[0]?.duration || 0
+    setExamSections(nextSections)
     setStarted(true)
     setSectionIndex(0)
     setQuestionIndex(0)
@@ -54,7 +58,7 @@ export default function SectionedExamRunner({
       ...elapsed,
       [section.id]: Math.max(0, section.duration - remaining),
     }
-    const report = buildResult({ answers, sections, elapsed: currentElapsed })
+    const report = buildResult({ answers, sections:examSections, elapsed: currentElapsed })
     setElapsed(currentElapsed)
     setResult(report)
     onComplete?.(report)
@@ -65,12 +69,12 @@ export default function SectionedExamRunner({
       ...elapsed,
       [section.id]: Math.max(0, section.duration - remaining),
     }
-    if (sectionIndex >= sections.length - 1) {
+    if (sectionIndex >= examSections.length - 1) {
       finish()
       return
     }
     const nextIndex = sectionIndex + 1
-    const duration = sections[nextIndex].duration
+    const duration = examSections[nextIndex].duration
     setElapsed(currentElapsed)
     setSectionIndex(nextIndex)
     setQuestionIndex(0)
@@ -95,11 +99,11 @@ export default function SectionedExamRunner({
     </section>
   }
 
-  if (result) return renderResult({ result, restart:begin, answers, sections })
+  if (result) return renderResult({ result, restart:begin, answers, sections:examSections })
 
   const atLastQuestion = questionIndex === questions.length - 1
-  const atLastSection = sectionIndex === sections.length - 1
-  const globalBefore = sections.slice(0, sectionIndex).reduce((sum, item) => sum + item.questions.length, 0)
+  const atLastSection = sectionIndex === examSections.length - 1
+  const globalBefore = examSections.slice(0, sectionIndex).reduce((sum, item) => sum + item.questions.length, 0)
   const globalNumber = globalBefore + questionIndex + 1
   const audioKey = question?.audio || ''
   const audioPlayed = Boolean(audioKey && playedAudio[audioKey])
@@ -170,7 +174,7 @@ export default function SectionedExamRunner({
         <div className="mock-actions full-exam-actions">
           <button className="btn secondary" disabled={questionIndex === 0} onClick={() => setQuestionIndex((value) => Math.max(0, value - 1))}><ChevronLeft/> Previous</button>
           {!atLastQuestion && <button className="btn" onClick={() => setQuestionIndex((value) => Math.min(questions.length - 1, value + 1))}>Next <ChevronRight/></button>}
-          {atLastQuestion && !atLastSection && <button className="btn" onClick={advanceSection}>Nộp {section.label} · sang {sections[sectionIndex + 1].label} <ChevronRight/></button>}
+          {atLastQuestion && !atLastSection && <button className="btn" onClick={advanceSection}>Nộp {section.label} · sang {examSections[sectionIndex + 1].label} <ChevronRight/></button>}
           {atLastQuestion && atLastSection && <button className="btn" onClick={finish}>Nộp bài</button>}
         </div>
       </main>

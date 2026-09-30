@@ -9,6 +9,7 @@ import StatisticsCard from '../components/common/StatisticsCard'
 import { useApp } from '../context/AppContext'
 import { ieltsSpeaking } from '../data/ielts'
 import { buildIeltsObjectiveResult, ieltsAcademicWritingTasks, ieltsFullListening, ieltsFullReading, ieltsFullSections } from '../data/exams/ieltsFull'
+import { buildIeltsExamSections, buildIeltsWritingTasks } from '../data/exams/ieltsAdvanced'
 import { recognitionFor } from '../utils/speech'
 
 const tabs = ['Overview','Full Mock','Listening Practice','Reading Practice','Writing','Speaking','History']
@@ -74,17 +75,20 @@ function IELTSFullMock({ onSpeaking,onHistory }) {
   const [phase,setPhase] = useState('objective')
   const [objective,setObjective] = useState(null)
   const [finalResult,setFinalResult] = useState(null)
+  const [writingTasks,setWritingTasks] = useState(() => buildIeltsWritingTasks())
 
-  const reset = () => { setPhase('objective'); setObjective(null); setFinalResult(null) }
+  const reset = () => { setPhase('objective'); setObjective(null); setFinalResult(null); setWritingTasks(buildIeltsWritingTasks()) }
 
   if (phase === 'objective') return <SectionedExamRunner
     title="IELTS Academic Full Mock"
-    subtitle="Bộ đề mô phỏng tự viết theo format IELTS Academic trên máy tính."
+    subtitle="Mỗi lần bắt đầu sẽ tạo một form khác; phần lớn Listening/Reading lấy từ ngân hàng nâng cao với nhiều paraphrase, inference và distractor sát nghĩa hơn."
     sections={ieltsFullSections}
+    sectionsFactory={buildIeltsExamSections}
     startNotes={[
       'Listening: 4 parts, 40 câu, 30 phút.',
       'Academic Reading: 3 passages, 40 câu, 60 phút.',
       'Sau Reading, tiếp tục Writing 60 phút với Task 1 và Task 2.',
+      'Mỗi Full Mock đổi form Listening/Reading và đổi cả đề Writing; không chỉ đảo vị trí đáp án.',
     ]}
     buildResult={buildIeltsObjectiveResult}
     onComplete={setObjective}
@@ -100,7 +104,7 @@ function IELTSFullMock({ onSpeaking,onHistory }) {
     </section>}
   />
 
-  if (phase === 'writing') return <IELTSWritingExam objective={objective} onComplete={(report) => {
+  if (phase === 'writing') return <IELTSWritingExam objective={objective} tasks={writingTasks} onComplete={(report) => {
     const merged={ ...objective,...report,type:'Academic Full Mock',bands:objective.bands,timeUsed:objective.timeUsed + report.writingTimeUsed }
     saveExamResult('ielts',merged)
     setFinalResult(merged)
@@ -127,7 +131,7 @@ function IELTSFullMock({ onSpeaking,onHistory }) {
   </section>
 }
 
-function IELTSWritingExam({ objective,onComplete }) {
+function IELTSWritingExam({ objective,onComplete,tasks=ieltsAcademicWritingTasks }) {
   const [task1,setTask1] = useState('')
   const [task2,setTask2] = useState('')
   const [seconds,setSeconds] = useState(60*60)
@@ -146,7 +150,7 @@ function IELTSWritingExam({ objective,onComplete }) {
   return <section className="writing-workspace full-writing-exam">
     <div className="timed-test-head"><div><span>IELTS Academic</span><strong>Writing · Task 1 & Task 2</strong></div><ExamTimer seconds={seconds} onChange={setSeconds} onEnd={finish} deadline={deadline} resetKey="full-writing"/></div>
     <div className="writing-exam-stack">
-      {ieltsAcademicWritingTasks.map((task,index) => {
+      {tasks.map((task,index) => {
         const value=index===0?task1:task2
         const setValue=index===0?setTask1:setTask2
         const count=words(value)
@@ -193,8 +197,9 @@ function StandaloneWriting() {
   const { saveExamResult } = useApp()
   const [done,setDone]=useState(false)
   const [report,setReport]=useState(null)
-  if (done) return <section className="practice-result exam-result"><CheckCircle2/><h2>Writing practice hoàn thành</h2><p>Task 1: {report.writingWords.task1} từ · Task 2: {report.writingWords.task2} từ.</p><button className="btn" onClick={()=>setDone(false)}>Luyện lại</button></section>
-  return <IELTSWritingExam objective={null} onComplete={(value)=>{ const result={...value,type:'Writing',topic:'Academic Task 1 + Task 2'};saveExamResult('ielts',result);setReport(result);setDone(true) }}/>
+  const [tasks,setTasks]=useState(() => buildIeltsWritingTasks())
+  if (done) return <section className="practice-result exam-result"><CheckCircle2/><h2>Writing practice hoàn thành</h2><p>Task 1: {report.writingWords.task1} từ · Task 2: {report.writingWords.task2} từ.</p><button className="btn" onClick={()=>{setTasks(buildIeltsWritingTasks());setDone(false)}}>Luyện lại</button></section>
+  return <IELTSWritingExam objective={null} tasks={tasks} onComplete={(value)=>{ const result={...value,type:'Writing',topic:'Academic Task 1 + Task 2'};saveExamResult('ielts',result);setReport(result);setDone(true) }}/>
 }
 
 function IELTSSpeaking() {
