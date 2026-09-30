@@ -128,7 +128,7 @@ try {
   console.log('PLATFORM checkpoint: IELTS Reading/Writing/Speaking plus full-mock Writing refresh resume')
 
   await page.goto(`${origin}/`)
-  await page.locator('footer').getByRole('link',{ name:'Nguyễn Ngọc Tâm', exact:true }).click()
+  await page.locator('footer').getByRole('link',{ name:'About Me', exact:true }).click()
   await page.waitForURL('**/about')
   await page.getByRole('heading',{ name:'Nguyễn Ngọc Tâm – Full-stack Developer tập trung Backend & Realtime Systems',level:1 }).waitFor()
   console.log('PLATFORM checkpoint: footer creator link opens the dedicated engineering profile')

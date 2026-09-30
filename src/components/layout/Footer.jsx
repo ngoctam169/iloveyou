@@ -4,7 +4,7 @@ import BrandLogo from '../common/BrandLogo'
 const groups = [
   ['Languages',[['English','/learn-english'],['Chinese','/learn-chinese'],['Japanese','/learn-japanese'],['Korean','/learn-korean']]],
   ['Resources',[['Vocabulary','/english-vocabulary'],['Grammar','/english-grammar'],['TOEIC','/toeic'],['IELTS','/ielts']]],
-  ['Creator',[['Nguyễn Ngọc Tâm','/about'],['Engineering Blog','/blog'],['Contact','/contact']]],
+  ['Creator',[['About Me','/about'],['Engineering Blog','/blog'],['Contact','/contact']]],
   ['Legal',[['Privacy Policy','/privacy'],['Terms of Service','/terms']]],
 ]
 
