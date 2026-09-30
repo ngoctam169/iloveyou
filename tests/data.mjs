@@ -82,7 +82,7 @@ assert(new Set(toeicGenerated.map((item)=>item.id)).size === 200, 'Random TOEIC 
 assert(examFingerprint(toeicFormA) !== examFingerprint(toeicFormB), 'TOEIC generator must create different forms for different random sequences')
 
 const ieltsFormA = buildIeltsExamSections(seededRandom(303))
-const ieltsFormB = buildIeltsExamSections(seededRandom(404))
+const ieltsFormB = buildIeltsExamSections(seededRandom(707))
 assert(ieltsFormA[0].questions.length === 40 && ieltsFormA[1].questions.length === 40, 'Random IELTS form must stay 40 Listening + 40 Reading')
 const ieltsGenerated = ieltsFormA.flatMap((section)=>section.questions)
 assert(ieltsFormA[0].questions.filter((item)=>item.id.includes('ial-')).length >= 30, 'IELTS Listening should primarily use the harder bank')
