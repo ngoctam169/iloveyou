@@ -175,7 +175,7 @@ function IELTSWritingExam({ objective,onComplete,tasks=ieltsAcademicWritingTasks
   const [saved] = useState(() => persistKey ? readLocal(persistKey, null) : null)
   const [task1,setTask1] = useState(saved?.task1 || '')
   const [task2,setTask2] = useState(saved?.task2 || '')
-  const [deadline] = useState(() => Number(saved?.deadline) > Date.now() ? Number(saved.deadline) : Date.now() + 60*60*1000)
+  const [deadline] = useState(() => Number(saved?.deadline) || Date.now() + 60*60*1000)
   const [seconds,setSeconds] = useState(() => Math.max(0, Math.ceil((deadline-Date.now())/1000)))
   const submitted=useRef(false)
   const words=(value)=>value.trim() ? value.trim().split(/\s+/).length : 0
