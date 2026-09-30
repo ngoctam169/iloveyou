@@ -139,13 +139,15 @@ export function AppProvider({ children }) {
       })
     })
     const incomingIds = new Set(incoming.map((item) => item.id))
-    return {
+    const nextState = {
       ...current,
       mistakes: [
         ...incoming.map((item) => byId.get(item.id)),
         ...(current.mistakes || []).filter((item) => !incomingIds.has(item.id)),
       ].slice(0, 1000),
     }
+    persistState(nextState)
+    return nextState
   })
   const addMistake = (mistake) => addMistakes([mistake])
 
@@ -241,10 +243,14 @@ export function AppProvider({ children }) {
     })
   }
 
-  const saveExamResult = (kind, result) => setState((current) => ({
-    ...current,
-    [`${kind}History`]: [{ ...result, id: `${kind}-${Date.now()}`, date: new Date().toISOString() }, ...(current[`${kind}History`] || [])].slice(0, 20),
-  }))
+  const saveExamResult = (kind, result) => setState((current) => {
+    const nextState = {
+      ...current,
+      [`${kind}History`]: [{ ...result, id: `${kind}-${Date.now()}`, date: new Date().toISOString() }, ...(current[`${kind}History`] || [])].slice(0, 20),
+    }
+    persistState(nextState)
+    return nextState
+  })
 
   const reset = () => {
     clearState()
