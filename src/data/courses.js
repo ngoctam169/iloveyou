@@ -189,7 +189,7 @@ const makeVocabularyListening = (languageId, words, lessonNumber) => {
   const [a,b,c] = words
   if (type === 'Dictation') return { type, audio:a[0], prompt:'Nghe và chép lại chính xác từ bạn nghe.', expected:a[0], explanation:`Đáp án: “${a[0]}”.` }
   if (type === 'Fill in the Blank') return { type, audio:`${a[0]} ${b[0]}`, prompt:'Nghe hai từ và nhập từ thứ hai.', expected:b[0], explanation:`Từ thứ hai là “${b[0]}”.` }
-  if (type === 'Listen & Answer') return { type, audio:a[0], prompt:'Từ vừa nghe có nghĩa là gì?', options:[a[3],b[3],c[3]], answer:0, explanation:`${a[0]}: ${a[3]}.` }
+  if (type === 'Listen & Answer') return { type, audio:a[0], prompt:'Từ vừa nghe có nghĩa là gì?', options:meaningOptions(words), answer:0, explanation:`${a[0]}: ${a[3]}.` }
   if (type === 'Conversation Listening') return { type, audio, prompt:'Từ nào được giới thiệu là từ trọng tâm?', options:[a[0],b[0],c[0]], answer:0, explanation:`Đoạn nghe nói rõ từ trọng tâm là “${a[0]}”.` }
   return { type:'Listen & Choose', audio:a[0], prompt:'Bạn vừa nghe từ nào?', options:[a[0],b[0],c[0]], answer:0, explanation:`Bạn vừa nghe “${a[0]}”.` }
 }
@@ -225,6 +225,26 @@ const vocabularyRows = (languageId, levelName, fallback = []) => {
 }
 
 const sliceVocabulary = (pool, start, count = 3) => Array.from({ length:count }, (_, offset) => pool[(start + offset) % pool.length])
+const uniqueOptionValues = (correct, candidates = [], fallbackPrefix = 'Lựa chọn') => {
+  const normalized = (value) => String(value ?? '').normalize('NFKC').toLocaleLowerCase().trim()
+  const result = [correct]
+  for (const candidate of candidates) {
+    if (!candidate || result.some((item) => normalized(item) === normalized(candidate))) continue
+    result.push(candidate)
+  }
+  let suffix = 1
+  while (result.length < 3) {
+    const fallback = `${fallbackPrefix} ${suffix++}`
+    if (!result.some((item) => normalized(item) === normalized(fallback))) result.push(fallback)
+  }
+  return result.slice(0,3)
+}
+
+const meaningOptions = (words) => uniqueOptionValues(
+  words[0]?.[3] || '',
+  words.slice(1).map((word) => word?.[3] === words[0]?.[3] ? `${word?.[3]} · ${word?.[0]}` : word?.[3]),
+  'Nghĩa khác',
+)
 
 export function getRoadmap(languageId, levelName) {
   const language = getLanguage(languageId)
@@ -347,9 +367,9 @@ function makeQuiz(grammar, words, listen, target, lessonNumber) {
   if (type === 'Reorder Sentence') return { type, question: 'Sắp xếp thành câu hoàn chỉnh.', expected: target, tokens: target.replace(/[.!?]/g, '').split(/\s+/).sort((a, b) => a.localeCompare(b)), explanation: `Câu đúng: “${target}”` }
   if (type === 'Matching') return { type, question: 'Ghép từ với nghĩa phù hợp.', pairs: words.map((item) => [item[0], item[3]]), explanation: 'Các cặp từ và nghĩa được lấy từ phần từ vựng của bài.' }
   if (type === 'True False') return { type, question: `“${word[0]}” có nghĩa là “${word[3]}”.`, options: ['True', 'False'], answer: 0, explanation: `${word[0]}: ${word[3]}.` }
-  if (type === 'Grammar Quiz') return { type, question: `Cấu trúc nào là trọng tâm của “${grammar.name}”?`, options: [grammar.structure, target, words[0][0]], answer: 0, explanation: `${grammar.name}: ${grammar.structure}. ${grammar.explanation}` }
-  if (type === 'Listening Quiz') return { type, audio: listen, question: 'Chọn chính xác câu bạn vừa nghe.', options: [listen, target, `${words[0][0]} — ${words[0][3]}`], answer: 0, explanation: `Câu đúng là: “${listen}”` }
-  return { type, question: `“${word[0]}” gần nghĩa nhất với đáp án nào?`, options: [word[3], words[1][3], words[2][3]], answer: 0, explanation: `${word[0]} (${word[2]}) có nghĩa là “${word[3]}”.` }
+  if (type === 'Grammar Quiz') return { type, question: `Cấu trúc nào là trọng tâm của “${grammar.name}”?`, options: uniqueOptionValues(grammar.structure, [target, words[0][0]], 'Cấu trúc khác'), answer: 0, explanation: `${grammar.name}: ${grammar.structure}. ${grammar.explanation}` }
+  if (type === 'Listening Quiz') return { type, audio: listen, question: 'Chọn chính xác câu bạn vừa nghe.', options: uniqueOptionValues(listen, [target, `${words[0][0]} — ${words[0][3]}`], 'Câu khác'), answer: 0, explanation: `Câu đúng là: “${listen}”` }
+  return { type, question: `“${word[0]}” gần nghĩa nhất với đáp án nào?`, options: meaningOptions(words), answer: 0, explanation: `${word[0]} (${word[2]}) có nghĩa là “${word[3]}”.` }
 }
 
 function makePracticeLessons(languageId, levelName, unitIndex, lessonOffset, topic, keepStarterCore = false) {
