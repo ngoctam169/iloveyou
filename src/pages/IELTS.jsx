@@ -123,6 +123,7 @@ function IELTSFullMock({ onSpeaking,onHistory }) {
     ]}
     buildResult={buildIeltsObjectiveResult}
     onComplete={(report, attempt) => {
+      writeLocal(IELTS_FLOW_KEY, { phase:'objective-result', objective:report, writingTasks, savedAt:Date.now() })
       setObjective(report)
       addMistakes(buildExamMistakes('IELTS',attempt.sections,attempt.answers,'/ielts'))
       setPhase('objective-result')
