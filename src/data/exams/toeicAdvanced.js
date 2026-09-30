@@ -1,5 +1,5 @@
-import { toeicFullSections } from './toeicFull'
-import { createExamRandom, examFormId, grouped, sample, shuffled, stampQuestions } from './examRandom'
+import { toeicFullSections } from './toeicFull.js'
+import { createExamRandom, examFormId, grouped, sample, shuffled, stampQuestions } from './examRandom.js'
 
 const q = (id, part, type, question, options, answer, extra = {}) => ({ id, part, type, question, options, answer, ...extra })
 const base = toeicFullSections.flatMap((section) => section.questions)
