@@ -203,10 +203,24 @@ const generatedEnglishListening = (meta, topic, words, lessonNumber) => {
 }
 
 const generatedEnglishReading = (meta, topic, words, lessonNumber) => {
-  const wordA = words[0]?.[0] || 'evidence'
-  const wordB = words[1]?.[0] || 'context'
-  const variants = [`${meta.reading.text} In a related ${topic.toLowerCase()} example, learners are asked to notice how ${wordA} changes the interpretation of the situation.`,`People often approach ${topic.toLowerCase()} with simple assumptions. A more useful approach is to compare evidence, identify constraints and explain why ${wordA} and ${wordB} matter in context.`,`A team reviewing ${topic.toLowerCase()} first described the problem, then compared alternatives and finally justified its decision. The discussion became clearer when participants used ${wordA} precisely instead of relying on vague language.`]
-  return variants[(lessonNumber - 1) % variants.length]
+  const labels = words.map((word) => word?.[0]).filter(Boolean)
+  const focusIndex = (lessonNumber - 1) % labels.length
+  const focus = labels[focusIndex]
+  const support = labels[(focusIndex + 1) % labels.length]
+  const variant = (lessonNumber - 1) % 3
+  const text = variant === 0
+    ? `${meta.reading.text} In this ${topic.toLowerCase()} lesson, the key term for the follow-up discussion is ${focus}, supported by ${support}.`
+    : variant === 1
+      ? `A learner preparing for ${topic.toLowerCase()} compares several ideas before choosing ${focus} as the central term. The learner also uses ${support} to add a concrete supporting detail.`
+      : `During a ${topic.toLowerCase()} review, a team lists ${labels.join(', ')}. After checking the context, the team identifies ${focus} as the main focus and uses ${support} as supporting language.`
+  return {
+    title:`${topic} · Reading ${lessonNumber}`,
+    text,
+    question:'Which term is identified as the main focus in the passage?',
+    options:labels,
+    answer:focusIndex,
+    type:'Multiple Choice',
+  }
 }
 
 const distributeLessonCounts = (unitCount, total = TARGET_LESSONS_PER_LEVEL) => {
@@ -281,13 +295,7 @@ function makeEnglishLessons(levelName, unitIndex, topic, meta, lessonCount, less
     const listen = generatedEnglishListening(meta, topic, words, lessonNumber)
     const targetBase = meta.targets[(unitIndex + variant) % meta.targets.length]
     const target = `${targetBase} Use ${words[0][0]} naturally when you expand your answer.`
-    const reading = {
-      ...meta.reading,
-      text: generatedEnglishReading(meta, topic, words, lessonNumber),
-      title: `${topic} · ${meta.reading.title} · ${lessonNumber}`,
-      type: lessonNumber % 3 === 0 ? 'True / False' : 'Multiple Choice',
-      ...(lessonNumber % 3 === 0 ? { question: `True or false: “${meta.reading.options[meta.reading.answer]}” matches the passage.`, options: ['True', 'False'], answer: 0 } : {}),
-    }
+    const reading = generatedEnglishReading(meta, topic, words, lessonNumber)
     const focus = lessonFocuses[variant % lessonFocuses.length]
     const round = Math.floor(variant / lessonFocuses.length)
     const titleSuffix = round ? `${focus} · Practice ${round + 1}` : focus
@@ -328,7 +336,7 @@ function makeEnglishLessons(levelName, unitIndex, topic, meta, lessonCount, less
       practice: {
         fill: { prompt: `Viết từ phù hợp với nghĩa “${words[0][3]}”.`, answer: words[0][0] },
         reorder: { tokens: target.replace(/[.!?]/g, '').split(/\s+/).sort((a, b) => a.localeCompare(b)), answer: target },
-        translation: { prompt: `Dùng “${words[1][0]}” để diễn đạt ý “${words[1][3]}”.`, answer: target },
+        translation: { prompt: `Viết lại câu mục tiêu của bài và giữ đúng ý chính.`, answer: target },
       },
     }
   })
