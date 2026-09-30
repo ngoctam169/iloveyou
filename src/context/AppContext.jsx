@@ -84,7 +84,7 @@ export function AppProvider({ children }) {
       const xpGain = isNew
         ? 40 + Math.round(normalizedScore * 0.6) + (normalizedScore === 100 ? 20 : 0)
         : Math.max(5, Math.round(normalizedScore * 0.15))
-      return {
+      const nextState = {
         ...activity,
         selectedLanguage: languageId,
         selectedLevel: level,
@@ -105,6 +105,8 @@ export function AppProvider({ children }) {
         skillReview,
         xp: (Number(current.xp) || 0) + xpGain,
       }
+      persistState(nextState)
+      return nextState
     })
   }
 
