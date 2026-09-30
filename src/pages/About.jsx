@@ -1,5 +1,5 @@
 import '../styles/blog.css'
-import { BriefcaseBusiness, Code2, ExternalLink, Github, GraduationCap, Linkedin, Mail, MapPin } from 'lucide-react'
+import { BriefcaseBusiness, Code2, ExternalLink, GraduationCap, Mail, MapPin } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import Breadcrumbs from '../components/common/Breadcrumbs'
 import { AUTHOR } from '../data/author'
@@ -53,8 +53,8 @@ export default function About() {
           <span>{AUTHOR.email}</span>
         </a>
         <div className="about-hire-socials" aria-label="Hồ sơ nghề nghiệp">
-          <a href={AUTHOR.sameAs[1]} target="_blank" rel="me noopener noreferrer" aria-label="GitHub Nguyễn Ngọc Tâm"><Github aria-hidden="true"/></a>
-          <a href={AUTHOR.sameAs[0]} target="_blank" rel="me noopener noreferrer" aria-label="LinkedIn Nguyễn Ngọc Tâm"><Linkedin aria-hidden="true"/></a>
+          <a href={AUTHOR.sameAs[1]} target="_blank" rel="me noopener noreferrer" aria-label="GitHub Nguyễn Ngọc Tâm"><Code2 aria-hidden="true"/></a>
+          <a href={AUTHOR.sameAs[0]} target="_blank" rel="me noopener noreferrer" aria-label="LinkedIn Nguyễn Ngọc Tâm"><BriefcaseBusiness aria-hidden="true"/></a>
         </div>
       </div>
     </section>
