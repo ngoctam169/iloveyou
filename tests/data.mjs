@@ -141,6 +141,7 @@ for (const level of Object.keys(expectedTopics)) {
     validateChoiceAnswer(lesson.listening, `${lesson.id} listening`)
     validateChoiceAnswer(lesson.reading, `${lesson.id} reading`)
     validateChoiceAnswer(lesson.quiz, `${lesson.id} quiz`)
+    assert(normalizedContent(lesson.reading.text).includes(normalizedContent(lesson.reading.options[lesson.reading.answer])), `${lesson.id} reading answer is not supported by its passage`)
     if (lesson.quiz.type === 'Grammar Quiz') assert(normalizedContent(lesson.quiz.options[lesson.quiz.answer]) === normalizedContent(lesson.grammar.structure), `${lesson.id} grammar quiz answer does not match the declared structure`)
     if (lesson.quiz.type === 'True False') assert(lesson.quiz.answer === 0, `${lesson.id} true/false answer contract is inconsistent`)
   }
