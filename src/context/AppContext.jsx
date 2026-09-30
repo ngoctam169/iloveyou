@@ -25,11 +25,10 @@ export function AppProvider({ children }) {
   }, [toast])
 
   const update = (partial) => setState((current) => ({ ...current, ...(typeof partial === 'function' ? partial(current) : partial) }))
-  const persistLessonSession = (lessonId, session) => setState((current) => {
-    const next = { ...current, lessonSessions: { ...(current.lessonSessions || {}), [lessonId]: session } }
-    saveState(next)
-    return next
-  })
+  const persistLessonSession = (lessonId, session) => setState((current) => ({
+    ...current,
+    lessonSessions: { ...(current.lessonSessions || {}), [lessonId]: session },
+  }))
   const chooseCourse = (language, level) => update({ selectedLanguage: language, selectedLevel: level })
 
   const completeLesson = ({ lessonId, languageId, level, score, skills, vocabularyCount = 0, vocabularyWords = [], minutes = 8 }) => {
@@ -86,10 +85,31 @@ export function AppProvider({ children }) {
   }
 
   const removeMistake = (id) => setState((current) => ({ ...current, mistakes: current.mistakes.filter((item) => item.id !== id) }))
-  const addMistake = (mistake) => setState((current) => ({
-    ...current,
-    mistakes: [{ ...mistake, mistakeCount: (current.mistakes.find((item) => item.id === mistake.id)?.mistakeCount || 0) + 1, createdAt: new Date().toISOString(), lastAttempted: new Date().toISOString() }, ...current.mistakes.filter((item) => item.id !== mistake.id)],
-  }))
+  const addMistakes = (mistakes) => setState((current) => {
+    const incoming = Array.isArray(mistakes) ? mistakes.filter(Boolean) : [mistakes].filter(Boolean)
+    if (!incoming.length) return current
+    const now = new Date().toISOString()
+    const byId = new Map((current.mistakes || []).map((item) => [item.id, item]))
+    incoming.forEach((mistake) => {
+      const previous = byId.get(mistake.id)
+      byId.set(mistake.id, {
+        ...previous,
+        ...mistake,
+        mistakeCount: (previous?.mistakeCount || 0) + 1,
+        createdAt: previous?.createdAt || now,
+        lastAttempted: now,
+      })
+    })
+    const incomingIds = new Set(incoming.map((item) => item.id))
+    return {
+      ...current,
+      mistakes: [
+        ...incoming.map((item) => byId.get(item.id)),
+        ...(current.mistakes || []).filter((item) => !incomingIds.has(item.id)),
+      ].slice(0, 1000),
+    }
+  })
+  const addMistake = (mistake) => addMistakes([mistake])
 
   const reviewVocabulary = (word, quality) => {
     setState((current) => {
@@ -195,7 +215,7 @@ export function AppProvider({ children }) {
   }
 
   const value = useMemo(() => ({
-    state, update, persistLessonSession, chooseCourse, completeLesson, toggleSaved, removeMistake, addMistake, reviewVocabulary, setVocabularyMeta, savePersonalWord, deletePersonalWord, createVocabularyList, toggleWordInList, deleteVocabularyList, recordSelfStudy, recordStudyTime, recordGrammarAnswer, saveExamResult, reset,
+    state, update, persistLessonSession, chooseCourse, completeLesson, toggleSaved, removeMistake, addMistake, addMistakes, reviewVocabulary, setVocabularyMeta, savePersonalWord, deletePersonalWord, createVocabularyList, toggleWordInList, deleteVocabularyList, recordSelfStudy, recordStudyTime, recordGrammarAnswer, saveExamResult, reset,
     toast, setToast,
   }), [state, toast])
 
