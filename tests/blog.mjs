@@ -44,6 +44,7 @@ try {
   assert(aboutSchema['@graph'].some((item)=>item['@type']==='ProfilePage'&&item.mainEntity?.['@id']===`${origin}/#person`),'Runtime ProfilePage schema is invalid')
   assert(await page.locator('a[href="https://linkedin.com/in/ngoctam1609"]').count()>0,'LinkedIn profile link is missing')
   assert(await page.locator('a[href="https://github.com/ngoctam169"]').count()>0,'GitHub profile link is missing')
+  assert(await page.locator(`a[href="mailto:${'nguyenngoctam1609@gmail.com'}"]`).count()>0,'Recruiter email CTA is missing')
 
   await page.goto(`${origin}/`)
   await page.locator('.home-blog .blog-card').first().waitFor()
