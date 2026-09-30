@@ -8,7 +8,6 @@ import { speak } from '../../utils/speech'
 
 const SESSION_PREFIX = 'nt_exam_session_v1:'
 const FORM_HISTORY_PREFIX = 'nt_exam_forms_v1:'
-const MAX_SESSION_AGE = 3 * 60 * 60 * 1000
 
 function readJson(key, fallback) {
   try {
@@ -59,7 +58,7 @@ function loadExamSession(sessionKey, fallbackSections) {
   if (!saved?.started || !Array.isArray(saved.examSections) || !saved.examSections.length) return null
   const totalDuration = saved.examSections.reduce((sum, section) => sum + (Number(section.duration) || 0), 0) * 1000
   const startedAt = Number(saved.sessionStartedAt) || Number(saved.savedAt) || 0
-  if (!startedAt || Date.now() - startedAt > Math.max(MAX_SESSION_AGE, totalDuration + 5 * 60 * 1000)) {
+  if (!startedAt || Date.now() - startedAt > totalDuration + 5 * 60 * 1000) {
     try { localStorage.removeItem(SESSION_PREFIX + sessionKey) } catch { /* storage may be unavailable */ }
     return null
   }
@@ -163,11 +162,12 @@ export default function SectionedExamRunner({
     }
   }, [sessionKey, started, result, examSections, sectionIndex, questionIndex, answers, deadline, elapsed, flagged, playedAudio, sessionStartedAt, setToast])
 
-  const finish = () => {
+  const finish = (timedOut = false) => {
     if (result) return
+    const sectionRemaining = timedOut ? 0 : remaining
     const currentElapsed = {
       ...elapsed,
-      [section.id]: Math.max(0, section.duration - remaining),
+      [section.id]: Math.max(0, section.duration - sectionRemaining),
     }
     const report = buildResult({ answers, sections:examSections, elapsed: currentElapsed })
     setElapsed(currentElapsed)
@@ -176,13 +176,14 @@ export default function SectionedExamRunner({
     onComplete?.(report, { answers, sections:examSections })
   }
 
-  const advanceSection = () => {
+  const advanceSection = (timedOut = false) => {
+    const sectionRemaining = timedOut ? 0 : remaining
     const currentElapsed = {
       ...elapsed,
-      [section.id]: Math.max(0, section.duration - remaining),
+      [section.id]: Math.max(0, section.duration - sectionRemaining),
     }
     if (sectionIndex >= examSections.length - 1) {
-      finish()
+      finish(timedOut)
       return
     }
     const nextIndex = sectionIndex + 1
@@ -236,7 +237,7 @@ export default function SectionedExamRunner({
         <ExamTimer
           seconds={remaining}
           onChange={setRemaining}
-          onEnd={advanceSection}
+          onEnd={() => advanceSection(true)}
           deadline={deadline}
           resetKey={section.id}
         />
@@ -286,8 +287,8 @@ export default function SectionedExamRunner({
         <div className="mock-actions full-exam-actions">
           <button className="btn secondary" disabled={questionIndex === 0} onClick={() => setQuestionIndex((value) => Math.max(0, value - 1))}><ChevronLeft/> Previous</button>
           {!atLastQuestion && <button className="btn" onClick={() => setQuestionIndex((value) => Math.min(questions.length - 1, value + 1))}>Next <ChevronRight/></button>}
-          {atLastQuestion && !atLastSection && <button className="btn" onClick={advanceSection}>Nộp {section.label} · sang {examSections[sectionIndex + 1].label} <ChevronRight/></button>}
-          {atLastQuestion && atLastSection && <button className="btn" onClick={finish}>Nộp bài</button>}
+          {atLastQuestion && !atLastSection && <button className="btn" onClick={() => advanceSection(false)}>Nộp {section.label} · sang {examSections[sectionIndex + 1].label} <ChevronRight/></button>}
+          {atLastQuestion && atLastSection && <button className="btn" onClick={() => finish(false)}>Nộp bài</button>}
         </div>
       </main>
     </div>
