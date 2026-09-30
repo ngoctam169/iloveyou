@@ -26,7 +26,7 @@ export function buildStructuredData({ siteUrl, meta, path, breadcrumbs = default
       url:`${siteUrl}/`,
       name:SITE_NAME,
       alternateName:['Nguyễn Ngọc Tâm','Ngoc Tam Dev','NT'],
-      description:'Website cá nhân và các project của Nguyễn Ngọc Tâm (Ngọc Tâm Dev), Full-stack Developer quê Ninh Thuận, hiện làm việc tại TP.HCM.',
+      description:'Engineering profile và project portfolio của Nguyễn Ngọc Tâm (Ngọc Tâm Dev), Full-stack Developer tại South Telecom tập trung vào backend, realtime communication, WebSocket/WebRTC, enterprise integration và production reliability.',
       inLanguage:['vi','en'],
       creator:{ '@id':personId },
       author:{ '@id':personId },

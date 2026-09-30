@@ -19,8 +19,10 @@ export default function Blog() {
   const formattedDate = new Intl.DateTimeFormat('vi-VN',{ dateStyle:'long' }).format(new Date(`${story.datePublished}T00:00:00`))
 
   return <div className="inner-page section-shell blog-index">
-    <Breadcrumbs items={[{ label:'Trang chủ',to:'/' },{ label:'Blog' }]}/>
-    <header className="blog-hero"><div><span className="overline">CHUYỆN LÀM NGHỀ &amp; GHI CHÚ KỸ THUẬT</span><h1>Blog của Nguyễn Ngọc Tâm</h1><p>Một vài câu chuyện trên đường làm developer và những ghi chú kỹ thuật rút ra từ công việc thực tế.</p><div className="blog-author-line"><BookOpenText aria-hidden="true"/><span>Viết bởi <Link to="/about">{AUTHOR.name}</Link> · {AUTHOR.jobTitle} tại Ho Chi Minh City</span></div></div><div className="blog-topic-cloud" aria-label="Chủ đề chính">{['Ninh Thuận','PHP','Laravel','MongoDB','WebSocket','WebRTC'].map((topic) => <span key={topic}>{topic}</span>)}</div></header>
+    <Breadcrumbs items={[{ label:'Trang chủ',to:'/' },{ label:'Engineering Blog' }]}/>
+    <header className="blog-hero"><div><span className="overline">ENGINEERING NOTES · BACKEND · REALTIME · PRODUCTION</span><h1>Engineering Blog của Nguyễn Ngọc Tâm</h1><p>Các ghi chú kỹ thuật về PHP/Laravel, MongoDB, Redis, WebSocket, WebRTC, queue, performance và những quyết định phải đưa ra khi hệ thống chạy trong production.</p><div className="blog-author-line"><BookOpenText aria-hidden="true"/><span>Viết bởi <Link to="/about">{AUTHOR.name}</Link> · {AUTHOR.jobTitle} tại South Telecom</span></div></div><div className="blog-topic-cloud" aria-label="Chủ đề chính">{['PHP','Laravel','MongoDB','Redis','WebSocket','WebRTC','Performance'].map((topic) => <span key={topic}>{topic}</span>)}</div></header>
+
+    <section className="blog-list" aria-labelledby="all-articles-title"><div className="section-intro left"><span className="overline">TECHNICAL ARTICLES</span><h2 id="all-articles-title">Từ backend foundation đến production systems</h2><p>Nội dung ưu tiên các chủ đề gắn với kinh nghiệm thực tế: database, queue, realtime, performance, reliability và video communication.</p></div><div className="blog-grid">{latestBlogPosts.map((post) => <BlogCard key={post.slug} post={post}/>)}</div></section>
 
     <section className="inline-story" id="nguyen-ngoc-tam-ninh-thuan" aria-labelledby="personal-story-title">
       <header className="article-header">
@@ -32,7 +34,5 @@ export default function Blog() {
       </header>
       <div className="article-layout"><div className="article-content">{story.content.map((block,index) => <StoryBlock key={`${block.type}-${block.id || index}`} block={block}/>)}</div><aside className="article-toc" aria-label="Mục lục"><strong>Trong câu chuyện này</strong><ol>{story.content.filter((block) => block.type === 'h2').map((block) => <li key={block.id}><a href={`#${block.id}`}>{block.text}</a></li>)}</ol></aside></div>
     </section>
-
-    <section className="blog-list" aria-labelledby="all-articles-title"><div className="section-intro left"><span className="overline">BÀI VIẾT KỸ THUẬT</span><h2 id="all-articles-title">Phân tích từ nền tảng đến production</h2><p>Các bài kỹ thuật vẫn nằm chung trong Blog, không tạo thêm tab điều hướng riêng.</p></div><div className="blog-grid">{latestBlogPosts.map((post) => <BlogCard key={post.slug} post={post}/>)}</div></section>
   </div>
 }

@@ -25,7 +25,7 @@ try {
   page.on('console',(message)=>{ if(message.type()==='error') errors.push(message.text()) })
 
   await page.goto(`${origin}/blog`)
-  await page.getByRole('heading',{ name:'Blog của Nguyễn Ngọc Tâm',exact:true }).waitFor()
+  await page.getByRole('heading',{ name:'Engineering Blog của Nguyễn Ngọc Tâm',exact:true }).waitFor()
   await page.getByRole('heading',{ name:/Vì sao một chàng trai rời quê vào Sài Gòn chọn nghề Dev/,level:2 }).waitFor()
   assert(await page.locator('#nguyen-ngoc-tam-ninh-thuan .article-content').count()===1,'Personal journey must be rendered inline inside /blog')
   assert(await page.locator('.blog-list .blog-card').count()===4,'Blog listing must contain four technical articles')
@@ -39,7 +39,7 @@ try {
   assert(articleSchema['@graph'].some((item)=>item['@type']==='BlogPosting'&&item.author?.['@id']===`${origin}/#person`),'Runtime BlogPosting schema is invalid')
 
   await page.goto(`${origin}/about`)
-  await page.getByRole('heading',{ name:'Nguyễn Ngọc Tâm (Ngọc Tâm Dev) – Full-stack Developer',level:1 }).waitFor()
+  await page.getByRole('heading',{ name:'Nguyễn Ngọc Tâm – Full-stack Developer tập trung Backend & Realtime Systems',level:1 }).waitFor()
   const aboutSchema=await page.locator('#nt-json-ld').textContent().then(JSON.parse)
   assert(aboutSchema['@graph'].some((item)=>item['@type']==='ProfilePage'&&item.mainEntity?.['@id']===`${origin}/#person`),'Runtime ProfilePage schema is invalid')
   assert(await page.locator('a[href="https://linkedin.com/in/ngoctam1609"]').count()>0,'LinkedIn profile link is missing')
