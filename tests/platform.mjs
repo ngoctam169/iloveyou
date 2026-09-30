@@ -106,7 +106,24 @@ try {
   assert((await page.evaluate(() => JSON.parse(localStorage.getItem('nt_state_v1')).ieltsHistory?.length)) === 1, 'IELTS Writing result was not persisted')
   await page.getByRole('tab',{ name:'Speaking' }).click()
   await page.getByText('What do you like most about your home?').waitFor()
-  console.log('PLATFORM checkpoint: IELTS 40-question Reading reaches result, Writing submits and Speaking opens')
+
+  await page.evaluate(() => localStorage.setItem('nt_ielts_full_flow_v1', JSON.stringify({
+    phase:'writing',
+    objective:{ bands:{ Listening:6, Reading:6 }, timeUsed:900, listeningCorrect:23, readingCorrect:23, unanswered:4 },
+    savedAt:Date.now(),
+  })))
+  await page.reload()
+  await page.getByRole('tab',{ name:'Full Mock' }).click()
+  await page.getByPlaceholder('Write your Task 1 response here…').fill('persistent writing draft')
+  await page.reload()
+  await page.getByRole('tab',{ name:'Full Mock' }).click()
+  assert((await page.getByPlaceholder('Write your Task 1 response here…').inputValue()) === 'persistent writing draft', 'IELTS Writing draft was lost after refresh')
+  await page.evaluate(() => {
+    localStorage.removeItem('nt_ielts_full_flow_v1')
+    localStorage.removeItem('nt_ielts_writing_session_v1')
+    localStorage.removeItem('nt_exam_session_v1:ielts-full')
+  })
+  console.log('PLATFORM checkpoint: IELTS Reading/Writing/Speaking plus full-mock Writing refresh resume')
 
   await page.goto(`${origin}/about`)
   await page.locator('footer').getByRole('link',{ name:'Đọc bài hành trình' }).click()
