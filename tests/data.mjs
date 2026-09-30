@@ -16,6 +16,7 @@ import { buildVocabularyPractice, checkVocabularyAnswer } from '../src/utils/voc
 import { isWeakVocabulary, nextSchedule, vocabularyStatus, wordKey } from '../src/utils/srs.js'
 import { allVocabulary, getRandomVocabulary, getReviewVocabulary, getVocabularyByLanguage, getVocabularyByLevel, getVocabularyByTopic, normalizePersonalWord, searchVocabulary, vocabularyForState } from '../src/services/vocabularyService.js'
 import { grammarEntries } from '../src/data/grammar.js'
+import { buildGrammarQuestion, grammarEntryFor } from '../src/utils/grammarPractice.js'
 
 function assert(condition, message) {
   if (!condition) throw new Error(message)
@@ -174,6 +175,15 @@ for (const language of ['english','chinese','japanese','korean']) {
 }
 assert(grammarEntries.length >= 50 && grammarEntries.every((item) => item.name && item.structure && item.explanation && item.examples.length >= 2 && item.mistake), 'Grammar library has incomplete topics')
 for (const language of ['english','chinese','japanese','korean']) for (const [level] of getLanguage(language).levels) assert(grammarEntries.some((item) => item.languageId === language && item.level === level), `${language} ${level} has no grammar topic`)
+for (const language of ['english','chinese','japanese','korean']) for (const [level] of getLanguage(language).levels) {
+  for (const lesson of getRoadmap(language, level).flatMap((unit) => unit.lessons)) {
+    const entry = grammarEntryFor(language, level, lesson.grammar.name)
+    assert(entry, `${lesson.id} has no grammar library entry`)
+    const question = buildGrammarQuestion(entry)
+    assert(question.options[question.answer] === (entry.referenceOnly ? entry.structure : entry.name), `${lesson.id} grammar practice answer is incorrect`)
+    assert(new Set(question.options).size === question.options.length, `${lesson.id} grammar practice contains duplicate options`)
+  }
+}
 for (const level of Object.keys(expectedTopics)) {
   const entries = vocabularyCatalog.filter((word) => word.languageId === 'english' && word.level === level)
   assert(entries.length >= 900, `${level} has fewer than about 1000 vocabulary entries`)
