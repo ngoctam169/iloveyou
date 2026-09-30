@@ -1,5 +1,5 @@
 import '../styles/blog.css'
-import { BriefcaseBusiness, Code2, ExternalLink, GraduationCap, MapPin } from 'lucide-react'
+import { BriefcaseBusiness, Code2, ExternalLink, GraduationCap, Mail, MapPin } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import Breadcrumbs from '../components/common/Breadcrumbs'
 import { AUTHOR } from '../data/author'
@@ -40,5 +40,23 @@ export default function About() {
     <section className="about-section education-card" aria-labelledby="education-title"><GraduationCap/><div><span className="overline">EDUCATION</span><h2 id="education-title">Industrial University of Ho Chi Minh City</h2><p>Information Technology · 09/2019 – 02/2022</p></div></section>
 
     <section className="about-blog-cta"><div><span className="overline">ENGINEERING NOTES</span><h2>Đọc cách Nguyễn Ngọc Tâm tiếp cận backend và realtime systems</h2><p>Blog tập trung vào PHP, MongoDB, Redis, Laravel Queue, WebSocket, WebRTC, performance và các quyết định kỹ thuật trong production.</p></div><Link className="btn light" to="/blog">Mở Blog</Link></section>
+
+    <section className="about-hire-cta" aria-labelledby="hire-title">
+      <div className="about-hire-copy">
+        <span className="overline">LET'S WORK TOGETHER</span>
+        <h2 id="hire-title">Đang tìm một Full-stack / Backend Developer?</h2>
+        <p>Tâm sẵn sàng trao đổi về các vị trí Full-stack, Backend hoặc Realtime Systems tại TP.HCM và cơ hội remote phù hợp.</p>
+      </div>
+      <div className="about-hire-contact">
+        <a className="about-hire-email" href={`mailto:${AUTHOR.email}`} aria-label={`Gửi email cho ${AUTHOR.name}`}>
+          <Mail aria-hidden="true"/>
+          <span>{AUTHOR.email}</span>
+        </a>
+        <div className="about-hire-socials" aria-label="Hồ sơ nghề nghiệp">
+          <a href={AUTHOR.sameAs[1]} target="_blank" rel="me noopener noreferrer" aria-label="GitHub Nguyễn Ngọc Tâm"><Code2 aria-hidden="true"/></a>
+          <a href={AUTHOR.sameAs[0]} target="_blank" rel="me noopener noreferrer" aria-label="LinkedIn Nguyễn Ngọc Tâm"><BriefcaseBusiness aria-hidden="true"/></a>
+        </div>
+      </div>
+    </section>
   </article>
 }

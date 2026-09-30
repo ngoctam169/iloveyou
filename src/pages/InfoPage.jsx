@@ -39,7 +39,7 @@ const pages = {
 
 export default function InfoPage({ page }) {
   const content = pages[page]
-  const configuredEmail = import.meta.env.VITE_CONTACT_EMAIL
+  const configuredEmail = import.meta.env.VITE_CONTACT_EMAIL || AUTHOR.email
   const analyticsEnabled = Boolean(import.meta.env.VITE_GA_ID)
   const linkedIn = AUTHOR.sameAs.find((item) => item.includes('linkedin.com'))
   const github = AUTHOR.sameAs.find((item) => item.includes('github.com'))
@@ -58,7 +58,7 @@ export default function InfoPage({ page }) {
 
       {page === 'contact' && <section className="contact-section">
         <h2>Kênh liên hệ</h2>
-        <p>{configuredEmail ? 'Chọn kênh phù hợp để gửi phản hồi hoặc trao đổi.' : 'Email công khai chưa được cấu hình. Hiện có thể liên hệ qua GitHub hoặc LinkedIn.'}</p>
+        <p>Chọn kênh phù hợp để gửi phản hồi, trao đổi về sản phẩm hoặc cơ hội nghề nghiệp.</p>
         <div className="contact-channels">
           {configuredEmail && <a href={`mailto:${configuredEmail}`}><strong>Email</strong><span>{configuredEmail}</span></a>}
           {github && <a href={github} target="_blank" rel="noreferrer"><strong>GitHub</strong><span>@ngoctam169</span></a>}

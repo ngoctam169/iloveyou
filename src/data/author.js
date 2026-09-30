@@ -9,6 +9,7 @@ export const AUTHOR = {
   jobTitle: 'Full-stack Developer',
   roles: ['Full-stack Developer', 'Backend Developer', 'Realtime Systems Developer', 'PHP Developer'],
   location: 'Ho Chi Minh City, Vietnam',
+  email: 'nguyenngoctam1609@gmail.com',
   origin: 'Ninh Thuận, Vietnam',
   description: 'Nguyễn Ngọc Tâm (Ngọc Tâm Dev) là Full-stack Developer tại South Telecom từ 07/2022, thiên về backend, realtime communication và enterprise integration. Kinh nghiệm gồm PHP/Laravel, MongoDB, Redis, WebSocket, WebRTC, queue processing, CRM/API integration, production troubleshooting, performance optimization, application security và CI/CD; từng tham gia các hệ thống omnichannel, banking communication và video-room integration.',
   focusAreas: [
@@ -87,6 +88,7 @@ export function personEntity(siteUrl) {
     familyName: AUTHOR.familyName,
     alternateName: AUTHOR.alternateNames,
     jobTitle: AUTHOR.jobTitle,
+    email: `mailto:${AUTHOR.email}`,
     description: AUTHOR.description,
     disambiguatingDescription: 'Nguyễn Ngọc Tâm (Ngọc Tâm Dev), Full-stack Developer quê Ninh Thuận, làm việc tại South Telecom ở TP.HCM và tập trung vào backend, realtime communication, WebSocket, WebRTC và enterprise integration.',
     url: `${siteUrl}/about`,
