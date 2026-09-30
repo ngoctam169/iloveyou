@@ -1,3 +1,6 @@
+import { createExamRandom, grouped, sample, stampQuestions } from './examRandom'
+import { ieltsHardListeningSections, ieltsHardReadingPassages, ieltsWritingTask1Pool, ieltsWritingTask2Pool } from './ieltsHardPool'
+
 const makeQuestion = (id, type, question, answer, options = null, extra = {}) => ({
   id, type, question, ...(options ? { options, answer } : { correct:answer }), ...extra,
 })
@@ -205,6 +208,75 @@ export const ieltsFullSections = [
   { id:'ielts-listening', label:'Listening', duration:30*60, questions:ieltsFullListening },
   { id:'ielts-reading', label:'Academic Reading', duration:60*60, questions:ieltsFullReading },
 ]
+
+
+const hardListeningByLabel = new Map(ieltsHardListeningSections.map((section) => [
+  section.label,
+  section.questions.map((item) => ({ ...item,section:section.label,audio:section.audio })),
+]))
+const baseListeningByLabel = new Map(grouped(ieltsFullListening,(item) => item.section).map((items) => [items[0].section,items]))
+const hardReadingGroups = ieltsHardReadingPassages.map((passage) => passage.questions.map((item) => ({
+  ...item,
+  passageTitle:passage.title,
+  passage:passage.paragraphs,
+})))
+const baseReadingGroups = grouped(ieltsFullReading,(item) => item.passageTitle)
+
+export function createIeltsExamSections({ random = createExamRandom() } = {}) {
+  const formId = `ielts-${Math.floor(random() * 1e9).toString(36)}`
+  const labels = ['Listening Part 1','Listening Part 2','Listening Part 3','Listening Part 4']
+  const hardLabels = new Set(sample(labels,3,random))
+  const listening = labels.flatMap((label) => hardLabels.has(label)
+    ? hardListeningByLabel.get(label)
+    : baseListeningByLabel.get(label))
+
+  const fourteenGroups = [...baseReadingGroups,...hardReadingGroups].filter((items) => items.length === 14)
+  const thirteenGroups = [...baseReadingGroups,...hardReadingGroups].filter((items) => items.length === 13)
+  let selectedReadingGroups = [
+    ...sample(fourteenGroups,1,random),
+    ...sample(thirteenGroups,2,random),
+  ]
+  if (!selectedReadingGroups.some((items) => items.some((item) => item.difficulty === 'hard'))) {
+    const hardThirteen = hardReadingGroups.find((items) => items.length === 13)
+    selectedReadingGroups = [selectedReadingGroups[0],selectedReadingGroups[1],hardThirteen]
+  }
+
+  return [
+    {
+      id:`${formId}-listening`,
+      label:'Listening',
+      duration:30*60,
+      questions:stampQuestions(listening,`${formId}-l`,random),
+    },
+    {
+      id:`${formId}-reading`,
+      label:'Academic Reading',
+      duration:60*60,
+      questions:stampQuestions(selectedReadingGroups.flat(),`${formId}-r`,random),
+    },
+  ]
+}
+
+export function createIeltsWritingTasks({ random = createExamRandom() } = {}) {
+  const task1Pool = [ieltsAcademicWritingTasks[0],...ieltsWritingTask1Pool]
+  const task2Pool = [ieltsAcademicWritingTasks[1],...ieltsWritingTask2Pool]
+  const selectedTask1 = sample(task1Pool,1,random)[0]
+  const selectedTask2 = sample(task2Pool,1,random)[0]
+  const formId = `ielts-writing-${Math.floor(random() * 1e9).toString(36)}`
+  return [
+    { ...selectedTask1,id:`${formId}-task1` },
+    { ...selectedTask2,id:`${formId}-task2` },
+  ]
+}
+
+export const ieltsExamPoolStats = {
+  listeningBase:ieltsFullListening.length,
+  listeningHard:ieltsHardListeningSections.reduce((sum,section) => sum + section.questions.length,0),
+  readingBase:ieltsFullReading.length,
+  readingHard:ieltsHardReadingPassages.reduce((sum,passage) => sum + passage.questions.length,0),
+  writingTask1:1 + ieltsWritingTask1Pool.length,
+  writingTask2:1 + ieltsWritingTask2Pool.length,
+}
 
 const bandTable = (raw, rows) => {
   const hit = rows.find(([min]) => raw >= min)
