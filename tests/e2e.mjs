@@ -145,11 +145,11 @@ try {
   const levelBeforePlacement = await page.evaluate(() => JSON.parse(localStorage.getItem('nt_state_v1')).selectedLevel)
   await page.goto(`${origin}/placement-test`)
   await page.locator('.test-language-grid button').first().click()
-  for (let question = 0; question < 15; question += 1) {
+  for (let question = 0; question < 24; question += 1) {
     await page.locator('.answer-list button').first().click()
     await page.getByRole('button', { name: /Xác nhận/ }).click()
   }
-  await page.getByRole('button', { name: 'Choose Another Level' }).waitFor()
+  await page.getByRole('button', { name: 'Xem tất cả level' }).waitFor()
   const afterPlacement = await page.evaluate(() => JSON.parse(localStorage.getItem('nt_state_v1')))
   assert(afterPlacement.selectedLevel === levelBeforePlacement, 'Placement recommendation forced the selected level')
 
