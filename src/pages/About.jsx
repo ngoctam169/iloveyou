@@ -4,282 +4,252 @@ import { Link } from 'react-router-dom'
 import Breadcrumbs from '../components/common/Breadcrumbs'
 import { AUTHOR } from '../data/author'
 
-const skillGroups = [
-  ['Backend',['PHP 7.x / 8.x','Laravel','CodeIgniter','RESTful API','PHPUnit','JWT / Firebase JWT','Guzzle']],
-  ['Frontend & client',['JavaScript','TypeScript','Kendo UI','API integration','Realtime client flows']],
-  ['Data & async',['MongoDB','PostgreSQL','SQL Server','Redis','Beanstalkd','Laravel Queue']],
-  ['Realtime',['WebSocket','WebRTC','Custom signaling','Janus WebRTC Server','Jitsi']],
-  ['Enterprise integration',['Salesforce','HubSpot','Internal APIs','Webhooks','Postback','Zalo','WhatsApp','LiveChat','LINE']],
-  ['Cloud & delivery',['AWS EC2','AWS S3','Docker','Kubernetes','GitLab CI/CD','GitHub Actions','Nginx','Linux']],
-  ['Quality & security',['SonarQube','Unit testing','XSS remediation','Production troubleshooting','Performance optimization']],
-]
-
-const capabilityGroups = [
-  ['Full-stack delivery','Đi từ yêu cầu sản phẩm, client-side integration và API/business logic đến database, deployment và xử lý vấn đề trên production.'],
-  ['Realtime systems','Chat/call realtime, WebSocket, WebRTC, signaling, room events và các luồng cần độ trễ thấp.'],
-  ['Performance & reliability','Tối ưu throughput/latency, queue, cache, database; điều tra production issue và các luồng bất đồng bộ.'],
-  ['Enterprise & security','CRM/internal API integration, workflow doanh nghiệp, XSS remediation, code quality và unit testing.'],
-]
-
-const impactCards = [
-  ['PERFORMANCE','Omnichat throughput','Tối ưu module Omnichat để tăng message throughput và giảm peak-time latency.'],
-  ['CODE QUALITY','85% code smells','Giảm 85% code smells khi xử lý SonarQube cho dự án enterprise.'],
-  ['SECURITY','XSS + regression safety','Khắc phục lỗ hổng XSS và bổ sung unit tests cho các core business functions.'],
-  ['REALTIME','Banking video call','Phát triển secure video call bằng WebRTC và custom signaling cho môi trường tài chính.'],
-  ['INTEGRATION','CRM + OTT ecosystem','Tích hợp Salesforce, HubSpot cùng Zalo, WhatsApp, LiveChat và LINE.'],
-  ['ARCHITECTURE','Janus + Jitsi pipeline','Thiết kế backend video-room với Laravel, Janus, Jitsi, MongoDB, Redis và queue bất đồng bộ.'],
-]
-
-const projectFocus = {
-  Worldfone4X: 'OMNICHANNEL · CRM · PERFORMANCE',
-  'Shinhan Life': 'ENTERPRISE · SECURITY · QUALITY',
-  PVcomBank: 'BANKING · REALTIME · WEBRTC',
-  'Video Room Integration System': 'ARCHITECTURE · QUEUE · WEBRTC',
+const projectDetails = {
+  Worldfone4X: {
+    label: 'Omnichannel platform',
+    intro: 'Phát triển sản phẩm contact center hợp nhất voice, social messaging và CRM integration trong một hệ thống vận hành thực tế.',
+    highlights: [
+      'Tích hợp Salesforce, HubSpot và các kênh Zalo, WhatsApp, LiveChat, LINE.',
+      'Tối ưu module Omnichat để tăng message throughput và giảm peak-time latency.',
+    ],
+  },
+  'Shinhan Life': {
+    label: 'Enterprise delivery',
+    intro: 'Triển khai và cải thiện chất lượng hệ thống trong môi trường doanh nghiệp có yêu cầu cao về security và maintainability.',
+    highlights: [
+      'Giảm 85% code smells khi xử lý SonarQube, khắc phục XSS và bổ sung unit tests.',
+      'Triển khai onsite và tích hợp với internal APIs, phối hợp cùng IT và business phía khách hàng.',
+    ],
+  },
+  PVcomBank: {
+    label: 'Banking communication',
+    intro: 'Xây dựng module communication độc lập cho môi trường tài chính, tập trung vào realtime interaction và tính ổn định.',
+    highlights: [
+      'Phát triển secure video call bằng WebRTC và custom signaling.',
+      'Tối ưu message delivery, WebSocket handling, load balancing và data serialization.',
+    ],
+  },
+  'Video Room Integration System': {
+    label: 'Realtime architecture',
+    intro: 'Thiết kế luồng backend cho video-room tích hợp nhiều thành phần realtime và xử lý event bất đồng bộ.',
+    highlights: [
+      'Kết hợp Laravel, Janus WebRTC Server, Jitsi, Redis Queue và MongoDB.',
+      'Xử lý room events, mapping metadata giữa Janus/Jitsi và cleanup session bằng task scheduling.',
+    ],
+  },
 }
 
-const stats = [
-  ['Full-stack','Primary role'],
-  ['2022 → nay','Production experience'],
-  ['4','Selected systems'],
-  ['85%','Code smells reduced'],
+const skillGroups = [
+  ['Application development',['PHP 7.x / 8.x','Laravel','CodeIgniter','JavaScript','TypeScript','Kendo UI','RESTful API']],
+  ['Data & processing',['MongoDB','PostgreSQL','SQL Server','Redis','Beanstalkd','Laravel Queue']],
+  ['Realtime & integration',['WebSocket','WebRTC','Janus','Jitsi','Salesforce','HubSpot','Webhooks','OTT integrations']],
+  ['Delivery & quality',['AWS EC2 / S3','Docker','Kubernetes','GitLab CI/CD','GitHub Actions','Nginx','Linux','PHPUnit','SonarQube']],
+]
+
+const strengths = [
+  ['Product delivery','Theo feature từ yêu cầu, implementation, integration đến kiểm tra và xử lý khi chạy production.'],
+  ['Problem solving','Debug production issue, phân tích bottleneck và chọn giải pháp phù hợp thay vì chỉ xử lý phần triệu chứng.'],
+  ['Cross-functional','Làm việc cùng Product, QA, Support và phía khách hàng để đưa thay đổi vào hệ thống ổn định.'],
+  ['Ownership','Hỗ trợ developer mới, theo dõi tiến độ và từng đảm nhiệm vai trò Scrum Host / Facilitator khi cần.'],
 ]
 
 export default function About() {
-  return <article className="inner-page section-shell about-author portfolio-page">
+  return <article className="inner-page section-shell about-author cvp-page">
     <Breadcrumbs items={[{ label:'Trang chủ',to:'/' },{ label:'About Me' }]}/>
 
-    <header className="portfolio-hero">
-      <div className="portfolio-hero-copy">
-        <div className="portfolio-status"><span aria-hidden="true"/> AVAILABLE FOR THE RIGHT OPPORTUNITY</div>
-        <span className="overline">NGUYỄN NGỌC TÂM · FULL-STACK DEVELOPER</span>
+    <header className="cvp-hero">
+      <div className="cvp-hero-copy">
+        <div className="cvp-availability"><span aria-hidden="true"/> Open to the right opportunity</div>
+
         <h1>
-          <span className="portfolio-hero-name">Nguyễn Ngọc Tâm</span>
+          <span>Nguyễn Ngọc Tâm</span>
           <strong>Full-stack Developer</strong>
         </h1>
-        <p className="portfolio-role-line">PRODUCT · BACKEND · REALTIME · ENTERPRISE SYSTEMS</p>
-        <p className="portfolio-lead">Tôi phát triển sản phẩm end-to-end — từ JavaScript/TypeScript ở phía client, API & business logic bằng PHP/Laravel đến database, cache, queue, realtime communication và CI/CD.</p>
-        <div className="portfolio-hero-specialties" aria-label="Công nghệ chính">
-          {['PHP / Laravel','JavaScript / TypeScript','MongoDB / Redis','WebSocket / WebRTC','AWS / Docker / CI/CD'].map((item) => <span key={item}>{item}</span>)}
+
+        <p className="cvp-hero-lead">
+          Tôi phát triển sản phẩm web end-to-end và ưu tiên những thứ quan trọng khi hệ thống chạy thật:
+          code dễ bảo trì, dữ liệu nhất quán, hiệu năng ổn định và delivery rõ ràng.
+        </p>
+
+        <div className="cvp-hero-actions">
+          <a className="btn large" href="#projects">Xem dự án <ArrowRight/></a>
+          <a className="btn secondary large" href={`mailto:${AUTHOR.email}`}><Mail/> Liên hệ</a>
         </div>
-        <p className="portfolio-intro">Hiện làm việc tại South Telecom từ 07/2022. Tôi đã tham gia các hệ thống omnichannel, CRM integration, banking communication và video-room; đồng thời xử lý performance, application security, production incident và delivery cùng Product / QA / Support.</p>
-        <div className="portfolio-actions">
-          <a className="btn large" href={`mailto:${AUTHOR.email}`}><Mail/> Liên hệ công việc</a>
-          <a className="btn secondary large" href={AUTHOR.sameAs[0]} target="_blank" rel="me noopener noreferrer">LinkedIn <ExternalLink/></a>
-          <a className="btn ghost large" href={AUTHOR.sameAs[1]} target="_blank" rel="me noopener noreferrer">GitHub <ExternalLink/></a>
-        </div>
-        <div className="portfolio-meta">
-          <span><MapPin/> Ho Chi Minh City, Vietnam</span>
-          <span><BriefcaseBusiness/> South Telecom</span>
-          <span><Code2/> Full-stack · Production systems</span>
+
+        <div className="cvp-social-links">
+          <a href={AUTHOR.sameAs[1]} target="_blank" rel="me noopener noreferrer">GitHub <ExternalLink/></a>
+          <a href={AUTHOR.sameAs[0]} target="_blank" rel="me noopener noreferrer">LinkedIn <ExternalLink/></a>
         </div>
       </div>
 
-      <aside className="portfolio-profile-card" aria-label="Năng lực Full-stack nổi bật">
-        <div className="portfolio-profile-card-head">
-          <div>
-            <span className="portfolio-panel-label">FULL-STACK PROFILE</span>
-            <h2>End-to-end product delivery</h2>
-          </div>
+      <aside className="cvp-snapshot" aria-label="Thông tin nhanh">
+        <div className="cvp-snapshot-head">
+          <span>Quick profile</span>
           <Code2 aria-hidden="true"/>
         </div>
-        <p className="portfolio-profile-card-intro">Không chỉ một framework. Tôi làm việc xuyên suốt nhiều lớp của hệ thống và ưu tiên khả năng vận hành thực tế.</p>
-        <div className="portfolio-profile-layers">
-          <article>
-            <span>01</span>
-            <div><strong>Client & product</strong><p>JavaScript · TypeScript · Kendo UI</p></div>
-          </article>
-          <article>
-            <span>02</span>
-            <div><strong>Backend & APIs</strong><p>PHP · Laravel · REST · CRM integration</p></div>
-          </article>
-          <article>
-            <span>03</span>
-            <div><strong>Data & realtime</strong><p>MongoDB · Redis · WebSocket · WebRTC</p></div>
-          </article>
-          <article>
-            <span>04</span>
-            <div><strong>Delivery & reliability</strong><p>AWS · Docker · Kubernetes · CI/CD</p></div>
-          </article>
-        </div>
-        <div className="portfolio-profile-card-foot">
-          <span>Production-first</span><span>Performance</span><span>Security</span>
-        </div>
+
+        <dl>
+          <div>
+            <dt>Role</dt>
+            <dd>Full-stack Developer</dd>
+          </div>
+          <div>
+            <dt>Current</dt>
+            <dd>South Telecom</dd>
+          </div>
+          <div>
+            <dt>Experience</dt>
+            <dd>07/2022 — Present</dd>
+          </div>
+          <div>
+            <dt>Selected work</dt>
+            <dd>4 production systems</dd>
+          </div>
+        </dl>
+
+        <div className="cvp-snapshot-location"><MapPin/> Ho Chi Minh City, Vietnam</div>
       </aside>
     </header>
 
-    <section className="portfolio-stats" aria-label="Tổng quan kinh nghiệm">
-      {stats.map(([value,label]) => <div key={label}><strong>{value}</strong><span>{label}</span></div>)}
-    </section>
-
-    <nav className="portfolio-section-nav" aria-label="Đi nhanh trong hồ sơ">
-      <a href="#profile">Profile</a>
-      <a href="#impact">Impact</a>
-      <a href="#experience">Experience</a>
+    <nav className="cvp-nav" aria-label="Đi nhanh trong hồ sơ">
       <a href="#projects">Projects</a>
+      <a href="#experience">Experience</a>
+      <a href="#strengths">Strengths</a>
       <a href="#stack">Stack</a>
       <a href="#contact">Contact</a>
     </nav>
 
-    <section className="portfolio-section portfolio-overview" id="profile" aria-labelledby="overview-title">
-      <div className="portfolio-section-kicker"><span>01</span><div><span className="overline">FULL-STACK ENGINEERING PROFILE</span><h2 id="overview-title">Có thể đi từ feature đến production, không bị giới hạn ở một lớp của hệ thống</h2></div></div>
-      <div className="portfolio-overview-grid">
-        <div className="portfolio-copy">
-          <p>Tại South Telecom, Tâm làm Full-stack Developer trên các hệ thống communication: phát triển tính năng sản phẩm, xử lý client-side integration, business logic, database/cache/queue, API/CRM integration và realtime delivery.</p>
-          <p>Bên cạnh code feature, Tâm xử lý production issue, performance, security, cloud-cost optimization; phối hợp với Product, QA, Support, hỗ trợ developer mới và từng đảm nhiệm Scrum facilitation khi cần.</p>
-        </div>
-        <div className="portfolio-capability-list">
-          {capabilityGroups.map(([title,description]) => <article key={title}><span><Check/></span><div><h3>{title}</h3><p>{description}</p></div></article>)}
-        </div>
+    <section className="cvp-section cvp-projects" id="projects" aria-labelledby="projects-title">
+      <div className="cvp-section-heading">
+        <span>Selected projects</span>
+        <h2 id="projects-title">Những hệ thống tôi đã trực tiếp tham gia</h2>
+        <p>Backend, realtime, integration hay security được đặt đúng ngữ cảnh dự án — không dùng chúng để thay thế identity chính là Full-stack Developer.</p>
+      </div>
+
+      <div className="cvp-project-grid">
+        {AUTHOR.selectedProjects.map((project,index) => {
+          const detail = projectDetails[project.name]
+          return <article className="cvp-project-card" key={project.name}>
+            <div className="cvp-project-topline">
+              <span>{String(index + 1).padStart(2,'0')}</span>
+              <small>{detail?.label}</small>
+            </div>
+
+            <h3>{project.name}</h3>
+            <p className="cvp-project-intro">{detail?.intro || project.summary}</p>
+
+            <ul>
+              {(detail?.highlights || [project.summary]).map((item) => <li key={item}><Check/>{item}</li>)}
+            </ul>
+
+            <div className="cvp-tags">
+              {project.technologies.map((item) => <span key={item}>{item}</span>)}
+            </div>
+          </article>
+        })}
       </div>
     </section>
 
-    <section className="portfolio-section" id="impact" aria-labelledby="impact-title">
-      <div className="portfolio-section-kicker"><span>02</span><div><span className="overline">SELECTED IMPACT</span><h2 id="impact-title">Bằng chứng kỹ thuật thay cho những tính từ hoa mỹ</h2></div></div>
-      <div className="portfolio-impact-grid">
-        {impactCards.map(([label,title,description],index) => <article key={title} className={index < 2 ? 'featured' : ''}>
-          <div className="portfolio-impact-head"><span className="portfolio-card-index">{String(index + 1).padStart(2,'0')}</span><span>{label}</span></div>
+    <section className="cvp-section cvp-experience" id="experience" aria-labelledby="experience-title">
+      <div className="cvp-section-heading">
+        <span>Experience</span>
+        <h2 id="experience-title">Kinh nghiệm làm việc</h2>
+      </div>
+
+      <div className="cvp-experience-list">
+        <article>
+          <div className="cvp-experience-meta">
+            <span>07/2022 — Present</span>
+            <small>Ho Chi Minh City</small>
+          </div>
+          <div className="cvp-experience-body">
+            <p className="cvp-company">South Telecom</p>
+            <h3>Full-stack Developer</h3>
+            <p>Phát triển và duy trì sản phẩm, tích hợp CRM/API, xử lý communication flows, production issue, performance và cloud-cost optimization. Phối hợp với Product, QA, Support; hỗ trợ developer mới và tham gia Scrum facilitation.</p>
+            <div className="cvp-tags">
+              {['PHP','JavaScript','MongoDB','Redis','WebSocket','WebRTC','CRM integration','CI/CD'].map((item) => <span key={item}>{item}</span>)}
+            </div>
+          </div>
+        </article>
+
+        <article>
+          <div className="cvp-experience-meta">
+            <span>04/2022 — 07/2022</span>
+            <small>Internship</small>
+          </div>
+          <div className="cvp-experience-body">
+            <p className="cvp-company">R-Digital</p>
+            <h3>Backend Developer Intern</h3>
+            <p>Phối hợp với frontend và các thành viên trong nhóm để xây dựng backend, cải thiện chức năng và báo cáo tiến độ dự án.</p>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section className="cvp-section" id="strengths" aria-labelledby="strengths-title">
+      <div className="cvp-section-heading">
+        <span>How I work</span>
+        <h2 id="strengths-title">Điểm mạnh trong cách làm việc</h2>
+      </div>
+
+      <div className="cvp-strength-grid">
+        {strengths.map(([title,description],index) => <article key={title}>
+          <span>{String(index + 1).padStart(2,'0')}</span>
           <h3>{title}</h3>
           <p>{description}</p>
         </article>)}
       </div>
     </section>
 
-    <section className="portfolio-section" id="experience" aria-labelledby="experience-title">
-      <div className="portfolio-section-kicker"><span>03</span><div><span className="overline">EXPERIENCE</span><h2 id="experience-title">Kinh nghiệm làm việc</h2></div></div>
-      <div className="portfolio-timeline">
-        <article>
-          <div className="portfolio-timeline-marker"><span/></div>
-          <div className="portfolio-timeline-date">07/2022 — Present</div>
-          <div className="portfolio-timeline-content">
-            <span className="portfolio-company">SOUTH TELECOM</span>
-            <h3>Full-stack Developer</h3>
-            <p>Phát triển tính năng sản phẩm end-to-end, backend/API, CRM integration, realtime messaging/calling; đồng thời xử lý production troubleshooting, cloud-cost optimization, mentoring developer và Scrum facilitation.</p>
-            <div className="portfolio-tags">{['PHP','MongoDB','Redis','WebSocket','WebRTC','CRM Integration','CI/CD'].map((item) => <span key={item}>{item}</span>)}</div>
-          </div>
-        </article>
-        <article>
-          <div className="portfolio-timeline-marker"><span/></div>
-          <div className="portfolio-timeline-date">04/2022 — 07/2022</div>
-          <div className="portfolio-timeline-content">
-            <span className="portfolio-company">R-DIGITAL</span>
-            <h3>Backend Developer Intern</h3>
-            <p>Phối hợp với frontend và các thành viên trong nhóm để xây dựng backend, cải thiện chức năng và báo cáo tiến độ dự án.</p>
-            <div className="portfolio-tags">{['Backend','API','Team delivery'].map((item) => <span key={item}>{item}</span>)}</div>
-          </div>
-        </article>
+    <section className="cvp-section" id="stack" aria-labelledby="stack-title">
+      <div className="cvp-section-heading cvp-section-heading-row">
+        <div>
+          <span>Technical stack</span>
+          <h2 id="stack-title">Công nghệ đã sử dụng trong công việc</h2>
+        </div>
+        <p>Chỉ liệt kê những công nghệ có trong kinh nghiệm và dự án, không dùng phần trăm kỹ năng.</p>
       </div>
-    </section>
 
-    <section className="portfolio-section" id="projects" aria-labelledby="projects-title">
-      <div className="portfolio-section-kicker"><span>04</span><div><span className="overline">SELECTED WORK</span><h2 id="projects-title">Các hệ thống tiêu biểu đã tham gia</h2><p>Thông tin được trình bày ở mức trách nhiệm và năng lực, không công bố source code, credential hoặc dữ liệu nội bộ.</p></div></div>
-      <div className="portfolio-project-grid">
-        {AUTHOR.selectedProjects.map((project,index) => <article key={project.name} className={index === 0 ? 'portfolio-project-featured' : ''}>
-          <div className="portfolio-project-head"><span>PROJECT {String(index + 1).padStart(2,'0')}</span><Code2/></div>
-          <span className="portfolio-project-focus">{projectFocus[project.name]}</span>
-          <h3>{project.name}</h3>
-          <p>{project.summary}</p>
-          <div className="portfolio-tags">{project.technologies.map((item) => <span key={item}>{item}</span>)}</div>
+      <div className="cvp-stack-list">
+        {skillGroups.map(([group,items]) => <article key={group}>
+          <h3>{group}</h3>
+          <div>{items.map((item) => <span key={item}>{item}</span>)}</div>
         </article>)}
       </div>
     </section>
 
-    <section className="portfolio-section" id="stack" aria-labelledby="stack-title">
-      <div className="portfolio-section-kicker"><span>05</span><div><span className="overline">FULL-STACK TOOLBOX</span><h2 id="stack-title">Năng lực trải từ client, backend, data đến realtime và delivery</h2></div></div>
-      <div className="portfolio-stack-grid">
-        {skillGroups.map(([group,items]) => <article key={group}><h3>{group}</h3><div>{items.map((item) => <span key={item}>{item}</span>)}</div></article>)}
-      </div>
-    </section>
-
-    <section className="portfolio-section portfolio-education" aria-labelledby="education-title">
-      <div className="portfolio-section-kicker"><span>06</span><div><span className="overline">EDUCATION</span><h2 id="education-title">Nền tảng học tập</h2></div></div>
-      <div className="portfolio-education-card">
+    <section className="cvp-section cvp-secondary-grid">
+      <article className="cvp-education" aria-labelledby="education-title">
         <GraduationCap/>
-        <div><span>09/2019 — 02/2022</span><h3>Industrial University of Ho Chi Minh City</h3><p>Information Technology</p></div>
-      </div>
+        <div>
+          <span>Education</span>
+          <h2 id="education-title">Industrial University of Ho Chi Minh City</h2>
+          <p>Information Technology · 09/2019 — 02/2022</p>
+        </div>
+      </article>
+
+      <article className="cvp-writing" aria-labelledby="writing-title">
+        <div>
+          <span>Engineering notes</span>
+          <h2 id="writing-title">Ghi lại cách phân tích và giải quyết vấn đề kỹ thuật</h2>
+          <p>Các bài viết xoay quanh những vấn đề đã gặp khi làm PHP, MongoDB, Redis, queue, WebSocket, WebRTC và production systems.</p>
+        </div>
+        <Link to="/blog">Xem Engineering Blog <ArrowRight/></Link>
+      </article>
     </section>
 
-    <section className="portfolio-section portfolio-bottom-section" aria-labelledby="notes-title">
-      <div className="portfolio-section-kicker">
-        <span>07</span>
-        <div>
-          <span className="overline">ENGINEERING NOTES</span>
-          <h2 id="notes-title">Ghi lại cách tôi giải quyết bài toán kỹ thuật.</h2>
-          <p>Ngắn gọn, thực tế và tập trung vào reasoning, trade-off cùng những gì học được từ production.</p>
-        </div>
+    <section className="cvp-contact" id="contact" aria-labelledby="contact-title">
+      <div>
+        <span>Let's work together</span>
+        <h2 id="contact-title">Đang tìm một Full-stack Developer?</h2>
+        <p>Tôi sẵn sàng trao đổi về vị trí phù hợp tại TP.HCM hoặc cơ hội remote.</p>
       </div>
 
-      <div className="portfolio-notes-grid">
-        <article className="portfolio-note-featured">
-          <div className="portfolio-note-heading">
-            <span className="portfolio-panel-label">TECHNICAL WRITING</span>
-            <Code2 aria-hidden="true"/>
-          </div>
-          <h3>Không chỉ show kết quả — tôi viết về cách đi đến lời giải.</h3>
-          <p>PHP, MongoDB, Redis, Laravel Queue, WebSocket, WebRTC, performance và các quyết định kỹ thuật trong hệ thống production.</p>
-          <div className="portfolio-tags">
-            {['PHP','MongoDB','Redis','Queue','WebSocket','WebRTC'].map((item) => <span key={item}>{item}</span>)}
-          </div>
-        </article>
-
-        <aside className="portfolio-note-action">
-          <span className="portfolio-panel-label">ENGINEERING BLOG</span>
-          <strong>Case study, debugging và trade-off từ công việc thực tế.</strong>
-          <p>Mỗi bài ưu tiên bối cảnh, cách phân tích và lý do chọn giải pháp thay vì chỉ đưa ra đoạn code cuối cùng.</p>
-          <Link className="portfolio-inline-action portfolio-inline-action-primary" to="/blog">
-            Xem Engineering Blog <ArrowRight/>
-          </Link>
-        </aside>
-      </div>
-    </section>
-
-    <section className="portfolio-section portfolio-bottom-section" id="contact" aria-labelledby="hire-title">
-      <div className="portfolio-section-kicker">
-        <span>08</span>
-        <div>
-          <span className="overline">LET'S WORK TOGETHER</span>
-          <h2 id="hire-title">Cần một Full-stack Developer có thể theo feature đến tận production?</h2>
-          <p>Tôi phù hợp với các bài toán cần phối hợp nhiều lớp: product/client, backend, data, realtime, integration và production reliability.</p>
-        </div>
-      </div>
-
-      <div className="portfolio-contact-panel">
-        <div className="portfolio-contact-copy">
-          <span className="portfolio-panel-label">WHAT I CAN CONTRIBUTE</span>
-          <h3 className="portfolio-contact-copy-title">Những phần tôi có thể đảm nhận ngay</h3>
-          <div className="portfolio-contact-capabilities">
-            {[
-              'Full-stack feature delivery: client → API → data',
-              'Backend application & business logic',
-              'Realtime communication: WebSocket / WebRTC',
-              'API / CRM / enterprise integration',
-              'Performance, security & production reliability',
-            ].map((item) => <div key={item}><span><Check/></span><p>{item}</p></div>)}
-          </div>
-        </div>
-
-        <aside className="portfolio-contact-card" aria-label="Liên hệ công việc">
-          <div className="portfolio-contact-card-top">
-            <span className="portfolio-contact-label">CONTACT</span>
-            <span className="portfolio-contact-availability"><i aria-hidden="true"/> Available</span>
-          </div>
-          <h3>Trao đổi trực tiếp về cơ hội phù hợp.</h3>
-          <p className="portfolio-contact-intro">Email là kênh nhanh nhất. GitHub và LinkedIn dùng để xem thêm hồ sơ kỹ thuật và kinh nghiệm làm việc.</p>
-
-          <a className="portfolio-mail-link" href={`mailto:${AUTHOR.email}`} aria-label={`Gửi email cho ${AUTHOR.name}`}>
-            <Mail aria-hidden="true"/>
-            <span>{AUTHOR.email}</span>
-            <ArrowRight aria-hidden="true"/>
-          </a>
-
-          <div className="portfolio-contact-links">
-            <a href={AUTHOR.sameAs[1]} target="_blank" rel="me noopener noreferrer" aria-label="GitHub Nguyễn Ngọc Tâm">
-              <Code2 aria-hidden="true"/><span>GitHub</span><ExternalLink aria-hidden="true"/>
-            </a>
-            <a href={AUTHOR.sameAs[0]} target="_blank" rel="me noopener noreferrer" aria-label="LinkedIn Nguyễn Ngọc Tâm">
-              <BriefcaseBusiness aria-hidden="true"/><span>LinkedIn</span><ExternalLink aria-hidden="true"/>
-            </a>
-          </div>
-        </aside>
+      <div className="cvp-contact-actions">
+        <a className="btn large" href={`mailto:${AUTHOR.email}`}><Mail/> {AUTHOR.email}</a>
+        <a className="btn secondary large" href={AUTHOR.sameAs[0]} target="_blank" rel="me noopener noreferrer">
+          <BriefcaseBusiness/> LinkedIn
+        </a>
       </div>
     </section>
   </article>
