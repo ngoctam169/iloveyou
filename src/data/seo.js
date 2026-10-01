@@ -55,8 +55,8 @@ const staticMeta = {
     pageType:'website-home',
   },
   '/about': {
-    title: 'Nguyễn Ngọc Tâm | Engineering Profile – Backend, Realtime, WebRTC',
-    description: 'Public CV của Nguyễn Ngọc Tâm: Full-stack Developer tại South Telecom, kinh nghiệm PHP/Laravel, MongoDB/Redis, WebSocket/WebRTC, Salesforce/HubSpot, banking communication, performance, security, queue và CI/CD.',
+    title: 'Nguyễn Ngọc Tâm | Full-stack Developer – PHP, JavaScript, Realtime',
+    description: 'Portfolio của Nguyễn Ngọc Tâm, Full-stack Developer tại South Telecom: JavaScript/TypeScript, PHP/Laravel, MongoDB/Redis, WebSocket/WebRTC, CRM/API integration, cloud, CI/CD, performance và production systems.',
     keywords: PERSONAL_SEO_KEYWORDS,
     pageType:'profile',
   },
