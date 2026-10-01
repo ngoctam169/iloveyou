@@ -267,27 +267,37 @@ const meaningOptions = (words) => uniqueOptionValues(
   'Nghĩa khác',
 )
 
+const roadmapCache = new Map()
+
 export function getRoadmap(languageId, levelName) {
+  const cacheKey = `${languageId}:${levelName}`
+  if (roadmapCache.has(cacheKey)) return roadmapCache.get(cacheKey)
+
   const language = getLanguage(languageId)
   if (!language) return []
+
   const levelMeta = getLevelMeta(languageId, levelName)
+  let roadmap
   if (levelMeta) {
     const counts = distributeLessonCounts(levelMeta.topics.length)
     let lessonOffset = 0
-    return levelMeta.topics.map((title, unitIndex) => {
+    roadmap = levelMeta.topics.map((title, unitIndex) => {
       const lessons = makeEnglishLessons(levelName, unitIndex, title, levelMeta, counts[unitIndex], lessonOffset)
       lessonOffset += counts[unitIndex]
       return { unit:unitIndex + 1,title,lessons }
     })
+  } else {
+    const firstLevel = language.levels[0][0]
+    const unitTitles = levelName === firstLevel ? ['Khởi đầu tự tin', ...genericUnits.slice(1)] : genericUnits
+    roadmap = unitTitles.map((title, unitIndex) => ({
+      unit:unitIndex + 1,
+      title,
+      lessons:makePracticeLessons(languageId, levelName, unitIndex, unitIndex * 6, title, levelName === firstLevel),
+    }))
   }
 
-  const firstLevel = language.levels[0][0]
-  const unitTitles = levelName === firstLevel ? ['Khởi đầu tự tin', ...genericUnits.slice(1)] : genericUnits
-  return unitTitles.map((title, unitIndex) => ({
-    unit:unitIndex + 1,
-    title,
-    lessons:makePracticeLessons(languageId, levelName, unitIndex, unitIndex * 6, title, levelName === firstLevel),
-  }))
+  roadmapCache.set(cacheKey, roadmap)
+  return roadmap
 }
 function makeEnglishLessons(levelName, unitIndex, topic, meta, lessonCount, lessonOffset) {
   const levelIndex = getLanguage('english').levels.findIndex(([name]) => name === levelName)
