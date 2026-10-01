@@ -4,22 +4,22 @@ import { AUTHOR } from '../data/author'
 
 const pages = {
   about: {
-    eyebrow:'VỀ NT', title:'Học ngôn ngữ theo một lộ trình có thể hành động', lead:'NT tổ chức kiến thức thành level, bài học ngắn và vòng ôn tập rõ ràng để người học biết mình cần làm gì tiếp theo.',
+    eyebrow:'VỀ NT', title:'NT có gì?', lead:'Mình gom bài học, từ vựng, ngữ pháp và phần luyện thi vào một chỗ để học cho tiện.',
     sections:[
-      ['Sứ mệnh','Giúp người học Việt Nam tiếp cận tài liệu tiếng Anh, Trung, Nhật và Hàn theo chuẩn cấp độ quen thuộc, với giải thích đủ rõ để có thể tự học.'],
+      ['Mục tiêu','Làm một web học ngoại ngữ dễ dùng, chia rõ theo level và có đủ phần để tự học.'],
       ['Phương pháp','Mỗi lộ trình kết nối từ vựng, ngữ pháp và bốn kỹ năng. Flashcard dùng lịch ôn dựa trên phản hồi ghi nhớ; kết quả luyện tập được lưu trên chính thiết bị.'],
       ['Nguyên tắc nội dung','NT ưu tiên ví dụ có ngữ cảnh, mô tả trung thực nguồn dữ liệu và không trình bày điểm luyện tập tự động như một chứng nhận chính thức.'],
     ],
   },
   contact: {
-    eyebrow:'LIÊN HỆ', title:'Góp ý để NT tốt hơn', lead:'Báo lỗi nội dung, góp ý trải nghiệm học tập hoặc trao đổi trực tiếp với người phát triển NT.',
+    eyebrow:'LIÊN HỆ', title:'Góp ý cho NT', lead:'Nếu thấy lỗi hoặc có góp ý, có thể gửi trực tiếp cho mình.',
     sections:[
       ['Hỗ trợ sử dụng','Khi báo lỗi, hãy gửi đường dẫn trang, thiết bị, trình duyệt và mô tả ngắn các bước đã thực hiện.'],
       ['Góp ý học liệu','Nếu phát hiện nghĩa, ví dụ hoặc đáp án chưa chính xác, hãy ghi rõ ngôn ngữ, level và tên bài để dễ kiểm tra.'],
     ],
   },
   privacy: {
-    eyebrow:'PHÁP LÝ', title:'Chính sách quyền riêng tư', lead:'NT được thiết kế để người học có thể sử dụng phần lớn tính năng mà không cần tạo tài khoản.',
+    eyebrow:'PHÁP LÝ', title:'Chính sách quyền riêng tư', lead:'Bạn có thể dùng phần lớn tính năng của NT mà không cần tạo tài khoản.',
     sections:[
       ['Dữ liệu lưu trên thiết bị','Tiến độ bài học, lịch ôn, mục tiêu, từ cá nhân và cài đặt được lưu trong localStorage của trình duyệt. Xóa dữ liệu trình duyệt hoặc dùng chức năng Reset Progress sẽ xóa phần dữ liệu này.'],
       ['Microphone và giọng nói','Tính năng luyện nói chỉ yêu cầu microphone sau thao tác của người dùng. Bản ghi được tạo trong phiên trình duyệt; NT không có backend để tải bản ghi lên máy chủ. Nhận dạng giọng nói phụ thuộc dịch vụ của trình duyệt.'],
@@ -58,7 +58,7 @@ export default function InfoPage({ page }) {
 
       {page === 'contact' && <section className="contact-section">
         <h2>Kênh liên hệ</h2>
-        <p>Chọn kênh phù hợp để gửi phản hồi, trao đổi về sản phẩm hoặc cơ hội nghề nghiệp.</p>
+        <p>Gửi mail hoặc nhắn qua các kênh bên dưới nếu muốn góp ý hay trao đổi công việc.</p>
         <div className="contact-channels">
           {configuredEmail && <a href={`mailto:${configuredEmail}`}><strong>Email</strong><span>{configuredEmail}</span></a>}
           {github && <a href={github} target="_blank" rel="noreferrer"><strong>GitHub</strong><span>@ngoctam169</span></a>}
@@ -75,6 +75,6 @@ export default function InfoPage({ page }) {
       </section>}
     </div>
 
-    <aside className="info-cta"><h2>Bắt đầu học cùng NT</h2><p>Chọn ngôn ngữ và mở level phù hợp với mục tiêu của bạn.</p><Link className="btn" to="/languages">Khám phá ngôn ngữ</Link></aside>
+    <aside className="info-cta"><h2>Bắt đầu học</h2><p>Chọn ngôn ngữ rồi mở level muốn học.</p><Link className="btn" to="/languages">Chọn ngôn ngữ</Link></aside>
   </article>
 }
