@@ -21,7 +21,7 @@ export default function TOEIC() {
     <div className="hub-hero exam-hero">
       <div>
         <span className="overline">TOEIC LISTENING &amp; READING</span>
-        <h1>Thi thử TOEIC như một ca thi thật</h1>
+        <h1>Mô phỏng TOEIC Listening & Reading đủ 200 câu</h1>
         <p>200 câu · Listening 45 phút · Reading 75 phút · chấm điểm ước tính trên thang 10–990.</p>
       </div>
       <label className="target-picker"><span>Target score</span><select value={state.toeicTarget} onChange={(event) => update({ toeicTarget:Number(event.target.value) })}>{[450,550,650,750,850,900].map((score) => <option key={score}>{score}</option>)}</select></label>
@@ -77,7 +77,7 @@ function TOEICFullTest({ onHistory }) {
   const { saveExamResult, addMistakes } = useApp()
   return <SectionedExamRunner
     title="TOEIC Listening & Reading Full Test"
-    subtitle="Mỗi lần bắt đầu sẽ sinh một form khác từ ngân hàng câu hỏi khó hơn, vẫn giữ đủ 200 câu và đúng phân bố Part 1–7."
+    subtitle="Mỗi lần bắt đầu sẽ tạo một form khác, giữ đủ 200 câu và đúng phân bố Part 1–7. Part 1 dùng hình minh họa cục bộ; audio hiện là giọng đọc mô phỏng của trình duyệt."
     sections={toeicFullSections}
     sectionsFactory={buildToeicExamSections}
     sessionKey="toeic-full"
