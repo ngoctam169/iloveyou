@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useMemo, useRef, useState } from 'react'
-import { clearState, defaultState, loadState, saveState } from '../utils/storage'
+import { clearAllAppStorage, defaultState, loadState, saveState } from '../utils/storage'
 import { averageSkillScores, emptyLevelProgress, progressKey } from '../utils/progress'
 import { applyActivity } from '../utils/activity'
 import { localDate, nextSchedule, wordKey } from '../utils/srs'
@@ -215,7 +215,7 @@ export function AppProvider({ children }) {
         selfStudyHistory: [{ ...entry, score, id: entry.id || `self-${Date.now()}`, date: new Date().toISOString() }, ...(current.selfStudyHistory || [])].slice(0, 100),
       }
     })
-    setToast('Đã lưu phiên tự học và cập nhật thống kê kỹ năng')
+    setToast('Đã lưu phiên tự học')
   }
 
   const recordStudyTime = (seconds = 900, type = 'Daily Review') => {
@@ -234,7 +234,7 @@ export function AppProvider({ children }) {
   }))
 
   const reset = () => {
-    clearState()
+    clearAllAppStorage()
     setState({ ...defaultState, levelProgress: {}, savedItems: [], mistakes: [], flashcardProgress: {}, onboardingComplete: true })
     setToast('Tiến độ đã được đặt lại')
   }
