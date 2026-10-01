@@ -3,8 +3,6 @@
    Principles adopted: warm paper palette, serif-led hierarchy, mono microcopy,
    hairline grids, restrained radius, fewer gradients, editorial density. */
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Source+Serif+4:ital,opsz,wght@0,8..60,300..700;1,8..60,300..700&display=swap');
-
 :root{
   --bg:#f5f4f0;
   --surface:#fffdfa;
@@ -786,36 +784,12 @@ input:focus,textarea:focus,select:focus{border-color:var(--primary)!important;bo
 
 
 /* Direction A final pass */
-.public-editorial-header{
-  grid-template-columns:170px minmax(0,1fr) 150px!important;
-}
 .editorial-wordmark{
   font-family:var(--huashu-serif)!important;
   font-style:italic;
   font-size:1.08rem!important;
   font-weight:600!important;
 }
-.public-editorial-header .desktop-nav{justify-content:center}
-.public-editorial-header .desktop-nav>a{
-  position:relative;
-  padding:24px 11px 22px;
-  font-size:.72rem;
-  font-weight:500;
-}
-.public-editorial-header .desktop-nav>a:after{
-  content:'';
-  position:absolute;
-  left:11px;
-  right:100%;
-  bottom:16px;
-  height:1px;
-  background:var(--primary);
-  transition:right .18s ease;
-}
-.public-editorial-header .desktop-nav>a:hover:after,
-.public-editorial-header .desktop-nav>a.active:after{right:11px}
-.mobile-editorial-links{display:grid}
-.mobile-editorial-links a{padding:13px 0;border-bottom:1px solid var(--line);border-radius:0!important}
 
 .huashu-home-hero{min-height:610px}
 .huashu-home-hero .hero-copy h1{max-width:720px}
@@ -1150,3 +1124,15 @@ input:focus,textarea:focus,select:focus{border-color:var(--primary)!important;bo
   .editorial-global-header .header-session-slot,
   .editorial-global-header .search-link{display:none}
 }
+
+/* Stability & rendering performance */
+html{scrollbar-gutter:stable}
+.site-header.stable-header{will-change:transform;transform:translateZ(0)}
+.toeic-scene{margin:0 0 20px;overflow:hidden;border:1px solid var(--line);border-radius:10px;background:var(--surface-2);aspect-ratio:16/9}
+.toeic-scene img{display:block;width:100%;height:100%;object-fit:cover}
+.error-boundary{min-height:70vh;display:grid;place-items:center;padding-block:70px}
+.error-boundary>div{max-width:660px;padding:32px;border:1px solid var(--line);background:var(--surface)}
+.error-boundary h1{margin:8px 0 12px}.error-boundary p{color:var(--muted)}
+.error-boundary-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:22px}
+@supports (content-visibility:auto){.section-block,.home-blog,.blog-list,.related-articles{content-visibility:auto;contain-intrinsic-size:1px 720px}}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
