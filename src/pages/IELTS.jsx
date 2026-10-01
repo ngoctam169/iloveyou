@@ -1,5 +1,5 @@
 import { BarChart3, BookOpen, CheckCircle2, ChevronLeft, ChevronRight, Clock3, Headphones, Mic, PenLine, RotateCcw, Square, Target } from 'lucide-react'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import SectionedExamRunner from '../components/exam/SectionedExamRunner'
 import AudioPlayer from '../components/common/AudioPlayer'
 import ExamTimer from '../components/common/ExamTimer'
