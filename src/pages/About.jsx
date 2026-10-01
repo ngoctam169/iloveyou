@@ -156,28 +156,32 @@ export default function About() {
         <span>07</span>
         <div>
           <span className="overline">ENGINEERING NOTES</span>
-          <h2 id="notes-title">Tôi cũng viết về cách phân tích và xử lý bài toán kỹ thuật.</h2>
-          <p>Không chỉ ghi lại kết quả, các bài viết tập trung vào reasoning, trade-off và cách xử lý vấn đề khi hệ thống chạy trong production.</p>
+          <h2 id="notes-title">Ghi lại cách tôi giải quyết bài toán kỹ thuật.</h2>
+          <p>Ngắn gọn, thực tế và tập trung vào reasoning, trade-off cùng những gì học được từ production.</p>
         </div>
       </div>
 
-      <div className="portfolio-notes-panel">
-        <div className="portfolio-notes-copy">
-          <span className="portfolio-panel-label">WHAT I WRITE ABOUT</span>
-          <p>Nội dung xoay quanh backend, MongoDB, Redis, queue, WebSocket, WebRTC, performance và những quyết định kỹ thuật cần cân nhắc khi hệ thống phải chạy ổn định trong môi trường thật.</p>
+      <div className="portfolio-notes-grid">
+        <article className="portfolio-note-featured">
+          <div className="portfolio-note-heading">
+            <span className="portfolio-panel-label">TECHNICAL WRITING</span>
+            <Code2 aria-hidden="true"/>
+          </div>
+          <h3>Không chỉ show kết quả — tôi viết về cách đi đến lời giải.</h3>
+          <p>PHP, MongoDB, Redis, Laravel Queue, WebSocket, WebRTC, performance và các quyết định kỹ thuật trong hệ thống production.</p>
           <div className="portfolio-tags">
-            {['PHP','Laravel','MongoDB','Redis','Queue','WebSocket','WebRTC','Performance'].map((item) => <span key={item}>{item}</span>)}
+            {['PHP','MongoDB','Redis','Queue','WebSocket','WebRTC'].map((item) => <span key={item}>{item}</span>)}
           </div>
-        </div>
+        </article>
 
-        <div className="portfolio-notes-side">
-          <div className="portfolio-note-mini-card">
-            <span className="portfolio-panel-label">APPROACH</span>
-            <strong>Viết để hệ thống hóa tư duy kỹ thuật.</strong>
-            <p>Tập trung vào “vì sao chọn cách làm đó”, trade-off nào cần cân nhắc và khi nào một giải pháp thực sự phù hợp.</p>
-          </div>
-          <Link className="portfolio-inline-action" to="/blog">Đọc Engineering Blog <ArrowRight/></Link>
-        </div>
+        <aside className="portfolio-note-action">
+          <span className="portfolio-panel-label">ENGINEERING BLOG</span>
+          <strong>Case study, debugging và trade-off từ công việc thực tế.</strong>
+          <p>Mỗi bài ưu tiên bối cảnh, cách phân tích và lý do chọn giải pháp thay vì chỉ đưa ra đoạn code cuối cùng.</p>
+          <Link className="portfolio-inline-action portfolio-inline-action-primary" to="/blog">
+            Xem Engineering Blog <ArrowRight/>
+          </Link>
+        </aside>
       </div>
     </section>
 
@@ -186,14 +190,15 @@ export default function About() {
         <span>08</span>
         <div>
           <span className="overline">LET'S WORK TOGETHER</span>
-          <h2 id="hire-title">Đang tìm một Full-stack / Backend Developer có thể xử lý production systems?</h2>
-          <p>Tâm sẵn sàng trao đổi về các vị trí Full-stack, Backend hoặc Realtime Systems tại TP.HCM và cơ hội remote phù hợp.</p>
+          <h2 id="hire-title">Trao đổi về một vị trí Backend / Full-stack phù hợp.</h2>
+          <p>Tập trung vào backend, realtime systems, integration và những bài toán production cần độ ổn định cao.</p>
         </div>
       </div>
 
       <div className="portfolio-contact-panel">
         <div className="portfolio-contact-copy">
           <span className="portfolio-panel-label">WHAT I CAN CONTRIBUTE</span>
+          <h3 className="portfolio-contact-copy-title">Những phần tôi có thể đảm nhận ngay</h3>
           <div className="portfolio-contact-capabilities">
             {[
               'Backend application & business logic',
@@ -206,9 +211,12 @@ export default function About() {
         </div>
 
         <aside className="portfolio-contact-card" aria-label="Liên hệ công việc">
-          <span className="portfolio-contact-label">CONTACT</span>
-          <h3>Trao đổi về cơ hội phù hợp.</h3>
-          <p className="portfolio-contact-intro">Email là kênh nhanh nhất để trao đổi về công việc, freelance hoặc các bài toán kỹ thuật cần cộng tác.</p>
+          <div className="portfolio-contact-card-top">
+            <span className="portfolio-contact-label">CONTACT</span>
+            <span className="portfolio-contact-availability"><i aria-hidden="true"/> Available</span>
+          </div>
+          <h3>Trao đổi trực tiếp về cơ hội phù hợp.</h3>
+          <p className="portfolio-contact-intro">Email là kênh nhanh nhất. GitHub và LinkedIn dùng để xem thêm hồ sơ kỹ thuật và kinh nghiệm làm việc.</p>
 
           <a className="portfolio-mail-link" href={`mailto:${AUTHOR.email}`} aria-label={`Gửi email cho ${AUTHOR.name}`}>
             <Mail aria-hidden="true"/>
