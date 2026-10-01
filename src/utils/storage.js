@@ -171,3 +171,17 @@ export function clearState() {
   try { localStorage.removeItem(STORAGE_KEY) } catch { /* storage may be disabled */ }
 }
 
+export function clearAllAppStorage() {
+  try {
+    const keys = []
+    for (let index = 0; index < localStorage.length; index += 1) {
+      const key = localStorage.key(index)
+      if (key?.startsWith('nt_')) keys.push(key)
+    }
+    keys.forEach((key) => localStorage.removeItem(key))
+    return true
+  } catch {
+    return false
+  }
+}
+
