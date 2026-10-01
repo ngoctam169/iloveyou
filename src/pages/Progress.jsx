@@ -48,7 +48,7 @@ export default function Progress() {
     <div className="metric-grid">{[[BookOpen,totals.completedLessons,'Lessons Completed'],[Type,vocabularyLearned,'Words Learned'],[Clock3,totalStudyMinutes(state, totals.studyMinutes),'Minutes Studied'],[Flame,state.streak,'Current Streak'],[Award,Object.keys(state.levelProgress || {}).filter((key) => state.levelProgress[key]?.completedLessons?.length).length,'Active Levels'],[Star,state.xp.toLocaleString(),'Total XP']].map(([Icon,value,label]) => <article key={label}><span><Icon /></span><strong>{value}</strong><small>{label}</small></article>)}</div>
 
     <div className="progress-layout">
-      <section className="panel overall-panel"><div className="panel-title"><div><h2>Lesson Performance · {level}</h2><p>Tín hiệu hiệu suất từ các bài đã làm; đây không phải chứng nhận mức độ thành thạo.</p></div><strong className="overall-number">{overall}%</strong></div>{skillNames.map((name) => <ProgressBar key={name} label={name} value={current.skillScores[name] || 0} />)}</section>
+      <section className="panel overall-panel"><div className="panel-title"><div><h2>Lesson Performance · {level}</h2><p>Điểm tổng hợp từ các bài đã làm. Chỉ dùng để theo dõi việc học.</p></div><strong className="overall-number">{overall}%</strong></div>{skillNames.map((name) => <ProgressBar key={name} label={name} value={current.skillScores[name] || 0} />)}</section>
       <section className="panel weekly-chart"><div className="panel-title"><div><h2>Weekly Activity</h2><p>Phút học trong 7 ngày gần nhất</p></div></div><div className="bar-chart">{activity.map((value,index) => <div key={index}><span className="bar-value">{value}</span><i style={{ height: `${Math.max(4, Math.min(100, Number(value || 0) * 5))}%` }} /><small>{weekdays[index]}</small></div>)}</div></section>
     </div>
 
@@ -59,7 +59,7 @@ export default function Progress() {
     <section className="achievements"><div className="section-intro left"><span className="overline">ACHIEVEMENTS</span><h2>Những cột mốc của bạn</h2></div><div className="achievement-grid">{[['🌱','First Step','Hoàn thành bài đầu tiên',totals.completedLessons>=1],['🔥','On Fire','Duy trì chuỗi 7 ngày',state.streak>=7],['📚','Word Collector','Học 100 từ',vocabularyLearned>=100],['🏅','Dedicated Learner','Hoàn thành 25 bài',totals.completedLessons>=25]].map(([icon,name,desc,earned]) => <article className={earned ? 'earned' : ''} key={name}><span>{icon}</span><div><h3>{name}</h3><p>{desc}</p></div>{earned && <small>Đã đạt</small>}</article>)}</div></section>
 
     <section id="history" className="progress-history-section">
-      <div className="section-intro left"><span className="overline">STUDY HISTORY</span><h2>Lịch sử học tập</h2><p>Các hoạt động thực tế trong hôm nay, hôm qua hoặc 7 ngày gần nhất.</p></div>
+      <div className="section-intro left"><span className="overline">STUDY HISTORY</span><h2>Lịch sử học tập</h2><p>Các hoạt động trong hôm nay, hôm qua hoặc 7 ngày gần nhất.</p></div>
       <div className="segmented history-range" role="group" aria-label="Khoảng thời gian">{[['today','Hôm nay'],['yesterday','Hôm qua'],['week','7 ngày']].map(([value,label]) => <button key={value} className={historyRange === value ? 'active' : ''} onClick={() => setHistoryRange(value)}>{label}</button>)}</div>
       {history.length ? <div className="panel learning-history-list">{history.map((entry) => {
         const [label, Icon] = historyLabels[entry.type] || [`Đã luyện ${entry.skill || entry.type}`, CalendarDays]
