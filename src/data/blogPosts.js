@@ -265,7 +265,7 @@ const articleContent = {
     p('Retry chỉ hợp lý cho lỗi tạm thời như 429, timeout hoặc 5xx. Lỗi validate, permission hay payload không tương thích thường không tự hết sau vài phút. Job nên phân loại exception: release với backoff cho lỗi tạm thời; fail sớm cho lỗi vĩnh viễn. Nếu retry mọi exception, queue có thể lãng phí tài nguyên và che một bug code kéo dài.'),
     h2('backoff-va-jitter', 'Backoff giúp bảo vệ dependency đang lỗi'),
     p('Khi CRM hoặc API ngoài gặp sự cố, retry ngay hàng nghìn job làm dependency khó phục hồi hơn. Exponential backoff tăng khoảng nghỉ giữa các lần thử. Jitter tránh tất cả job quay lại cùng lúc. Laravel hỗ trợ backoff theo mảng; nếu cần jitter động, có thể release job với thời gian được tính theo attempt. Cũng nên có circuit breaker hoặc giới hạn concurrency cho từng integration.'),
-    h2('payload-nho-va-du-lieu-moi', 'Giữ payload nhỏ, đọc dữ liệu mới có chủ đích'),
+    h2('payload-nho-va-du-lieu-moi', 'Giữ payload nhỏ, đọc lại dữ liệu khi cần'),
     p('Serialize cả Eloquent model vào job tiện lợi nhưng dễ làm payload lớn và dữ liệu tại thời điểm xử lý khác lúc dispatch. Thường nên truyền ID và operation ID, sau đó query lại trong transaction phù hợp. Nếu job phải xử lý snapshot chính xác, hãy lưu snapshot có version hoặc immutable event riêng thay vì phụ thuộc record có thể thay đổi.'),
     p('Không dispatch job trước khi transaction chính commit. Worker nhanh có thể chạy khi record chưa tồn tại hoặc còn trạng thái cũ. Dùng afterCommit hoặc dispatch sau commit. Đây là race condition thường chỉ xuất hiện dưới tải thật vì local worker chạy chậm hơn request một cách tình cờ.'),
     code('php', 'Dispatch sau khi transaction đã commit', [
