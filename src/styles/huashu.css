@@ -1070,3 +1070,83 @@ input:focus,textarea:focus,select:focus{border-color:var(--primary)!important;bo
   outline:2px solid var(--primary);
   outline-offset:4px;
 }
+
+
+/* Stable editorial header across all routes */
+.editorial-global-header{
+  height:68px!important;
+  display:grid!important;
+  grid-template-columns:160px minmax(0,1fr) 235px!important;
+  gap:16px!important;
+  align-items:center;
+  padding-inline:max(22px,calc((100vw - 1180px)/2))!important;
+  background:color-mix(in srgb,var(--bg) 95%,transparent)!important;
+}
+.editorial-global-header .desktop-nav{
+  min-width:0;
+  justify-content:center;
+  gap:0;
+}
+.editorial-global-header .desktop-nav>a,
+.editorial-global-header .nav-group-button{
+  padding-inline:9px;
+  font-size:.73rem;
+  white-space:nowrap;
+}
+.editorial-global-header .header-actions{
+  width:235px;
+  min-width:235px;
+  margin-left:0;
+  justify-content:flex-end;
+}
+.editorial-global-header .header-session-slot{
+  min-width:176px;
+  display:flex;
+  align-items:center;
+  justify-content:flex-end;
+  gap:8px;
+}
+.editorial-global-header .search-link{
+  flex:0 0 40px;
+}
+.editorial-global-header .header-start-learning{
+  min-width:116px;
+}
+.editorial-global-header .brand{
+  min-width:0;
+  white-space:nowrap;
+}
+@media(max-width:1100px) and (min-width:761px){
+  .editorial-global-header{
+    grid-template-columns:145px minmax(0,1fr) 185px!important;
+    gap:10px!important;
+  }
+  .editorial-global-header .desktop-nav>a,
+  .editorial-global-header .nav-group-button{
+    padding-inline:6px;
+    font-size:.69rem;
+  }
+  .editorial-global-header .header-actions{
+    width:185px;
+    min-width:185px;
+  }
+  .editorial-global-header .header-session-slot{
+    min-width:126px;
+  }
+  .editorial-global-header .xp-chip{display:none}
+}
+@media(max-width:760px){
+  .editorial-global-header{
+    height:64px!important;
+    display:grid!important;
+    grid-template-columns:minmax(0,1fr) auto!important;
+    gap:10px!important;
+    padding-inline:16px!important;
+  }
+  .editorial-global-header .header-actions{
+    width:auto;
+    min-width:0;
+  }
+  .editorial-global-header .header-session-slot,
+  .editorial-global-header .search-link{display:none}
+}
