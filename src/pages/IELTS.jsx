@@ -1,5 +1,5 @@
 import { BarChart3, BookOpen, CheckCircle2, ChevronLeft, ChevronRight, Clock3, Headphones, Mic, PenLine, RotateCcw, Square, Target } from 'lucide-react'
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 import SectionedExamRunner from '../components/exam/SectionedExamRunner'
 import AudioPlayer from '../components/common/AudioPlayer'
 import ExamTimer from '../components/common/ExamTimer'
@@ -10,8 +10,8 @@ import { useApp } from '../context/AppContext'
 import { ieltsSpeaking } from '../data/ielts'
 import { buildIeltsObjectiveResult, ieltsAcademicWritingTasks, ieltsFullListening, ieltsFullReading, ieltsFullSections } from '../data/exams/ieltsFull'
 import { buildIeltsExamSections, buildIeltsWritingTasks } from '../data/exams/ieltsAdvanced'
-import { recognitionFor } from '../utils/speech'
 import { buildExamMistakes } from '../utils/examMistakes'
+import IELTSSpeakingStudio from '../components/exam/IELTSSpeakingStudio'
 
 const tabs = ['Overview','Full Mock','Listening Practice','Reading Practice','Writing','Speaking','History']
 const IELTS_FLOW_KEY = 'nt_ielts_full_flow_v1'
@@ -35,7 +35,7 @@ export default function IELTS() {
     <div className="hub-hero ielts-hero">
       <div>
         <span className="overline">IELTS ACADEMIC</span>
-        <h1>Thi thử IELTS theo đúng nhịp một kỳ thi</h1>
+        <h1>Mô phỏng IELTS Academic theo từng phần</h1>
         <p>Listening 40 câu · Reading 40 câu · Writing 2 tasks · Speaking 3 parts với timer và recorder.</p>
       </div>
       <label className="target-picker"><span>Target band</span><select value={state.ieltsTarget} onChange={(event) => update({ ieltsTarget:Number(event.target.value) })}>{[4,5,5.5,6,6.5,7,7.5,8,8.5,9].map((score) => <option value={score} key={score}>{Number(score).toFixed(1)}</option>)}</select></label>
@@ -48,7 +48,7 @@ export default function IELTS() {
     {tab === 'Listening Practice' && <ObjectivePractice title="IELTS Listening Practice" questions={ieltsFullListening} audio/>}
     {tab === 'Reading Practice' && <ObjectivePractice title="IELTS Academic Reading Practice" questions={ieltsFullReading} passage/>}
     {tab === 'Writing' && <StandaloneWriting/>}
-    {tab === 'Speaking' && <IELTSSpeaking/>}
+    {tab === 'Speaking' && <IELTSSpeakingStudio/>}
     {tab === 'History' && <IELTSHistory history={state.ieltsHistory || []}/>}
   </div>
 }
@@ -258,71 +258,6 @@ function StandaloneWriting() {
   const [tasks,setTasks]=useState(() => buildIeltsWritingTasks())
   if (done) return <section className="practice-result exam-result"><CheckCircle2/><h2>Writing practice hoàn thành</h2><p>Task 1: {report.writingWords.task1} từ · Task 2: {report.writingWords.task2} từ.</p><button className="btn" onClick={()=>{setTasks(buildIeltsWritingTasks());setDone(false)}}>Luyện lại</button></section>
   return <IELTSWritingExam objective={null} tasks={tasks} onComplete={(value)=>{ const result={...value,type:'Writing',topic:'Academic Task 1 + Task 2'};saveExamResult('ielts',result);setReport(result);setDone(true) }}/>
-}
-
-function IELTSSpeaking() {
-  const { setToast } = useApp()
-  const [part,setPart] = useState('All parts')
-  const [index,setIndex] = useState(0)
-  const [phase,setPhase] = useState('idle')
-  const [seconds,setSeconds] = useState(60)
-  const [recording,setRecording] = useState(false)
-  const [audioUrl,setAudioUrl] = useState('')
-  const [transcript,setTranscript] = useState('')
-  const recorder=useRef(null)
-  const stream=useRef(null)
-  const recognition=useRef(null)
-  const filtered=ieltsSpeaking.filter((item)=>part==='All parts'||item.part===part)
-  const topic=filtered[index % Math.max(1,filtered.length)]
-
-  useEffect(()=>()=>{ stream.current?.getTracks().forEach((track)=>track.stop());recognition.current?.abort();if(audioUrl)URL.revokeObjectURL(audioUrl) },[audioUrl])
-
-  const stop=()=>{ if(recorder.current?.state==='recording')recorder.current.stop();recognition.current?.stop();setRecording(false);setPhase('done') }
-  const resetAttempt=()=>{
-    stream.current?.getTracks().forEach((track)=>track.stop())
-    recognition.current?.abort()
-    setRecording(false)
-    setTranscript('')
-    if(audioUrl)URL.revokeObjectURL(audioUrl)
-    setAudioUrl('')
-    setPhase('idle')
-    setSeconds(topic.part==='Part 2'?60:300)
-  }
-  const prepare=()=>{
-    setTranscript('')
-    if(audioUrl)URL.revokeObjectURL(audioUrl)
-    setAudioUrl('')
-    setPhase('preparation')
-    setSeconds(60)
-  }
-  const start=async()=>{
-    try{
-      if(!navigator.mediaDevices?.getUserMedia||!window.MediaRecorder){setToast('Trình duyệt không hỗ trợ ghi âm; timer vẫn chạy.');setPhase('speaking');setSeconds(topic.part==='Part 2'?120:300);return}
-      stream.current=await navigator.mediaDevices.getUserMedia({audio:true})
-      const chunks=[]
-      recorder.current=new MediaRecorder(stream.current)
-      recorder.current.ondataavailable=(event)=>{if(event.data.size)chunks.push(event.data)}
-      recorder.current.onstop=()=>{setAudioUrl(URL.createObjectURL(new Blob(chunks,{type:'audio/webm'})));stream.current?.getTracks().forEach((track)=>track.stop())}
-      recorder.current.start();setRecording(true);setPhase('speaking');setSeconds(topic.part==='Part 2'?120:300)
-      const speech=recognitionFor('english')
-      if(speech){recognition.current=speech;speech.continuous=true;speech.interimResults=true;speech.onresult=(event)=>setTranscript(Array.from(event.results).map((result)=>result[0].transcript).join(' '));try{speech.start()}catch{/* recording still works */}}
-    }catch{setToast('Không truy cập được microphone. Hãy cấp quyền rồi thử lại.')}
-  }
-  const timeout=()=>{ if(phase==='preparation'){setPhase('ready');setSeconds(120)}else stop() }
-  const canRecord=topic.part==='Part 2' ? phase==='ready' : phase==='idle'
-
-  return <section className="speaking-studio">
-    <div className="filter-bar mini"><label><span>Part</span><select value={part} disabled={recording} onChange={(event)=>{setPart(event.target.value);setIndex(0);resetAttempt()}}>{['All parts','Part 1','Part 2','Part 3'].map((item)=><option key={item}>{item}</option>)}</select></label><span className="filter-result">{filtered.length} topics</span></div>
-    <div className="speaking-topic"><span className="type-tag">{topic.part} · {topic.topic}</span><h2>{topic.question}</h2>{topic.part==='Part 2'&&<div className="cue-card"><strong>You should say:</strong>{topic.bullets.map((item)=><p key={item}>• {item}</p>)}</div>}</div>
-    <div className="speaking-console">
-      <div className={`mic-circle ${recording?'recording':''}`}><Mic/></div>
-      <div><span>{phase==='preparation'?'Preparation · 1 phút':phase==='ready'?'Ready · 2 phút nói':phase==='speaking'?'Speaking':phase==='done'?'Recording complete':'Ready'}</span>{['preparation','speaking'].includes(phase)&&<ExamTimer seconds={seconds} onChange={setSeconds} onEnd={timeout} resetKey={`${phase}:${topic.id}`}/>}</div>
-      <div className="center-actions">{topic.part==='Part 2'&&phase==='idle'&&<button className="btn secondary" onClick={prepare}><Clock3/> Bắt đầu 1 phút chuẩn bị</button>}{canRecord&&<button className="btn" onClick={start}><Mic/> Record</button>}{recording&&<button className="btn danger" onClick={stop}><Square/> Stop</button>}{phase==='done'&&<button className="btn secondary" onClick={resetAttempt}><RotateCcw/> Retry</button>}</div>
-      {audioUrl&&<audio className="recording-player" controls src={audioUrl}/>}
-      {transcript&&<div className="speech-transcript"><strong>SpeechRecognition transcript</strong><p>{transcript}</p><small>Transcript tự động chỉ để tự kiểm tra độ rõ; không phải IELTS Speaking score.</small></div>}
-    </div>
-    <div className="practice-actions spread"><button className="btn ghost" disabled={recording||index===0} onClick={()=>{resetAttempt();setIndex((value)=>Math.max(0,value-1))}}><ChevronLeft/> Previous</button><button className="btn ghost" disabled={recording||index===filtered.length-1} onClick={()=>{resetAttempt();setIndex((value)=>Math.min(filtered.length-1,value+1))}}>Next <ChevronRight/></button></div>
-  </section>
 }
 
 function IELTSHistory({ history }) {
