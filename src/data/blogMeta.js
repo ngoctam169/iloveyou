@@ -1,7 +1,7 @@
 export const blogPostMeta = [
   {
     slug: 'nguyen-ngoc-tam-ninh-thuan',
-    title: 'Nguyễn Ngọc Tâm Ninh Thuận: Vì sao một chàng trai rời quê vào Sài Gòn chọn nghề Dev?',
+    title: 'Từ Ninh Thuận vào Sài Gòn: vì sao mình chọn nghề Dev?',
     seoTitle: 'Nguyễn Ngọc Tâm Ninh Thuận | Vì sao chọn nghề Dev?',
     description: 'Câu chuyện mình từ Ninh Thuận vào Sài Gòn học IT, bước vào nghề developer, gặp vấn đề thực tế, tự học cách giải quyết và định hướng tương lai.',
     excerpt: 'Từ Ninh Thuận vào Sài Gòn học IT, rồi trở thành Full-stack Developer: vì sao mình chọn nghề Dev, đã gặp vấn đề gì, tự học ra sao và còn muốn cải thiện điều gì tiếp theo?',
