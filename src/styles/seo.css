@@ -19,3 +19,29 @@
 .analytics-status.enabled{border-color:color-mix(in srgb,var(--green) 35%,var(--line));background:color-mix(in srgb,var(--green) 7%,var(--surface))}
 .analytics-status strong{font-size:.82rem}.analytics-status p{margin:5px 0 0!important;font-size:.76rem;line-height:1.65}
 @media(max-width:700px){.contact-channels{grid-template-columns:1fr}}
+
+/* Portfolio bottom sections refinement */
+
+.portfolio-notes-grid{display:grid;grid-template-columns:minmax(0,1.28fr) minmax(320px,.72fr);gap:18px;padding-left:74px}
+.portfolio-note-featured,.portfolio-note-action{min-width:0;border:1px solid var(--line);border-radius:22px;background:var(--surface)}
+.portfolio-note-featured{padding:31px 32px;background:linear-gradient(145deg,color-mix(in srgb,var(--primary-soft) 48%,var(--surface)),var(--surface))}
+.portfolio-note-heading{display:flex;align-items:center;justify-content:space-between;gap:20px}
+.portfolio-note-heading>svg{width:22px;height:22px;color:var(--primary)}
+.portfolio-note-featured h3{max-width:680px;margin:16px 0 12px;font-size:1.3rem;line-height:1.38}
+.portfolio-note-featured>p{max-width:720px;margin:0 0 23px;color:var(--muted);font-size:.87rem;line-height:1.7}
+.portfolio-note-action{display:flex;flex-direction:column;justify-content:center;padding:30px}
+.portfolio-note-action>strong{display:block;margin-bottom:11px;font-size:1.03rem;line-height:1.5}
+.portfolio-note-action>p{margin:0 0 22px;color:var(--muted);font-size:.81rem;line-height:1.65}
+.portfolio-inline-action-primary{margin-top:auto;color:#fff;border-color:var(--primary);background:var(--primary)}
+.portfolio-inline-action-primary:hover{color:#fff;border-color:var(--primary);background:color-mix(in srgb,var(--primary) 88%,#000)}
+.portfolio-contact-copy-title{margin:4px 0 18px;font-size:1.14rem}
+.portfolio-contact-card-top{display:flex;align-items:center;justify-content:space-between;gap:16px}
+.portfolio-contact-availability{display:inline-flex;align-items:center;gap:7px;color:#9ea8b7;font:700 .62rem ui-monospace,SFMono-Regular,Consolas,monospace;text-transform:uppercase;letter-spacing:.08em}
+.portfolio-contact-availability i{display:block;width:7px;height:7px;border-radius:50%;background:#56d49c;box-shadow:0 0 0 4px rgba(86,212,156,.1)}
+.portfolio-bottom-section .portfolio-section-kicker h2{max-width:760px}
+.portfolio-bottom-section .portfolio-section-kicker p{max-width:720px}
+@media(max-width:760px){
+  .portfolio-notes-grid{grid-template-columns:1fr;padding-left:0}
+  .portfolio-note-featured,.portfolio-note-action{padding:22px}
+  .portfolio-contact-copy-title{font-size:1rem}
+}
