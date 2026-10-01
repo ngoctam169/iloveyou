@@ -2,9 +2,10 @@ import { DatabaseSync } from 'node:sqlite'
 import { mkdir, readFile, readdir, writeFile } from 'node:fs/promises'
 import { existsSync } from 'node:fs'
 import { join } from 'node:path'
-import { tmpdir } from 'node:os'
+import { fileURLToPath } from 'node:url'
 
-const cacheDir = tmpdir()
+const cacheDir = process.env.VOCAB_CACHE_DIR || fileURLToPath(new URL('../.cache/vocabulary/', import.meta.url))
+await mkdir(cacheDir, { recursive:true })
 const outputDir = new URL('../src/data/vocabulary/generated/', import.meta.url)
 const runtimeDir = new URL('../public/data/vocabulary/', import.meta.url)
 
@@ -19,10 +20,21 @@ const sources = {
 async function cached([name, url]) {
   const path = join(cacheDir, name)
   if (existsSync(path)) return path
-  const response = await fetch(url)
-  if (!response.ok) throw new Error(`Cannot download ${url}: ${response.status}`)
-  await writeFile(path, Buffer.from(await response.arrayBuffer()))
-  return path
+  let lastError
+  for (let attempt = 1; attempt <= 3; attempt += 1) {
+    try {
+      const response = await fetch(url, { signal:AbortSignal.timeout(20000) })
+      if (!response.ok) throw new Error(`HTTP ${response.status}`)
+      const body = Buffer.from(await response.arrayBuffer())
+      if (!body.length) throw new Error('empty response')
+      await writeFile(path, body)
+      return path
+    } catch (error) {
+      lastError = error
+      if (attempt < 3) await new Promise((resolve) => setTimeout(resolve, attempt * 800))
+    }
+  }
+  throw new Error(`Cannot download ${url}: ${lastError?.message || 'unknown error'}`)
 }
 
 function parseCsv(text) {
