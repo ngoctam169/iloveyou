@@ -151,26 +151,80 @@ export default function About() {
       </div>
     </section>
 
-    <section className="portfolio-notes-cta">
-      <div><span className="overline">ENGINEERING NOTES</span><h2>Không chỉ show kết quả — tôi cũng viết về cách xử lý bài toán kỹ thuật.</h2><p>PHP, MongoDB, Redis, Laravel Queue, WebSocket, WebRTC, performance và các quyết định trong production.</p></div>
-      <Link className="btn light" to="/blog">Đọc Blog <ArrowRight/></Link>
+    <section className="portfolio-section portfolio-bottom-section" aria-labelledby="notes-title">
+      <div className="portfolio-section-kicker">
+        <span>07</span>
+        <div>
+          <span className="overline">ENGINEERING NOTES</span>
+          <h2 id="notes-title">Tôi cũng viết về cách phân tích và xử lý bài toán kỹ thuật.</h2>
+          <p>Không chỉ ghi lại kết quả, các bài viết tập trung vào reasoning, trade-off và cách xử lý vấn đề khi hệ thống chạy trong production.</p>
+        </div>
+      </div>
+
+      <div className="portfolio-notes-panel">
+        <div className="portfolio-notes-copy">
+          <span className="portfolio-panel-label">WHAT I WRITE ABOUT</span>
+          <p>Nội dung xoay quanh backend, MongoDB, Redis, queue, WebSocket, WebRTC, performance và những quyết định kỹ thuật cần cân nhắc khi hệ thống phải chạy ổn định trong môi trường thật.</p>
+          <div className="portfolio-tags">
+            {['PHP','Laravel','MongoDB','Redis','Queue','WebSocket','WebRTC','Performance'].map((item) => <span key={item}>{item}</span>)}
+          </div>
+        </div>
+
+        <div className="portfolio-notes-side">
+          <div className="portfolio-note-mini-card">
+            <span className="portfolio-panel-label">APPROACH</span>
+            <strong>Viết để hệ thống hóa tư duy kỹ thuật.</strong>
+            <p>Tập trung vào “vì sao chọn cách làm đó”, trade-off nào cần cân nhắc và khi nào một giải pháp thực sự phù hợp.</p>
+          </div>
+          <Link className="portfolio-inline-action" to="/blog">Đọc Engineering Blog <ArrowRight/></Link>
+        </div>
+      </div>
     </section>
 
-    <section className="about-hire-cta portfolio-hire-cta" aria-labelledby="hire-title">
-      <div className="about-hire-copy">
-        <span className="overline">LET'S WORK TOGETHER</span>
-        <h2 id="hire-title">Đang tìm một Full-stack / Backend Developer?</h2>
-        <p>Tâm sẵn sàng trao đổi về các vị trí Full-stack, Backend hoặc Realtime Systems tại TP.HCM và cơ hội remote phù hợp.</p>
-      </div>
-      <div className="about-hire-contact">
-        <a className="about-hire-email" href={`mailto:${AUTHOR.email}`} aria-label={`Gửi email cho ${AUTHOR.name}`}>
-          <Mail aria-hidden="true"/>
-          <span>{AUTHOR.email}</span>
-        </a>
-        <div className="about-hire-socials" aria-label="Hồ sơ nghề nghiệp">
-          <a href={AUTHOR.sameAs[1]} target="_blank" rel="me noopener noreferrer" aria-label="GitHub Nguyễn Ngọc Tâm"><Code2 aria-hidden="true"/></a>
-          <a href={AUTHOR.sameAs[0]} target="_blank" rel="me noopener noreferrer" aria-label="LinkedIn Nguyễn Ngọc Tâm"><BriefcaseBusiness aria-hidden="true"/></a>
+    <section className="portfolio-section portfolio-bottom-section" aria-labelledby="hire-title">
+      <div className="portfolio-section-kicker">
+        <span>08</span>
+        <div>
+          <span className="overline">LET'S WORK TOGETHER</span>
+          <h2 id="hire-title">Đang tìm một Full-stack / Backend Developer có thể xử lý production systems?</h2>
+          <p>Tâm sẵn sàng trao đổi về các vị trí Full-stack, Backend hoặc Realtime Systems tại TP.HCM và cơ hội remote phù hợp.</p>
         </div>
+      </div>
+
+      <div className="portfolio-contact-panel">
+        <div className="portfolio-contact-copy">
+          <span className="portfolio-panel-label">WHAT I CAN CONTRIBUTE</span>
+          <div className="portfolio-contact-capabilities">
+            {[
+              'Backend application & business logic',
+              'Realtime communication: WebSocket / WebRTC',
+              'Queue, cache & asynchronous processing',
+              'API / CRM / enterprise integration',
+              'Performance troubleshooting & maintainability',
+            ].map((item) => <div key={item}><span><Check/></span><p>{item}</p></div>)}
+          </div>
+        </div>
+
+        <aside className="portfolio-contact-card" aria-label="Liên hệ công việc">
+          <span className="portfolio-contact-label">CONTACT</span>
+          <h3>Trao đổi về cơ hội phù hợp.</h3>
+          <p className="portfolio-contact-intro">Email là kênh nhanh nhất để trao đổi về công việc, freelance hoặc các bài toán kỹ thuật cần cộng tác.</p>
+
+          <a className="portfolio-mail-link" href={`mailto:${AUTHOR.email}`} aria-label={`Gửi email cho ${AUTHOR.name}`}>
+            <Mail aria-hidden="true"/>
+            <span>{AUTHOR.email}</span>
+            <ArrowRight aria-hidden="true"/>
+          </a>
+
+          <div className="portfolio-contact-links">
+            <a href={AUTHOR.sameAs[1]} target="_blank" rel="me noopener noreferrer" aria-label="GitHub Nguyễn Ngọc Tâm">
+              <Code2 aria-hidden="true"/><span>GitHub</span><ExternalLink aria-hidden="true"/>
+            </a>
+            <a href={AUTHOR.sameAs[0]} target="_blank" rel="me noopener noreferrer" aria-label="LinkedIn Nguyễn Ngọc Tâm">
+              <BriefcaseBusiness aria-hidden="true"/><span>LinkedIn</span><ExternalLink aria-hidden="true"/>
+            </a>
+          </div>
+        </aside>
       </div>
     </section>
   </article>
