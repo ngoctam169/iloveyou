@@ -224,7 +224,7 @@ try {
   const onboarding = await browser.newContext()
   const onboardingPage = await onboarding.newPage()
   await onboardingPage.goto(`${origin}/`)
-  await onboardingPage.getByRole('button', { name:'Start Learning' }).first().click()
+  await onboardingPage.getByRole('button', { name:'Bắt đầu học' }).first().click()
   await onboardingPage.getByRole('dialog').waitFor()
   await onboardingPage.keyboard.press('Escape')
   assert(await onboardingPage.getByRole('dialog').count() === 0, 'Onboarding modal did not close with Escape')
