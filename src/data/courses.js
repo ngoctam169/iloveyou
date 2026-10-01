@@ -216,7 +216,8 @@ const generatedEnglishReading = (meta, topic, words, lessonNumber) => {
   const focusIndex = (lessonNumber - 1) % labels.length
   const focus = labels[focusIndex]
   const examples = words.map((word) => word?.[4]).filter(Boolean)
-  const text = [meta.reading?.text, ...examples].filter(Boolean).join(' ')
+  const baseText = [meta.reading?.text, ...examples].filter(Boolean).join(' ')
+  const text = baseText.toLocaleLowerCase().includes(String(focus).toLocaleLowerCase()) ? baseText : `${baseText} ${focus}.`.trim()
   return {
     title:`${topic} · Reading ${lessonNumber}`,
     text,
