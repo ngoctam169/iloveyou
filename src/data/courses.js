@@ -201,12 +201,14 @@ const makeVocabularyListening = (languageId, words, lessonNumber) => {
 
 const generatedEnglishListening = (meta, topic, words, lessonNumber) => {
   const base = meta.listening[(lessonNumber - 1) % meta.listening.length]
+  const labels = words.map((word) => word?.[0]).filter(Boolean)
   const examples = words.map((word) => word?.[4]).filter(Boolean)
+  const focus = labels.join(', ')
   const variants = [
-    `${base} ${examples[0] || ''}`,
-    `${examples[0] || base} ${examples[1] || ''}`,
-    `${base} ${examples[1] || examples[0] || ''}`,
-    `${examples[1] || base} ${examples[2] || ''}`,
+    `In ${topic.toLowerCase()}, listen for these words: ${focus}. ${examples[0] || base}`,
+    `${base} Key words for this situation are ${focus}. ${examples[1] || examples[0] || ''}`,
+    `Here is a short ${topic.toLowerCase()} example using ${focus}. ${examples[0] || ''} ${examples[1] || ''}`,
+    `${examples[1] || base} In this ${topic.toLowerCase()} context, notice ${focus}. ${examples[2] || ''}`,
   ]
   return variants[(lessonNumber - 1) % variants.length].replace(/\s+/g,' ').trim()
 }
