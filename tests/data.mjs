@@ -18,6 +18,7 @@ import { buildVocabularyPractice, checkVocabularyAnswer } from '../src/utils/voc
 import { isWeakVocabulary, nextSchedule, vocabularyStatus, wordKey } from '../src/utils/srs.js'
 import { allVocabulary, getRandomVocabulary, getReviewVocabulary, getVocabularyByLanguage, getVocabularyByLevel, getVocabularyByTopic, normalizePersonalWord, searchVocabulary, vocabularyForState } from '../src/services/vocabularyService.js'
 import { grammarEntries } from '../src/data/grammar.js'
+import { buildPlacementQuestions, placementResult } from '../src/data/tests.js'
 import { buildGrammarQuestion, grammarEntryFor } from '../src/utils/grammarPractice.js'
 
 function assert(condition, message) {
@@ -77,6 +78,7 @@ const toeicGenerated = toeicFormA.flatMap((section)=>section.questions)
 const toeicPartCounts = Object.fromEntries([1,2,3,4,5,6,7].map((part)=>[part,toeicGenerated.filter((item)=>item.part===part).length]))
 assert(JSON.stringify(toeicPartCounts) === JSON.stringify({1:6,2:25,3:39,4:30,5:30,6:16,7:54}), 'Random TOEIC form changed the official part distribution')
 assert(toeicGenerated.filter((item)=>item.part===2).every((item)=>item.audioOnlyChoices && item.choiceLabelsOnly), 'TOEIC Part 2 must hide response text and deliver choices through audio')
+assert(toeicGenerated.filter((item)=>item.part===1).every((item)=>item.sceneImage && item.audioOnlyChoices && item.choiceLabelsOnly), 'TOEIC Part 1 must use a scene image and audio-only choices')
 assert(toeicGenerated.filter((item)=>item.part===7 && item.type==='Multiple Passages').length === 30, 'TOEIC Part 7 should include 30 harder multiple-passage questions')
 assert(new Set(toeicGenerated.map((item)=>item.id)).size === 200, 'Random TOEIC form contains duplicate question ids')
 assert(examFingerprint(toeicFormA) !== examFingerprint(toeicFormB), 'TOEIC generator must create different forms for different random sequences')
@@ -93,6 +95,17 @@ const writingA = buildIeltsWritingTasks(seededRandom(505))
 const writingB = buildIeltsWritingTasks(seededRandom(606))
 assert(writingA.length === 2 && writingA[0].minWords === 150 && writingA[1].minWords === 250, 'Random IELTS Writing must keep Task 1 and Task 2 requirements')
 assert(writingA.map((item)=>item.prompt).join('|') !== writingB.map((item)=>item.prompt).join('|'), 'IELTS Writing generator must rotate prompts')
+
+
+for (const languageId of ['english','chinese','japanese','korean']) {
+  const language = getLanguage(languageId)
+  const questions = buildPlacementQuestions(languageId)
+  assert(questions.length === language.levels.length * 4, `${languageId} placement test must have four questions per level`)
+  assert(new Set(questions.map((item)=>item.id)).size === questions.length, `${languageId} placement questions must have unique ids`)
+  assert(new Set(questions.map((item)=>item.category)).size === 4, `${languageId} placement test must cover four skill areas`)
+  const perfect = placementResult(languageId, questions, questions.map((item)=>item.answer))
+  assert(perfect.levelIndex === language.levels.length - 1, `${languageId} perfect placement score should recommend the highest level`)
+}
 
 for (const level of Object.keys(expectedTopics)) {
   assert(englishLevels[level], `Missing English metadata for ${level}`)
@@ -178,6 +191,7 @@ for (const level of Object.keys(expectedTopics)) {
   const lessons = getRoadmap('english',level).flatMap((unit)=>unit.lessons)
   assert(new Set(lessons.map((lesson)=>lesson.listening.audio)).size >= 50, `${level} listening content is still too repetitive`)
   assert(new Set(lessons.map((lesson)=>lesson.reading.text)).size >= 50, `${level} reading content is still too repetitive`)
+  assert(!lessons.some((lesson)=>/Bài học kết nối|speaker then connects|main focus and uses/i.test(lesson.detailedExplanation || lesson.listening?.audio || '')), `${level} still contains meta-generated lesson prose`)
   assert(new Set(lessons.map((lesson)=>lesson.vocab.map((word)=>normalizedContent(word[0])).join('|'))).size === lessons.length, `${level} repeats the same vocabulary set across lessons`)
   assert(new Set(lessons.map((lesson)=>[normalizedContent(lesson.title),normalizedContent(lesson.listening.audio),normalizedContent(lesson.reading.text),normalizedContent(lesson.quiz.question),normalizedContent(lesson.writing.prompt)].join('::'))).size === lessons.length, `${level} contains duplicated lesson content`)
   for (const lesson of lessons) {
