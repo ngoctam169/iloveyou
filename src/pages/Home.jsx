@@ -1,4 +1,4 @@
-import { ArrowRight, BarChart3, BookOpen, Brain, Check, Headphones, MessageCircle, PenLine, RotateCcw, Search, Sparkles, Target, Trophy } from 'lucide-react'
+import { ArrowRight, BarChart3, BookOpen, Brain, Check, Headphones, MessageCircle, PenLine, RotateCcw, Search, Sparkles, Target } from 'lucide-react'
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import LanguageCard from '../components/course/LanguageCard'
@@ -53,18 +53,23 @@ export default function Home() {
         <div className="trust-row"><span><Check/> 4 ngôn ngữ</span><span><Check/> ~1000 từ mỗi level</span><span><Check/> Tiến độ lưu trên thiết bị</span></div>
         <p className="hero-maker">Được phát triển bởi <Link to="/about">Nguyễn Ngọc Tâm (Ngọc Tâm Dev)</Link>.</p>
       </div>
-      <div className="hero-visual" aria-label="NT Language Learning">
-        <div className="orb orb-one"/><div className="orb orb-two"/>
-        <div className="visual-card lesson-preview">
-          <span className="preview-label">TODAY'S LEARNING PLAN</span>
-          <div className="preview-icon">NT</div>
-          <h3>Learn · Practice · Review</h3>
-          <p>Vocabulary · Grammar · 4 Skills</p>
-          <div className="mini-progress"><span/></div>
-          <strong>65% mục tiêu hôm nay</strong>
+      <div className="hero-visual huashu-learning-index" aria-label="NT Language Learning">
+        <div className="huashu-index-head">
+          <span>Learning index · 2026</span>
+          <strong>Choose your path</strong>
         </div>
-        <div className="visual-card streak-float"><span>🎧</span><div><strong>TOEIC 200 câu</strong><small>45m Listening · 75m Reading</small></div></div>
-        <div className="visual-card xp-float"><Trophy/><div><strong>IELTS Academic</strong><small>Listening · Reading · Writing · Speaking</small></div></div>
+        <div className="huashu-index-list">
+          {languages.map((language,index) => <Link key={language.id} to={languagePath(language.id)} className="huashu-index-row">
+            <span className="huashu-index-no">{String(index + 1).padStart(2,'0')}</span>
+            <span className="huashu-index-language"><b>{language.nativeName}</b><small>{language.name}</small></span>
+            <span className="huashu-index-levels">{language.levels.map(([level]) => level).join(' · ')}</span>
+            <ArrowRight/>
+          </Link>)}
+        </div>
+        <div className="huashu-exam-rail">
+          <Link to="/toeic"><span>TOEIC</span><strong>200 câu · Full Test</strong><ArrowRight/></Link>
+          <Link to="/ielts"><span>IELTS</span><strong>4 skills · Academic</strong><ArrowRight/></Link>
+        </div>
       </div>
     </section>
     <section className="stats-strip" aria-label="Tổng quan NT Language Learning"><div><strong>4</strong><span>Ngôn ngữ</span></div><div><strong>~1000</strong><span>Từ / level</span></div><div><strong>200</strong><span>TOEIC Full Test</span></div><div><strong>4</strong><span>IELTS skills</span></div></section>
