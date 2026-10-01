@@ -189,8 +189,8 @@ try {
   await page.setViewportSize({ width:375, height:800 })
   await page.goto(`${origin}/dashboard`)
   await page.locator('nav.bottom-nav').waitFor({ state:'visible' })
-  const bottomLinks = await page.locator('nav.bottom-nav a').count()
-  assert(bottomLinks === 5, `Mobile bottom navigation should render 5 links, got ${bottomLinks}`)
+  const bottomItems = await page.locator('nav.bottom-nav a, nav.bottom-nav button').count()
+  assert(bottomItems === 5, `Mobile bottom navigation should render 5 actions, got ${bottomItems}`)
 
   await page.evaluate(() => {
     localStorage.setItem('nt_exam_session_v1:test','{"started":true}')
