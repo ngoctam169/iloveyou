@@ -1060,3 +1060,13 @@ input:focus,textarea:focus,select:focus{border-color:var(--primary)!important;bo
   .editorial-footer-nav{grid-template-columns:1fr 1fr}
   .editorial-footer .footer-bottom{align-items:flex-start;flex-direction:column}
 }
+
+
+/* Direction A keyboard focus */
+.public-editorial-header a:focus-visible,
+.editorial-footer a:focus-visible,
+.huashu-study-flow a:focus-visible,
+.huashu-index-row:focus-visible{
+  outline:2px solid var(--primary);
+  outline-offset:4px;
+}
