@@ -783,3 +783,200 @@ input:focus,textarea:focus,select:focus{border-color:var(--primary)!important;bo
   background:color-mix(in srgb,var(--surface) 96%,transparent)!important;
   border-color:var(--line)!important;
 }
+
+
+/* Direction A final pass */
+.public-editorial-header{
+  grid-template-columns:170px minmax(0,1fr) 150px!important;
+}
+.editorial-wordmark{
+  font-family:var(--huashu-serif)!important;
+  font-style:italic;
+  font-size:1.08rem!important;
+  font-weight:600!important;
+}
+.public-editorial-header .desktop-nav{justify-content:center}
+.public-editorial-header .desktop-nav>a{
+  position:relative;
+  padding:24px 11px 22px;
+  font-size:.72rem;
+  font-weight:500;
+}
+.public-editorial-header .desktop-nav>a:after{
+  content:'';
+  position:absolute;
+  left:11px;
+  right:100%;
+  bottom:16px;
+  height:1px;
+  background:var(--primary);
+  transition:right .18s ease;
+}
+.public-editorial-header .desktop-nav>a:hover:after,
+.public-editorial-header .desktop-nav>a.active:after{right:11px}
+.mobile-editorial-links{display:grid}
+.mobile-editorial-links a{padding:13px 0;border-bottom:1px solid var(--line);border-radius:0!important}
+
+.huashu-home-hero{min-height:610px}
+.huashu-home-hero .hero-copy h1{max-width:720px}
+.huashu-home-hero .hero-copy>p{max-width:620px}
+.huashu-home-hero .hero-maker{max-width:620px;color:var(--muted)}
+.huashu-home-hero .hero-maker a{color:var(--text);border-bottom:1px solid var(--line)}
+
+.huashu-framework{background:transparent}
+.huashu-framework .framework-grid{
+  grid-template-columns:repeat(4,minmax(0,1fr));
+}
+.huashu-framework .framework-grid article{
+  min-height:250px;
+  display:flex;
+  flex-direction:column;
+}
+.huashu-framework .framework-grid article a{
+  margin-top:auto;
+  padding-top:22px;
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  color:var(--text);
+  font-size:.72rem;
+  font-weight:600;
+}
+.huashu-framework .framework-grid article a svg{width:14px;color:var(--primary)}
+
+.huashu-study-system{padding-top:0}
+.huashu-study-flow{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:1px;
+  border:1px solid var(--line);
+  background:var(--line);
+}
+.huashu-study-flow>a{
+  position:relative;
+  min-height:260px;
+  padding:26px;
+  color:var(--text);
+  background:var(--surface);
+}
+.huashu-study-flow>a:hover{background:color-mix(in srgb,var(--surface) 82%,var(--primary-soft))}
+.huashu-study-flow>a>svg:not(.huashu-study-arrow){
+  width:28px;
+  height:28px;
+  margin:42px 0 22px;
+  color:var(--primary);
+  stroke-width:1.5;
+}
+.huashu-study-no{
+  display:block;
+  color:var(--primary);
+  font-family:var(--huashu-mono);
+  font-size:.61rem;
+  letter-spacing:.1em;
+}
+.huashu-study-flow h3{
+  margin:0 0 10px;
+  font-size:1.28rem;
+  font-weight:500;
+}
+.huashu-study-flow p{
+  margin:0;
+  color:var(--muted);
+  font-size:.77rem;
+  line-height:1.65;
+}
+.huashu-study-arrow{
+  position:absolute;
+  right:22px;
+  bottom:22px;
+  width:15px;
+  color:var(--muted);
+}
+
+.huashu-exam-section .exam-home-grid article{
+  min-height:285px;
+  display:flex;
+  flex-direction:column;
+}
+.huashu-exam-section .exam-home-grid .btn{margin-top:auto;width:max-content}
+
+.huashu-maker-strip{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) auto;
+  gap:52px;
+  align-items:end;
+  padding-block:72px;
+  border-bottom:1px solid var(--line);
+}
+.huashu-maker-strip h2{
+  margin:9px 0 9px;
+  font-size:clamp(1.7rem,3vw,2.55rem);
+  font-weight:400;
+}
+.huashu-maker-strip p{
+  max-width:730px;
+  margin:0;
+  color:var(--muted);
+  font-size:.84rem;
+  line-height:1.7;
+}
+.huashu-home-blog{padding-block:90px 110px}
+.huashu-home-blog .home-blog-heading{align-items:end}
+.huashu-home-blog .section-intro{margin-bottom:0}
+
+.app-shell .cvp5-hero h1>span{max-width:930px}
+.app-shell .cvp5-lead{
+  max-width:720px;
+  font-size:.98rem;
+  line-height:1.82;
+}
+.app-shell .cvp5-project{
+  grid-template-columns:minmax(220px,.58fr) minmax(0,1.42fr);
+  gap:86px;
+}
+.app-shell .cvp5-project-body>p{font-size:.86rem}
+.app-shell .cvp5-project-body li{font-size:.79rem}
+.app-shell .cvp5-facts strong{font-family:var(--huashu-sans)}
+.app-shell .cvp5-nav{font-family:var(--huashu-mono);font-size:.66rem}
+
+.app-shell .blog-hero{
+  align-items:end;
+}
+.app-shell .blog-hero>div:first-child{max-width:760px}
+.app-shell .blog-hero h1{max-width:760px}
+.app-shell .blog-author-line{
+  margin-top:22px;
+  color:var(--muted);
+  font-family:var(--huashu-mono);
+  font-size:.65rem;
+}
+.app-shell .inline-story{
+  border-top:1px solid var(--line);
+  padding-top:90px;
+}
+.app-shell .article-content{
+  font-family:var(--huashu-serif);
+  font-size:1.03rem;
+  line-height:1.9;
+}
+.app-shell .article-content h2,
+.app-shell .article-content h3{
+  font-family:var(--huashu-serif);
+  font-weight:500;
+}
+
+@media(max-width:980px){
+  .public-editorial-header{grid-template-columns:150px minmax(0,1fr) 130px!important}
+  .huashu-framework .framework-grid{grid-template-columns:1fr 1fr}
+  .huashu-study-flow{grid-template-columns:1fr 1fr}
+}
+@media(max-width:760px){
+  .public-editorial-header{grid-template-columns:1fr auto!important}
+  .huashu-home-hero{min-height:auto}
+  .huashu-framework .framework-grid,
+  .huashu-study-flow{grid-template-columns:1fr}
+  .huashu-study-flow>a{min-height:210px}
+  .huashu-maker-strip{grid-template-columns:1fr;gap:24px;padding-block:54px}
+  .huashu-maker-strip .btn{width:max-content}
+  .app-shell .cvp5-project{grid-template-columns:1fr;gap:20px}
+}
