@@ -1,5 +1,5 @@
 import '../styles/blog.css'
-import { ArrowRight, BriefcaseBusiness, Check, Code2, ExternalLink, GraduationCap, Mail, MapPin } from 'lucide-react'
+import { ArrowRight, BriefcaseBusiness, Check, ExternalLink, GraduationCap, Mail, MapPin } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import Breadcrumbs from '../components/common/Breadcrumbs'
 import { AUTHOR } from '../data/author'
@@ -46,139 +46,107 @@ const skillGroups = [
   ['Delivery & quality',['AWS EC2 / S3','Docker','Kubernetes','GitLab CI/CD','GitHub Actions','Nginx','Linux','PHPUnit','SonarQube']],
 ]
 
-const strengths = [
-  ['Product delivery','Theo feature từ yêu cầu, implementation, integration đến kiểm tra và xử lý khi chạy production.'],
-  ['Problem solving','Debug production issue, phân tích bottleneck và chọn giải pháp phù hợp thay vì chỉ xử lý phần triệu chứng.'],
-  ['Cross-functional','Làm việc cùng Product, QA, Support và phía khách hàng để đưa thay đổi vào hệ thống ổn định.'],
-  ['Ownership','Hỗ trợ developer mới, theo dõi tiến độ và từng đảm nhiệm vai trò Scrum Host / Facilitator khi cần.'],
-]
-
 export default function About() {
-  return <article className="inner-page section-shell about-author cvp-page">
+  return <article className="inner-page section-shell about-author cvp-page cvp-page-v5">
     <Breadcrumbs items={[{ label:'Trang chủ',to:'/' },{ label:'About Me' }]}/>
 
-    <header className="cvp-hero">
-      <div className="cvp-hero-copy">
-        <div className="cvp-availability"><span aria-hidden="true"/> Open to the right opportunity</div>
-
-        <h1>
-          <span>Nguyễn Ngọc Tâm</span>
-          <strong>Full-stack Developer</strong>
-        </h1>
-
-        <p className="cvp-hero-lead">
-          Tôi phát triển sản phẩm web end-to-end và ưu tiên những thứ quan trọng khi hệ thống chạy thật:
-          code dễ bảo trì, dữ liệu nhất quán, hiệu năng ổn định và delivery rõ ràng.
-        </p>
-
-        <div className="cvp-hero-actions">
-          <a className="btn large" href="#projects">Xem dự án <ArrowRight/></a>
-          <a className="btn secondary large" href={`mailto:${AUTHOR.email}`}><Mail/> Liên hệ</a>
-        </div>
-
-        <div className="cvp-social-links">
-          <a href={AUTHOR.sameAs[1]} target="_blank" rel="me noopener noreferrer">GitHub <ExternalLink/></a>
-          <a href={AUTHOR.sameAs[0]} target="_blank" rel="me noopener noreferrer">LinkedIn <ExternalLink/></a>
-        </div>
+    <header className="cvp5-hero">
+      <div className="cvp5-kicker">
+        <span>Portfolio</span>
+        <span>Ho Chi Minh City, Vietnam</span>
       </div>
 
-      <aside className="cvp-snapshot" aria-label="Thông tin nhanh">
-        <div className="cvp-snapshot-head">
-          <span>Quick profile</span>
-          <Code2 aria-hidden="true"/>
-        </div>
+      <h1>
+        <span>Nguyễn Ngọc Tâm</span>
+        <strong>Full-stack Developer</strong>
+      </h1>
 
-        <dl>
-          <div>
-            <dt>Role</dt>
-            <dd>Full-stack Developer</dd>
-          </div>
-          <div>
-            <dt>Current</dt>
-            <dd>South Telecom</dd>
-          </div>
-          <div>
-            <dt>Experience</dt>
-            <dd>07/2022 — Present</dd>
-          </div>
-          <div>
-            <dt>Selected work</dt>
-            <dd>4 production systems</dd>
-          </div>
-        </dl>
+      <p className="cvp5-lead">
+        Tôi xây dựng và duy trì sản phẩm web trong môi trường production, từ phát triển feature,
+        tích hợp hệ thống đến xử lý các vấn đề phát sinh khi sản phẩm vận hành thực tế.
+      </p>
 
-        <div className="cvp-snapshot-location"><MapPin/> Ho Chi Minh City, Vietnam</div>
-      </aside>
+      <div className="cvp5-actions">
+        <a className="btn large" href="#projects">Xem dự án <ArrowRight/></a>
+        <a className="btn secondary large" href={`mailto:${AUTHOR.email}`}><Mail/> Liên hệ</a>
+        <a className="cvp5-text-link" href={AUTHOR.sameAs[1]} target="_blank" rel="me noopener noreferrer">GitHub <ExternalLink/></a>
+        <a className="cvp5-text-link" href={AUTHOR.sameAs[0]} target="_blank" rel="me noopener noreferrer">LinkedIn <ExternalLink/></a>
+      </div>
+
+      <div className="cvp5-facts" aria-label="Thông tin nhanh">
+        <div><span>Current</span><strong>South Telecom</strong></div>
+        <div><span>Role</span><strong>Full-stack Developer</strong></div>
+        <div><span>Experience</span><strong>07/2022 — Present</strong></div>
+        <div><span>Location</span><strong><MapPin/> Ho Chi Minh City</strong></div>
+      </div>
     </header>
 
-    <nav className="cvp-nav" aria-label="Đi nhanh trong hồ sơ">
+    <nav className="cvp5-nav" aria-label="Đi nhanh trong hồ sơ">
       <a href="#projects">Projects</a>
       <a href="#experience">Experience</a>
-      <a href="#strengths">Strengths</a>
       <a href="#stack">Stack</a>
       <a href="#contact">Contact</a>
     </nav>
 
-    <section className="cvp-section cvp-projects" id="projects" aria-labelledby="projects-title">
-      <div className="cvp-section-heading">
-        <span>Selected projects</span>
-        <h2 id="projects-title">Những hệ thống tôi đã trực tiếp tham gia</h2>
-        <p>Backend, realtime, integration hay security được đặt đúng ngữ cảnh dự án — không dùng chúng để thay thế identity chính là Full-stack Developer.</p>
+    <section className="cvp5-section" id="projects" aria-labelledby="projects-title">
+      <div className="cvp5-section-head">
+        <span>Selected work</span>
+        <h2 id="projects-title">Dự án tiêu biểu</h2>
+        <p>Những điểm mạnh về backend, realtime, integration, security và performance được thể hiện trong chính bối cảnh dự án đã làm.</p>
       </div>
 
-      <div className="cvp-project-grid">
+      <div className="cvp5-project-list">
         {AUTHOR.selectedProjects.map((project,index) => {
           const detail = projectDetails[project.name]
-          return <article className="cvp-project-card" key={project.name}>
-            <div className="cvp-project-topline">
+          return <article className="cvp5-project" key={project.name}>
+            <div className="cvp5-project-title">
               <span>{String(index + 1).padStart(2,'0')}</span>
               <small>{detail?.label}</small>
+              <h3>{project.name}</h3>
             </div>
 
-            <h3>{project.name}</h3>
-            <p className="cvp-project-intro">{detail?.intro || project.summary}</p>
+            <div className="cvp5-project-body">
+              <p>{detail?.intro || project.summary}</p>
 
-            <ul>
-              {(detail?.highlights || [project.summary]).map((item) => <li key={item}><Check/>{item}</li>)}
-            </ul>
+              <ul>
+                {(detail?.highlights || [project.summary]).map((item) => <li key={item}><Check/>{item}</li>)}
+              </ul>
 
-            <div className="cvp-tags">
-              {project.technologies.map((item) => <span key={item}>{item}</span>)}
+              <div className="cvp5-tags">
+                {project.technologies.map((item) => <span key={item}>{item}</span>)}
+              </div>
             </div>
           </article>
         })}
       </div>
     </section>
 
-    <section className="cvp-section cvp-experience" id="experience" aria-labelledby="experience-title">
-      <div className="cvp-section-heading">
+    <section className="cvp5-section" id="experience" aria-labelledby="experience-title">
+      <div className="cvp5-section-head">
         <span>Experience</span>
         <h2 id="experience-title">Kinh nghiệm làm việc</h2>
       </div>
 
-      <div className="cvp-experience-list">
+      <div className="cvp5-experience">
         <article>
-          <div className="cvp-experience-meta">
+          <div className="cvp5-experience-side">
             <span>07/2022 — Present</span>
             <small>Ho Chi Minh City</small>
           </div>
-          <div className="cvp-experience-body">
-            <p className="cvp-company">South Telecom</p>
+          <div>
+            <p className="cvp5-company">South Telecom</p>
             <h3>Full-stack Developer</h3>
             <p>Phát triển và duy trì sản phẩm, tích hợp CRM/API, xử lý communication flows, production issue, performance và cloud-cost optimization. Phối hợp với Product, QA, Support; hỗ trợ developer mới và tham gia Scrum facilitation.</p>
-            <div className="cvp-tags">
-              {['PHP','JavaScript','MongoDB','Redis','WebSocket','WebRTC','CRM integration','CI/CD'].map((item) => <span key={item}>{item}</span>)}
-            </div>
           </div>
         </article>
 
         <article>
-          <div className="cvp-experience-meta">
+          <div className="cvp5-experience-side">
             <span>04/2022 — 07/2022</span>
             <small>Internship</small>
           </div>
-          <div className="cvp-experience-body">
-            <p className="cvp-company">R-Digital</p>
+          <div>
+            <p className="cvp5-company">R-Digital</p>
             <h3>Backend Developer Intern</h3>
             <p>Phối hợp với frontend và các thành viên trong nhóm để xây dựng backend, cải thiện chức năng và báo cáo tiến độ dự án.</p>
           </div>
@@ -186,31 +154,16 @@ export default function About() {
       </div>
     </section>
 
-    <section className="cvp-section" id="strengths" aria-labelledby="strengths-title">
-      <div className="cvp-section-heading">
-        <span>How I work</span>
-        <h2 id="strengths-title">Điểm mạnh trong cách làm việc</h2>
-      </div>
-
-      <div className="cvp-strength-grid">
-        {strengths.map(([title,description],index) => <article key={title}>
-          <span>{String(index + 1).padStart(2,'0')}</span>
-          <h3>{title}</h3>
-          <p>{description}</p>
-        </article>)}
-      </div>
-    </section>
-
-    <section className="cvp-section" id="stack" aria-labelledby="stack-title">
-      <div className="cvp-section-heading cvp-section-heading-row">
+    <section className="cvp5-section" id="stack" aria-labelledby="stack-title">
+      <div className="cvp5-section-head cvp5-section-head-split">
         <div>
           <span>Technical stack</span>
-          <h2 id="stack-title">Công nghệ đã sử dụng trong công việc</h2>
+          <h2 id="stack-title">Công nghệ đã sử dụng</h2>
         </div>
-        <p>Chỉ liệt kê những công nghệ có trong kinh nghiệm và dự án, không dùng phần trăm kỹ năng.</p>
+        <p>Stack được nhóm theo vai trò trong hệ thống để dễ đọc, thay vì biến portfolio thành một danh sách logo hoặc thanh phần trăm kỹ năng.</p>
       </div>
 
-      <div className="cvp-stack-list">
+      <div className="cvp5-stack">
         {skillGroups.map(([group,items]) => <article key={group}>
           <h3>{group}</h3>
           <div>{items.map((item) => <span key={item}>{item}</span>)}</div>
@@ -218,38 +171,35 @@ export default function About() {
       </div>
     </section>
 
-    <section className="cvp-section cvp-secondary-grid">
-      <article className="cvp-education" aria-labelledby="education-title">
+    <section className="cvp5-section cvp5-meta-grid">
+      <article className="cvp5-meta-card">
         <GraduationCap/>
         <div>
           <span>Education</span>
-          <h2 id="education-title">Industrial University of Ho Chi Minh City</h2>
+          <h2>Industrial University of Ho Chi Minh City</h2>
           <p>Information Technology · 09/2019 — 02/2022</p>
         </div>
       </article>
 
-      <article className="cvp-writing" aria-labelledby="writing-title">
+      <article className="cvp5-meta-card cvp5-writing">
         <div>
           <span>Engineering notes</span>
-          <h2 id="writing-title">Ghi lại cách phân tích và giải quyết vấn đề kỹ thuật</h2>
-          <p>Các bài viết xoay quanh những vấn đề đã gặp khi làm PHP, MongoDB, Redis, queue, WebSocket, WebRTC và production systems.</p>
+          <h2>Cách tôi phân tích và xử lý bài toán kỹ thuật</h2>
+          <p>Ghi chú về PHP, MongoDB, Redis, queue, WebSocket, WebRTC và các vấn đề production đã gặp trong quá trình làm việc.</p>
         </div>
-        <Link to="/blog">Xem Engineering Blog <ArrowRight/></Link>
+        <Link to="/blog">Đọc Engineering Blog <ArrowRight/></Link>
       </article>
     </section>
 
-    <section className="cvp-contact" id="contact" aria-labelledby="contact-title">
+    <section className="cvp5-contact" id="contact" aria-labelledby="contact-title">
       <div>
-        <span>Let's work together</span>
-        <h2 id="contact-title">Đang tìm một Full-stack Developer?</h2>
-        <p>Tôi sẵn sàng trao đổi về vị trí phù hợp tại TP.HCM hoặc cơ hội remote.</p>
+        <span>Contact</span>
+        <h2 id="contact-title">Nguyễn Ngọc Tâm · Full-stack Developer</h2>
+        <p>Sẵn sàng trao đổi về vị trí phù hợp tại TP.HCM hoặc cơ hội remote.</p>
       </div>
-
-      <div className="cvp-contact-actions">
+      <div className="cvp5-contact-actions">
         <a className="btn large" href={`mailto:${AUTHOR.email}`}><Mail/> {AUTHOR.email}</a>
-        <a className="btn secondary large" href={AUTHOR.sameAs[0]} target="_blank" rel="me noopener noreferrer">
-          <BriefcaseBusiness/> LinkedIn
-        </a>
+        <a className="btn secondary large" href={AUTHOR.sameAs[0]} target="_blank" rel="me noopener noreferrer"><BriefcaseBusiness/> LinkedIn</a>
       </div>
     </section>
   </article>
