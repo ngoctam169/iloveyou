@@ -177,6 +177,31 @@ try {
     assert(overflow <= 1, `Dashboard overflows horizontally at ${width}px by ${overflow}px`)
   }
 
+  for (const width of [375, 768, 1440]) {
+    await page.setViewportSize({ width, height: 900 })
+    for (const route of ['/', '/about', '/blog', '/vocabulary', '/toeic', '/ielts']) {
+      await page.goto(`${origin}${route}`)
+      const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)
+      assert(overflow <= 1, `${route} overflows horizontally at ${width}px by ${overflow}px`)
+    }
+  }
+
+  await page.setViewportSize({ width:375, height:800 })
+  await page.goto(`${origin}/dashboard`)
+  const bottomLinks = await page.getByRole('navigation', { name:'Điều hướng ứng dụng' }).getByRole('link').count()
+  assert(bottomLinks === 5, `Mobile bottom navigation should render 5 links, got ${bottomLinks}`)
+
+  await page.evaluate(() => {
+    localStorage.setItem('nt_exam_session_v1:test','{"started":true}')
+    localStorage.setItem('nt_exam_forms_v1:test','[]')
+    localStorage.setItem('nt_ielts_full_flow_v1','{"phase":"writing"}')
+  })
+  await page.goto(`${origin}/settings`)
+  await page.getByRole('button', { name:'Đặt lại tiến độ' }).click()
+  await page.getByRole('button', { name:'Xác nhận đặt lại' }).click()
+  const remainingNtKeys = await page.evaluate(() => Object.keys(localStorage).filter((key) => key.startsWith('nt_')))
+  assert(remainingNtKeys.every((key) => key === 'nt_state_v1'), `Reset left stale app storage: ${remainingNtKeys.join(', ')}`)
+
   await page.setViewportSize({ width: 375, height: 800 })
   await page.goto(`${origin}/dashboard`)
   await page.getByRole('button', { name: 'Mở menu' }).click()
