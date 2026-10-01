@@ -38,8 +38,9 @@ const part1Bank = [
     'At a marina, several small boats are moored side by side along a wooden dock.',
   ]
   return q('adv-t1-'+String(index+1).padStart(2,'0'),1,'Photographs','Choose the statement that best matches the scene.',options,answers[index],{
-    passageTitle:'Scene description',
-    passage:scenes[index],
+    sceneImage:`toeic/scenes/${String(index + 1).padStart(2,'0')}.svg`,
+    sceneAlt:scenes[index],
+    audioOnlyChoices:true,
     choiceLabelsOnly:true,
     audio:options.map((option,i)=>'Choice '+String.fromCharCode(65+i)+'. '+option).join(' '),
   })
