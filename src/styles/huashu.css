@@ -1136,3 +1136,185 @@ html{scrollbar-gutter:stable}
 .error-boundary-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:22px}
 @supports (content-visibility:auto){.section-block,.home-blog,.blog-list,.related-articles{content-visibility:auto;contain-intrinsic-size:1px 720px}}
 @media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
+
+
+/* Simplified primary navigation */
+.editorial-global-header{
+  grid-template-columns:160px minmax(0,1fr) 190px!important;
+}
+.editorial-global-header .header-actions{
+  width:190px;
+  min-width:190px;
+}
+.editorial-global-header .header-session-slot{
+  min-width:126px;
+}
+.simplified-desktop-nav{
+  gap:2px!important;
+}
+.simplified-desktop-nav .nav-group-button,
+.simplified-desktop-nav>a{
+  padding-inline:12px!important;
+  font-size:.76rem!important;
+}
+.learning-nav-popover{
+  width:390px;
+  min-width:390px;
+  padding:10px;
+}
+.nav-popover-section{
+  display:grid;
+  gap:8px;
+}
+.nav-popover-section+.nav-popover-section{
+  margin-top:9px;
+  padding-top:9px;
+  border-top:1px solid var(--line);
+}
+.nav-popover-heading{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:14px;
+  padding:3px 4px;
+}
+.nav-popover-heading strong{
+  color:var(--text);
+  font-size:.68rem;
+  letter-spacing:.02em;
+}
+.nav-popover-heading>a{
+  display:inline!important;
+  padding:0!important;
+  color:var(--primary)!important;
+  font-size:.65rem!important;
+  font-weight:800!important;
+}
+.nav-language-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:5px;
+}
+.nav-language-grid>a{
+  display:grid!important;
+  gap:2px;
+  padding:10px 11px!important;
+  border:1px solid transparent;
+  background:var(--surface-2);
+}
+.nav-language-grid>a:hover,
+.nav-language-grid>a.active{
+  border-color:color-mix(in srgb,var(--primary) 24%,var(--line));
+  background:var(--primary-soft)!important;
+}
+.nav-language-grid span{
+  color:var(--text);
+  font-weight:750;
+}
+.nav-language-grid small{
+  color:var(--muted);
+  font-size:.61rem;
+}
+.nav-learning-tools{
+  grid-template-columns:repeat(3,1fr);
+}
+.nav-learning-tools>a{
+  text-align:center;
+}
+.account-menu-wrap{
+  position:relative;
+  display:flex;
+  align-items:center;
+}
+.account-button{
+  cursor:pointer;
+}
+.account-menu-wrap.active .account-button{
+  box-shadow:0 0 0 2px color-mix(in srgb,var(--primary) 30%,transparent);
+}
+.account-popover{
+  right:0;
+  left:auto;
+  min-width:205px;
+}
+.account-popover-head{
+  display:grid;
+  gap:2px;
+  padding:9px 12px 11px;
+  margin-bottom:5px;
+  border-bottom:1px solid var(--line);
+}
+.account-popover-head strong{
+  overflow:hidden;
+  color:var(--text);
+  font-size:.75rem;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+.account-popover-head small{
+  color:var(--muted);
+  font-size:.61rem;
+}
+.mobile-menu-close{
+  grid-column:1/-1;
+  justify-self:end;
+  display:grid;
+  place-items:center;
+  width:34px;
+  height:34px;
+  margin-bottom:-2px;
+  border:1px solid var(--line);
+  border-radius:10px;
+  color:var(--muted);
+  background:var(--surface);
+  cursor:pointer;
+}
+.mobile-focus-panel{
+  grid-column:1/-1;
+}
+.simplified-mobile-menu section>div a{
+  line-height:1.3;
+}
+@media(max-width:1100px) and (min-width:761px){
+  .editorial-global-header{
+    grid-template-columns:145px minmax(0,1fr) 185px!important;
+  }
+}
+@media(max-width:760px){
+  .editorial-global-header .app-menu-toggle{
+    display:none!important;
+  }
+  .simplified-mobile-menu{
+    padding-top:10px!important;
+  }
+  .simplified-bottom-nav a,
+  .simplified-bottom-nav button{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    gap:3px;
+    min-width:0;
+    padding:0 2px;
+    border:0;
+    color:var(--muted);
+    background:transparent;
+    font-size:.58rem;
+    font-weight:650;
+    cursor:pointer;
+  }
+  .simplified-bottom-nav a.active,
+  .simplified-bottom-nav button.active{
+    color:var(--primary);
+  }
+  .simplified-bottom-nav svg{
+    width:20px;
+    height:20px;
+  }
+}
+@media(max-width:420px){
+  .simplified-bottom-nav a,
+  .simplified-bottom-nav button{
+    font-size:.52rem;
+  }
+}
