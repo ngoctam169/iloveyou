@@ -43,7 +43,7 @@ try {
   assert(await page.locator('.desktop-nav > a[href="/blog"]').count()===1,'Blog must be a top-level desktop navigation item')
   assert(await page.locator('.desktop-nav > a[href="/about"]').count()===1,'About Me must be a top-level desktop navigation item')
   assert((await page.locator('.desktop-nav > a[href="/about"]').textContent())==='About Me','About navigation label must be About Me')
-  assert(await page.locator('.public-editorial-header').count()===1,'About must use the editorial public header')
+  assert(await page.locator('.editorial-global-header').count()===1,'About must use the stable editorial header')
   assert(await page.locator('.nav-popover a[href="/blog"], .nav-popover a[href="/about"]').count()===0,'Public editorial navigation must keep Blog/About as direct links')
   assert(await page.locator('.cvp5-project').count()>=4,'About Me is missing selected project case studies')
   assert(await page.locator('.cvp5-experience article').count()>=2,'About Me is missing work experience')
