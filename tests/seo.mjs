@@ -26,7 +26,7 @@ assert(person?.['@id'] === `${DEFAULT_SITE_URL}/#person` && person.name === AUTH
 assert(AUTHOR.alternateNames.every((name) => person.alternateName.includes(name)),'Person alternate names are incomplete')
 assert(AUTHOR.sameAs.every((url) => person.sameAs.includes(url)),'Person sameAs links are incomplete')
 assert(person.disambiguatingDescription?.includes('Ninh Thuận'),'Person entity is missing Ninh Thuận disambiguation')
-assert(aboutHtml.includes('<h1>Nguyễn Ngọc Tâm – Engineering Profile · Backend, Realtime &amp; WebRTC</h1>') || aboutHtml.includes('<h1>Nguyễn Ngọc Tâm – Engineering Profile · Backend, Realtime & WebRTC</h1>'),'About prerender is missing the engineering-profile H1')
+assert(aboutHtml.includes('<h1>Nguyễn Ngọc Tâm – Full-stack Developer</h1>'),'About prerender is missing the focused full-stack H1')
 assert(aboutHtml.includes('Ninh Thuận'),'About page is missing the Ninh Thuận identity signal')
 assert(aboutHtml.includes('85%') && aboutHtml.includes('PVcomBank') && aboutHtml.includes('Shinhan Life'),'About page is missing CV-backed engineering evidence')
 assert(person.email === `mailto:${AUTHOR.email}`,'Person entity is missing the public contact email')
