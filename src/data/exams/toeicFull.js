@@ -1,6 +1,6 @@
 const q = (id, part, type, question, options, answer, extra = {}) => ({ id, part, type, question, options, answer, ...extra })
 
-const part1 = [
+const part1Base = [
   q('t1-01',1,'Photographs','Which statement best describes the scene?',['A woman is arranging documents on a desk.','A shelf is being painted.','Several desks are outdoors.','A printer is being repaired.'],0,{ audio:'Look at the picture. A woman is arranging documents on a desk.' }),
   q('t1-02',1,'Photographs','Which statement best describes the scene?',['Passengers are leaving a bus.','Several passengers are waiting beside a train.','A platform is being cleaned.','Tickets are displayed on a wall.'],1,{ audio:'Look at the picture. Several passengers are waiting beside a train.' }),
   q('t1-03',1,'Photographs','Which statement best describes the scene?',['Boxes have been stacked near a warehouse entrance.','A truck is parked inside an office.','Workers are opening a restaurant.','The shelves are completely empty.'],0,{ audio:'Look at the picture. Boxes have been stacked near a warehouse entrance.' }),
@@ -8,6 +8,23 @@ const part1 = [
   q('t1-05',1,'Photographs','Which statement best describes the scene?',['Two people are looking at a computer screen.','A monitor is being carried downstairs.','The office lights are off.','A meeting room is empty.'],0,{ audio:'Look at the picture. Two colleagues are looking at a computer screen.' }),
   q('t1-06',1,'Photographs','Which statement best describes the scene?',['A road is closed for construction.','Several umbrellas are open outside a café.','A café is being demolished.','People are boarding an airplane.'],1,{ audio:'Look at the picture. Several umbrellas are open outside a café.' }),
 ]
+
+const part1Scenes = [
+  'A woman is arranging documents on a desk in an office.',
+  'Several passengers are waiting beside a train on a platform.',
+  'Boxes are stacked near a warehouse entrance.',
+  'A bicycle is leaning against a wall near an entrance.',
+  'Two colleagues are looking at a computer screen.',
+  'Several umbrellas are open outside a café.',
+]
+const part1 = part1Base.map((item,index) => ({
+  ...item,
+  sceneImage:`toeic/scenes/${String(index + 1).padStart(2,'0')}.svg`,
+  sceneAlt:part1Scenes[index],
+  audioOnlyChoices:true,
+  choiceLabelsOnly:true,
+  audio:item.options.map((option,choiceIndex)=>`Choice ${String.fromCharCode(65+choiceIndex)}. ${option}`).join(' '),
+}))
 
 const part2Rows = [
   ['When will the quarterly report be ready?',['By Friday afternoon.','In the blue folder.','The figures are accurate.'],0],
