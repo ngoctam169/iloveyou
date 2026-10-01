@@ -11,7 +11,7 @@ export const AUTHOR = {
   location: 'Ho Chi Minh City, Vietnam',
   email: 'nguyenngoctam1609@gmail.com',
   origin: 'Ninh Thuận, Vietnam',
-  description: 'Nguyễn Ngọc Tâm (Ngọc Tâm Dev) là Full-stack Developer tại South Telecom từ 07/2022, thiên về backend, realtime communication và enterprise integration. Kinh nghiệm gồm PHP/Laravel, MongoDB, Redis, WebSocket, WebRTC, queue processing, CRM/API integration, production troubleshooting, performance optimization, application security và CI/CD; từng tham gia các hệ thống omnichannel, banking communication và video-room integration.',
+  description: 'Nguyễn Ngọc Tâm (Ngọc Tâm Dev) là Full-stack Developer tại South Telecom từ 07/2022, làm việc end-to-end từ JavaScript/TypeScript và client integration đến PHP/Laravel, database, cache, queue, WebSocket/WebRTC, enterprise CRM/API integration, cloud/CI-CD và production reliability; từng tham gia các hệ thống omnichannel, banking communication và video-room integration.',
   focusAreas: [
     'Backend & realtime systems',
     'Omnichannel communication',
@@ -53,7 +53,7 @@ export const AUTHOR = {
     },
   ],
   knowsAbout: [
-    'PHP', 'Laravel', 'CodeIgniter', 'JavaScript', 'TypeScript', 'MongoDB',
+    'PHP', 'Laravel', 'CodeIgniter', 'JavaScript', 'TypeScript', 'Kendo UI', 'MongoDB',
     'PostgreSQL', 'SQL Server', 'Redis', 'Beanstalkd', 'WebSocket', 'WebRTC',
     'Janus WebRTC Server', 'Jitsi', 'REST API', 'Salesforce Integration',
     'HubSpot Integration', 'Omnichannel Communication', 'Application Security',
@@ -109,7 +109,7 @@ export function personEntity(siteUrl) {
     hasOccupation: {
       '@type': 'Occupation',
       name: AUTHOR.jobTitle,
-      description: 'Full-stack Developer tập trung vào backend, realtime communication, enterprise integration, performance và production reliability.',
+      description: 'Full-stack Developer phát triển end-to-end từ client integration, backend/API và data layer đến realtime communication, enterprise integration, cloud delivery, performance và production reliability.',
       skills: AUTHOR.knowsAbout.join(', '),
       occupationLocation: {
         '@type': 'City',
