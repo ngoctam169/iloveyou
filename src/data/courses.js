@@ -160,7 +160,8 @@ const contextualTarget = (languageId, levelName, words, topic, lessonNumber, fal
 const nonEnglishReading = (languageId, words, lessonNumber) => {
   const [a,b,c] = words
   const examples = words.map((word) => word?.[4]).filter(Boolean)
-  const text = examples.join(' ')
+  const first = a?.[4] && String(a[4]).includes(a[0]) ? a[4] : `${a[0]}。 ${a?.[4] || ''}`.trim()
+  const text = [first, ...examples.filter((example) => example !== a?.[4])].filter(Boolean).join(' ')
   if (languageId === 'chinese') return {
     title:`短文 · ${lessonNumber}`,
     text,
