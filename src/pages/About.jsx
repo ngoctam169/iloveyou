@@ -7,34 +7,34 @@ import { AUTHOR } from '../data/author'
 const projectDetails = {
   Worldfone4X: {
     label: 'Omnichannel platform',
-    intro: 'Phát triển sản phẩm contact center hợp nhất voice, social messaging và CRM integration trong một hệ thống vận hành thực tế.',
+    intro: 'Mình tham gia phát triển sản phẩm contact center hợp nhất voice, social messaging và CRM integration trong một hệ thống vận hành thực tế.',
     highlights: [
-      'Tích hợp Salesforce, HubSpot và các kênh Zalo, WhatsApp, LiveChat, LINE.',
-      'Tối ưu module Omnichat để tăng message throughput và giảm peak-time latency.',
+      'Mình tích hợp Salesforce, HubSpot và các kênh Zalo, WhatsApp, LiveChat, LINE.',
+      'Mình tối ưu module Omnichat để tăng message throughput và giảm peak-time latency.',
     ],
   },
   'Shinhan Life': {
     label: 'Enterprise delivery',
-    intro: 'Triển khai và cải thiện chất lượng hệ thống trong môi trường doanh nghiệp có yêu cầu cao về security và maintainability.',
+    intro: 'Mình tham gia triển khai và cải thiện chất lượng hệ thống trong môi trường doanh nghiệp có yêu cầu cao về security và maintainability.',
     highlights: [
-      'Giảm 85% code smells khi xử lý SonarQube, khắc phục XSS và bổ sung unit tests.',
-      'Triển khai onsite và tích hợp với internal APIs, phối hợp cùng IT và business phía khách hàng.',
+      'Mình giảm 85% code smells khi xử lý SonarQube, khắc phục XSS và bổ sung unit tests.',
+      'Mình triển khai onsite và tích hợp với internal APIs, phối hợp cùng IT và business phía khách hàng.',
     ],
   },
   PVcomBank: {
     label: 'Banking communication',
-    intro: 'Xây dựng module communication độc lập cho môi trường tài chính, tập trung vào realtime interaction và tính ổn định.',
+    intro: 'Mình tham gia xây dựng module communication độc lập cho môi trường tài chính, tập trung vào realtime interaction và tính ổn định.',
     highlights: [
-      'Phát triển secure video call bằng WebRTC và custom signaling.',
-      'Tối ưu message delivery, WebSocket handling, load balancing và data serialization.',
+      'Mình phát triển secure video call bằng WebRTC và custom signaling.',
+      'Mình tối ưu message delivery, WebSocket handling, load balancing và data serialization.',
     ],
   },
   'Video Room Integration System': {
     label: 'Realtime architecture',
-    intro: 'Thiết kế luồng backend cho video-room tích hợp nhiều thành phần realtime và xử lý event bất đồng bộ.',
+    intro: 'Mình thiết kế luồng backend cho video-room tích hợp nhiều thành phần realtime và xử lý event bất đồng bộ.',
     highlights: [
-      'Kết hợp Laravel, Janus WebRTC Server, Jitsi, Redis Queue và MongoDB.',
-      'Xử lý room events, mapping metadata giữa Janus/Jitsi và cleanup session bằng task scheduling.',
+      'Mình kết hợp Laravel, Janus WebRTC Server, Jitsi, Redis Queue và MongoDB.',
+      'Mình xử lý room events, mapping metadata giữa Janus/Jitsi và cleanup session bằng task scheduling.',
     ],
   },
 }
@@ -62,7 +62,7 @@ export default function About() {
       </h1>
 
       <p className="cvp5-lead">
-        Tôi xây dựng và duy trì sản phẩm web trong môi trường production, từ phát triển feature,
+        Mình xây dựng và duy trì sản phẩm web trong môi trường production, từ phát triển feature,
         tích hợp hệ thống đến xử lý các vấn đề phát sinh khi sản phẩm vận hành thực tế.
       </p>
 
@@ -136,7 +136,7 @@ export default function About() {
           <div>
             <p className="cvp5-company">South Telecom</p>
             <h3>Full-stack Developer</h3>
-            <p>Phát triển và duy trì sản phẩm, tích hợp CRM/API, xử lý communication flows, production issue, performance và cloud-cost optimization. Phối hợp với Product, QA, Support; hỗ trợ developer mới và tham gia Scrum facilitation.</p>
+            <p>Mình phát triển và duy trì sản phẩm, tích hợp CRM/API, xử lý communication flows, production issue, performance và cloud-cost optimization. Mình phối hợp với Product, QA, Support; hỗ trợ developer mới và tham gia Scrum facilitation.</p>
           </div>
         </article>
 
@@ -148,7 +148,7 @@ export default function About() {
           <div>
             <p className="cvp5-company">R-Digital</p>
             <h3>Backend Developer Intern</h3>
-            <p>Phối hợp với frontend và các thành viên trong nhóm để xây dựng backend, cải thiện chức năng và báo cáo tiến độ dự án.</p>
+            <p>Mình phối hợp với frontend và các thành viên trong nhóm để xây dựng backend, cải thiện chức năng và báo cáo tiến độ dự án.</p>
           </div>
         </article>
       </div>
@@ -184,7 +184,7 @@ export default function About() {
       <article className="cvp5-meta-card cvp5-writing">
         <div>
           <span>Engineering notes</span>
-          <h2>Cách tôi phân tích và xử lý bài toán kỹ thuật</h2>
+          <h2>Cách mình phân tích và xử lý bài toán kỹ thuật</h2>
           <p>Ghi chú về PHP, MongoDB, Redis, queue, WebSocket, WebRTC và các vấn đề production đã gặp trong quá trình làm việc.</p>
         </div>
         <Link to="/blog">Đọc Engineering Blog <ArrowRight/></Link>
@@ -195,7 +195,7 @@ export default function About() {
       <div>
         <span>Contact</span>
         <h2 id="contact-title">Nguyễn Ngọc Tâm · Full-stack Developer</h2>
-        <p>Sẵn sàng trao đổi về vị trí phù hợp tại TP.HCM hoặc cơ hội remote.</p>
+        <p>Mình sẵn sàng trao đổi về vị trí phù hợp tại TP.HCM hoặc cơ hội remote.</p>
       </div>
       <div className="cvp5-contact-actions">
         <a className="btn large" href={`mailto:${AUTHOR.email}`}><Mail/> {AUTHOR.email}</a>
