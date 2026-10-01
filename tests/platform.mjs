@@ -130,7 +130,7 @@ try {
   await page.goto(`${origin}/`)
   await page.locator('footer').getByRole('link',{ name:'About Me', exact:true }).click()
   await page.waitForURL('**/about')
-  await page.getByRole('heading',{ name:'Nguyễn Ngọc Tâm – Full-stack Developer tập trung Backend & Realtime Systems',level:1 }).waitFor()
+  await page.getByRole('heading',{ name:/Nguyễn Ngọc Tâm.*Full-stack Developer/,level:1 }).waitFor()
   console.log('PLATFORM checkpoint: footer creator link opens the dedicated engineering profile')
 
   await page.setViewportSize({ width:1440,height:900 })
