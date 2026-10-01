@@ -9,7 +9,7 @@ import { languagePath } from '../utils/routes'
 import { latestBlogPosts } from '../data/blogMeta'
 
 const studyFlow = [
-  [BookOpen,'01','Vocabulary','Học từ theo level, chủ đề và ngữ cảnh thay vì một danh sách rời rạc.','/english-vocabulary'],
+  [BookOpen,'01','Vocabulary','Học từ theo level, chủ đề và câu ví dụ.','/english-vocabulary'],
   [Brain,'02','Grammar','Hiểu cấu trúc, cách dùng và luyện ngay trong bài học.','/english-grammar'],
   [Headphones,'03','Four Skills','Kết nối nghe, nói, đọc và viết trong cùng một lộ trình.','/learn-english'],
   [RotateCcw,'04','Review','Quay lại từ yếu, lỗi sai và nội dung đến hạn ôn.','/review'],
@@ -33,7 +33,7 @@ export default function Home() {
     <section className="hero section-shell product-hero huashu-home-hero" aria-labelledby="home-title">
       <div className="hero-copy">
         <div className="eyebrow"><Sparkles size={14}/> LANGUAGE LEARNING · FOUR PATHS</div>
-        <h1 id="home-title">Học ngoại ngữ như một <em>hành trình có cấu trúc.</em></h1>
+        <h1 id="home-title">Học ngoại ngữ theo <em>từng level.</em></h1>
         <p>Tiếng Anh, Trung, Nhật và Hàn theo level. Học từ vựng, ngữ pháp, bốn kỹ năng và luyện TOEIC/IELTS trong cùng một hệ thống.</p>
         <div className="hero-actions">
           <button className="btn large" onClick={() => setOnboarding(true)}>Bắt đầu học <ArrowRight size={17}/></button>
@@ -44,7 +44,7 @@ export default function Home() {
           <span><Check/> ~1000 từ / level</span>
           <span><Check/> Lưu tiến độ trên thiết bị</span>
         </div>
-        <p className="hero-maker">Mình xây project này như một không gian học tập có thể dùng thật. <Link to="/about">About Me →</Link></p>
+        <p className="hero-maker">Đây là project mình tự làm để gom bài học, từ vựng và phần luyện thi vào một chỗ. <Link to="/about">About Me →</Link></p>
       </div>
 
       <div className="hero-visual huashu-learning-index" aria-label="Lộ trình ngôn ngữ">
@@ -78,8 +78,8 @@ export default function Home() {
       <div className="section-shell">
         <div className="section-intro left">
           <span className="overline">LEARNING FRAMEWORK</span>
-          <h2 id="levels-title">Mỗi level là một chương, không phải một màn hình đầy nút.</h2>
-          <p>Chọn đúng cấp độ, biết mình đang ở đâu và học tiếp theo vì sao nội dung đó xuất hiện.</p>
+          <h2 id="levels-title">Chọn level rồi học thẳng vào phần mình cần.</h2>
+          <p>Mỗi level có bài học, từ vựng, ngữ pháp và phần luyện riêng.</p>
         </div>
         <div className="framework-grid">
           <article><strong>01 / CEFR</strong><h3>English A1–C2</h3><p>Từ giao tiếp nền tảng đến diễn đạt học thuật và chuyên nghiệp.</p><Link to="/learn-english">Mở lộ trình <ArrowRight/></Link></article>
@@ -93,8 +93,8 @@ export default function Home() {
     <section className="section-shell section-block huashu-study-system" aria-labelledby="system-title">
       <div className="section-intro left">
         <span className="overline">STUDY SYSTEM</span>
-        <h2 id="system-title">Học, dùng, rồi quay lại đúng phần mình còn yếu.</h2>
-        <p>Thay vì tách từng tính năng thành những khu vực rời nhau, NT tổ chức chúng thành một vòng học có thể lặp lại.</p>
+        <h2 id="system-title">Học, làm bài, xem lỗi rồi ôn lại.</h2>
+        <p>Học từ mới, làm bài, xem lại lỗi sai và quay lại ôn khi cần.</p>
       </div>
       <div className="huashu-study-flow">
         {studyFlow.map(([Icon,no,title,text,path]) => <Link to={path} key={title}>
@@ -125,7 +125,7 @@ export default function Home() {
       <div>
         <span className="overline">BUILT BY</span>
         <h2 id="maker-title">Nguyễn Ngọc Tâm · Full-stack Developer</h2>
-        <p>Mình xây NT Language Learning như một project học ngoại ngữ có thể dùng thật, đồng thời tách portfolio và engineering notes thành các khu vực riêng để luồng học luôn rõ ràng.</p>
+        <p>Mình làm NT Language Learning để học ngoại ngữ và thử những thứ mình đang học về product, frontend và backend. Portfolio và blog được để riêng để phần học không bị rối.</p>
       </div>
       <Link className="btn secondary" to="/about">About Me <ArrowRight/></Link>
     </section>
@@ -142,7 +142,7 @@ export default function Home() {
       <div className="blog-grid">{latestBlogPosts.slice(0,3).map((post) => <BlogCard key={post.slug} post={post} compact/>)}</div>
     </section>
 
-    <Modal open={onboarding} onClose={() => setOnboarding(false)} title={`Thiết lập hành trình · ${step}/4`} size="onboarding-modal">
+    <Modal open={onboarding} onClose={() => setOnboarding(false)} title={`Thiết lập học tập · ${step}/4`} size="onboarding-modal">
       <div className="step-dots">{[1,2,3,4].map((item) => <span className={item <= step ? 'active' : ''} key={item}/>)}</div>
       {step === 1 && <OnboardingChoice title="Bạn muốn học ngôn ngữ nào?" options={languages.map((item) => [item.id,`${item.flag} ${item.nativeName}`,item.name])} value={form.language} onChange={(language) => setForm({ ...form, language })}/>}
       {step === 2 && <OnboardingChoice title="Mục tiêu của bạn là gì?" options={['Du lịch','Công việc','Học tập','Giao tiếp','Thi chứng chỉ'].map((item) => [item,item,''])} value={form.goal} onChange={(goal) => setForm({ ...form, goal })}/>}
