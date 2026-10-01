@@ -43,15 +43,6 @@ const appDesktopItems = [
   { label:'Thêm', items:moreItems },
 ]
 
-const publicDesktopItems = [
-  { to:'/languages', label:'Languages' },
-  { to:'/self-study', label:'Practice' },
-  { to:'/toeic', label:'TOEIC' },
-  { to:'/ielts', label:'IELTS' },
-  { to:'/blog', label:'Blog' },
-  { to:'/about', label:'About Me' },
-]
-
 const mobileSections = [
   ['Học',learnItems],
   ['Luyện tập',practiceItems],
@@ -68,7 +59,7 @@ export default function Header() {
   const navRef = useRef(null)
   const location = useLocation()
   const publicLanding = location.pathname === '/' || location.pathname.startsWith('/learn-') || location.pathname.startsWith('/blog') || ['/languages','/english-vocabulary','/english-grammar','/about','/contact','/privacy','/terms'].includes(location.pathname)
-  const desktopItems = publicLanding ? publicDesktopItems : appDesktopItems
+  const desktopItems = appDesktopItems
   const initials = String(state.profile.displayName || 'Learner').split(' ').filter(Boolean).map((part) => part[0]).slice(-2).join('').toUpperCase()
 
   useEffect(() => {
@@ -92,7 +83,7 @@ export default function Header() {
   }, [])
 
   return <>
-    <header className={`site-header stable-header ${publicLanding ? 'public-editorial-header' : 'app-product-header'}`}>
+    <header className="site-header stable-header editorial-global-header">
       <Link className="brand editorial-wordmark" to="/" aria-label="NT Language Learning - Trang chủ"><span>NT Learning</span></Link>
 
       <nav className="desktop-nav" aria-label="Điều hướng chính" ref={navRef}>
@@ -110,30 +101,23 @@ export default function Header() {
       </nav>
 
       <div className="header-actions">
-        {!publicLanding && <Link className="icon-btn search-link" to="/search" aria-label="Tìm kiếm"><Search size={19}/></Link>}
+        <Link className="icon-btn search-link" to="/search" aria-label="Tìm kiếm"><Search size={19}/></Link>
         <div className="header-session-slot">
           {publicLanding
-            ? <Link to="/languages" className="btn small">Start Learning</Link>
-            : <><span className="stat-chip flame"><Flame size={17}/>{state.streak}</span><span className="stat-chip"><Star size={17}/>{state.xp.toLocaleString()} XP</span><Link className="avatar small-avatar" to="/settings#profile" aria-label="Hồ sơ">{initials}</Link></>}
+            ? <Link to="/languages" className="btn small header-start-learning">Bắt đầu học</Link>
+            : <><span className="stat-chip flame"><Flame size={17}/>{state.streak}</span><span className="stat-chip xp-chip"><Star size={17}/>{state.xp.toLocaleString()} XP</span><Link className="avatar small-avatar" to="/settings#profile" aria-label="Hồ sơ">{initials}</Link></>}
         </div>
         <button className="icon-btn menu-toggle" onClick={() => setMenuOpen(!menuOpen)} aria-label={menuOpen ? 'Đóng menu' : 'Mở menu'} aria-expanded={menuOpen} aria-controls="mobile-menu">{menuOpen ? <X/> : <Menu/>}</button>
       </div>
     </header>
 
     {menuOpen && <nav className="mobile-menu grouped-mobile-menu" id="mobile-menu" aria-label="Điều hướng di động">
-      {publicLanding
-        ? <div className="mobile-editorial-links">
-            {publicDesktopItems.map((item) => <NavLink key={item.to} to={item.to}>{item.label}</NavLink>)}
-          </div>
-        : <>
-            <Link className="mobile-dashboard-link" to="/dashboard">Dashboard</Link>
-            <div className="mobile-public-links"><Link to="/blog">Blog</Link><Link to="/about">About Me</Link></div>
-            {mobileSections.map(([title,items]) => <section key={title}>
-              <strong>{title}</strong>
-              <div>{items.map(([to,label]) => <Link key={to} to={to}>{label}</Link>)}</div>
-            </section>)}
-          </>
-      }
+      <Link className="mobile-dashboard-link" to="/dashboard">Dashboard</Link>
+      <div className="mobile-public-links"><Link to="/blog">Blog</Link><Link to="/about">About Me</Link></div>
+      {mobileSections.map(([title,items]) => <section key={title}>
+        <strong>{title}</strong>
+        <div>{items.map(([to,label]) => <Link key={to} to={to}>{label}</Link>)}</div>
+      </section>)}
     </nav>}
 
     {!publicLanding && <nav className="bottom-nav" aria-label="Điều hướng ứng dụng">
