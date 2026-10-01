@@ -67,7 +67,7 @@ function renderStaticBlogCards(posts) {
 
 function staticBody(path, meta, context) {
   const breadcrumb = context.breadcrumbs.map((item,index) => `${index ? '<span>›</span>' : ''}<a href="${item.path}">${escapeHtml(item.name)}</a>`).join('')
-  const pageHeading = path === '/' ? 'NT Language Learning – Học ngoại ngữ theo level' : context.authorProfile ? 'Nguyễn Ngọc Tâm – Full-stack Developer · Product, Backend & Realtime Systems' : context.blogIndex ? 'Engineering Blog của Nguyễn Ngọc Tâm' : context.blogPost ? context.blogPost.title : meta.title.replace(/\s*\|\s*NT$/,'').replace(/^NT\s*[–-]\s*/,'')
+  const pageHeading = path === '/' ? 'NT Language Learning – Học ngoại ngữ theo level' : context.authorProfile ? 'Nguyễn Ngọc Tâm – Full-stack Developer' : context.blogIndex ? 'Engineering Blog của Nguyễn Ngọc Tâm' : context.blogPost ? context.blogPost.title : meta.title.replace(/\s*\|\s*NT$/,'').replace(/^NT\s*[–-]\s*/,'')
   let content = ''
   if (context.blogPost) {
     const post=context.blogPost
