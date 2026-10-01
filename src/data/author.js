@@ -11,7 +11,7 @@ export const AUTHOR = {
   location: 'Ho Chi Minh City, Vietnam',
   email: 'nguyenngoctam1609@gmail.com',
   origin: 'Ninh Thuận, Vietnam',
-  description: 'Nguyễn Ngọc Tâm là Full-stack Developer tại South Telecom từ 07/2022, làm việc với PHP/Laravel, JavaScript/TypeScript, MongoDB, Redis, WebSocket/WebRTC và các hệ thống tích hợp CRM.',
+  description: 'Nguyễn Ngọc Tâm là Full-stack Developer tại South Telecom từ 07/2022, làm việc với PHP/Laravel, JavaScript/TypeScript, MongoDB, Redis, realtime communication qua WebSocket/WebRTC và các hệ thống tích hợp CRM.',
   focusAreas: [
     'Backend & realtime systems',
     'Omnichannel communication',
