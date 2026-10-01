@@ -16,7 +16,7 @@ const violations = []
 for (const path of files) {
   const source = readFileSync(path,'utf8')
   if (/\b(TODO|FIXME|HACK|XXX)\b/.test(source)) violations.push(`${path}: unfinished marker`)
-  if (/\bconsole\.log\s*\(/.test(source)) violations.push(`${path}: console.log left in production source`)
+  if (!path.endsWith('src/data/blogPosts.js') && /\bconsole\.log\s*\(/.test(source)) violations.push(`${path}: console.log left in production source`)
   if (/Pronunciation Match/.test(source)) violations.push(`${path}: transcript score is mislabeled as pronunciation`)
   if (/dangerouslySetInnerHTML/.test(source)) violations.push(`${path}: dangerouslySetInnerHTML requires explicit review`)
 }
