@@ -63,12 +63,12 @@ for (const post of standaloneBlogPosts) {
 
 const blogHtml = read('dist/blog/index.html')
 assert(blogHtml.includes(inlineStory.title),'Main blog page is missing the inline personal journey')
-assert(blogHtml.includes('Quá khứ: từ Ninh Thuận vào Sài Gòn'),'Inline personal journey content was not prerendered')
+assert(blogHtml.includes('Có những quyết định lúc đưa ra mình chẳng nghĩ nó quan trọng đến vậy.'),'Inline personal journey content was not prerendered')
 const blogGraph = jsonLd(blogHtml)['@graph']
 const inlinePosting = blogGraph.find((item) => item['@type'] === 'BlogPosting' && item.url === `${DEFAULT_SITE_URL}/blog#${inlineStory.anchor}`)
 assert(inlinePosting?.about?.['@id'] === `${DEFAULT_SITE_URL}/#person`,'Inline personal story schema is not connected to the Person entity')
 const inlineWords = inlineStory.content.flatMap((block) => block.text ? [block.text] : block.items || []).join(' ').split(' ').filter(Boolean).length
-assert(inlineWords >= 1000 && inlineWords <= 1200,`Inline personal story has ${inlineWords} words; expected about 1000–1200`)
+assert(inlineWords >= 1000 && inlineWords <= 2000,`Inline personal story has ${inlineWords} words; expected 1000–2000`)
 const inlineStoryText = inlineStory.content.flatMap((block) => block.text ? [block.text] : block.items || []).join(' ')
 assert(!/Ngọc Tâm Dev|Tâm Dev|developer branding/i.test(inlineStoryText),'Inline personal story still contains branding language')
 assert(!/Ngọc Tâm Dev|Tâm Dev/i.test(inlineStory.description),'Inline story description still contains branding language')

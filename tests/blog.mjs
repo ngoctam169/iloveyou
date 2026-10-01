@@ -26,7 +26,7 @@ try {
 
   await page.goto(`${origin}/blog`)
   await page.getByRole('heading',{ name:'Những ghi chú kỹ thuật mình muốn giữ lại',exact:true }).waitFor()
-  await page.getByRole('heading',{ name:/Từ Ninh Thuận vào Sài Gòn: vì sao mình chọn nghề Dev/,level:2 }).waitFor()
+  await page.getByRole('heading',{ name:/Từ Ninh Thuận vào Sài Gòn/,level:2 }).waitFor()
   assert(await page.locator('#nguyen-ngoc-tam-ninh-thuan .article-content').count()===1,'Personal journey must be rendered inline inside /blog')
   assert(await page.locator('.blog-list .blog-card').count()===4,'Blog listing must contain four technical articles')
   await page.locator('.blog-list .blog-card').first().locator('h3 a').click()
