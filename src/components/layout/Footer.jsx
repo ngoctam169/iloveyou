@@ -1,13 +1,36 @@
 import { Link } from 'react-router-dom'
-import BrandLogo from '../common/BrandLogo'
 
-const groups = [
-  ['Languages',[['English','/learn-english'],['Chinese','/learn-chinese'],['Japanese','/learn-japanese'],['Korean','/learn-korean']]],
-  ['Resources',[['Vocabulary','/english-vocabulary'],['Grammar','/english-grammar'],['TOEIC','/toeic'],['IELTS','/ielts']]],
-  ['Creator',[['About Me','/about'],['Engineering Blog','/blog'],['Contact','/contact']]],
-  ['Legal',[['Privacy Policy','/privacy'],['Terms of Service','/terms']]],
+const primaryLinks = [
+  ['Languages','/languages'],
+  ['Practice','/self-study'],
+  ['TOEIC','/toeic'],
+  ['IELTS','/ielts'],
+  ['Blog','/blog'],
+  ['About Me','/about'],
 ]
 
 export default function Footer() {
-  return <footer className="footer"><div className="footer-inner"><div className="footer-brand"><Link className="brand" to="/"><BrandLogo/><span>NT Language Learning</span></Link><p>Học ngoại ngữ theo level · TOEIC · IELTS</p><small>Được phát triển bởi <Link to="/about">Nguyễn Ngọc Tâm (Ngọc Tâm Dev)</Link>. Hồ sơ kỹ thuật và kinh nghiệm nghề nghiệp được tách riêng tại trang About.</small></div><nav className="footer-groups" aria-label="Liên kết cuối trang">{groups.map(([title,links]) => <section key={title}><h2>{title}</h2>{links.map(([label,to]) => <Link key={to} to={to}>{label}</Link>)}</section>)}</nav></div><div className="footer-bottom"><small>© 2026 NT Language Learning · Developed by Nguyễn Ngọc Tâm.</small><a href={`${import.meta.env.BASE_URL}sitemap.xml`}>Sitemap</a></div></footer>
+  return <footer className="footer editorial-footer">
+    <div className="footer-inner">
+      <div className="footer-brand">
+        <Link className="brand editorial-wordmark" to="/">NT Learning</Link>
+        <p>Language learning · TOEIC · IELTS</p>
+        <small>Mình xây NT Language Learning như một project học ngoại ngữ có thể dùng thật.</small>
+      </div>
+
+      <nav className="editorial-footer-nav" aria-label="Liên kết cuối trang">
+        {primaryLinks.map(([label,to]) => <Link key={to} to={to}>{label}</Link>)}
+      </nav>
+    </div>
+
+    <div className="footer-bottom">
+      <small>© 2026 Nguyễn Ngọc Tâm · Full-stack Developer</small>
+      <div>
+        <Link to="/contact">Contact</Link>
+        <Link to="/privacy">Privacy</Link>
+        <Link to="/terms">Terms</Link>
+        <a href={`${import.meta.env.BASE_URL}sitemap.xml`}>Sitemap</a>
+      </div>
+    </div>
+  </footer>
 }
