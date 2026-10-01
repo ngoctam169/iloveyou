@@ -1281,6 +1281,14 @@ html{scrollbar-gutter:stable}
   }
 }
 @media(max-width:760px){
+  .editorial-global-header .header-actions{
+    width:auto;
+    min-width:0;
+  }
+  .editorial-global-header .header-session-slot{
+    display:none;
+    min-width:0;
+  }
   .editorial-global-header .app-menu-toggle{
     display:none!important;
   }
