@@ -188,7 +188,8 @@ try {
 
   await page.setViewportSize({ width:375, height:800 })
   await page.goto(`${origin}/dashboard`)
-  const bottomLinks = await page.getByRole('navigation', { name:'Điều hướng ứng dụng' }).getByRole('link').count()
+  await page.locator('nav.bottom-nav').waitFor({ state:'visible' })
+  const bottomLinks = await page.locator('nav.bottom-nav a').count()
   assert(bottomLinks === 5, `Mobile bottom navigation should render 5 links, got ${bottomLinks}`)
 
   await page.evaluate(() => {
