@@ -980,3 +980,83 @@ input:focus,textarea:focus,select:focus{border-color:var(--primary)!important;bo
   .huashu-maker-strip .btn{width:max-content}
   .app-shell .cvp5-project{grid-template-columns:1fr;gap:20px}
 }
+
+
+/* Editorial footer refinement */
+.editorial-footer{
+  padding-top:64px;
+  padding-bottom:26px;
+}
+.editorial-footer .footer-inner{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) minmax(340px,.8fr);
+  gap:72px;
+  align-items:start;
+}
+.editorial-footer .footer-brand{
+  max-width:560px;
+}
+.editorial-footer .footer-brand .brand{
+  display:inline-flex;
+  margin-bottom:12px;
+  color:#f5f4f0;
+  font-size:1.24rem;
+  font-weight:600;
+}
+.editorial-footer .footer-brand p{
+  margin:0 0 8px;
+  color:#f5f4f0;
+  font-family:var(--huashu-mono);
+  font-size:.63rem;
+  font-weight:500;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+}
+.editorial-footer .footer-brand small{
+  display:block;
+  max-width:470px;
+  color:rgba(245,244,240,.48);
+  font-size:.75rem;
+  line-height:1.65;
+}
+.editorial-footer-nav{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:0;
+  border-top:1px solid rgba(245,244,240,.14);
+  border-left:1px solid rgba(245,244,240,.14);
+}
+.editorial-footer-nav a{
+  min-height:58px;
+  display:flex;
+  align-items:center;
+  padding:0 16px;
+  color:rgba(245,244,240,.72);
+  border-right:1px solid rgba(245,244,240,.14);
+  border-bottom:1px solid rgba(245,244,240,.14);
+  font-size:.73rem;
+}
+.editorial-footer-nav a:hover{color:#fff;background:rgba(255,255,255,.04)}
+.editorial-footer .footer-bottom{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:22px;
+  padding-top:22px;
+  margin-top:52px;
+}
+.editorial-footer .footer-bottom>div{
+  display:flex;
+  flex-wrap:wrap;
+  gap:18px;
+}
+.editorial-footer .footer-bottom small{
+  color:rgba(245,244,240,.4);
+  font-size:.64rem;
+}
+
+@media(max-width:760px){
+  .editorial-footer .footer-inner{grid-template-columns:1fr;gap:36px}
+  .editorial-footer-nav{grid-template-columns:1fr 1fr}
+  .editorial-footer .footer-bottom{align-items:flex-start;flex-direction:column}
+}
