@@ -15,7 +15,7 @@ export default function Footer() {
       <div className="footer-brand">
         <Link className="brand editorial-wordmark" to="/">NT Learning</Link>
         <p>Language learning · TOEIC · IELTS</p>
-        <small>Mình xây NT Language Learning như một project học ngoại ngữ có thể dùng thật.</small>
+        <small>Project học ngoại ngữ mình tự làm và vẫn đang sửa dần.</small>
       </div>
 
       <nav className="editorial-footer-nav" aria-label="Liên kết cuối trang">
