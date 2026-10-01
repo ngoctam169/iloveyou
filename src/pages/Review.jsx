@@ -40,7 +40,7 @@ export default function Review() {
     mastered.length && { id: 'mastered', title: `${mastered.length} từ đã thuộc`, detail: 'Ôn thưa theo lịch SRS', icon: '✓', path: `${vocabularyPath(language.id,level)}?status=mastered` },
     ...dueSkills.slice(0, 8).map((item) => ({ id:`skill-${item.lessonId}-${item.skill}`, title:`Ôn lại ${item.skill}: ${item.score}% lần gần nhất`, detail:'Đến hạn theo lịch ôn kỹ năng; làm lại hoạt động trong bài để cập nhật lịch tiếp theo.', icon:'↻', path:`${lessonPath(language.id,level,item.lessonId)}?section=${sectionForSkill[item.skill] || 'review'}` })),
     grammar.length && { id: 'grammar', title: `${grammar.length} lỗi ngữ pháp cần xem lại`, detail: 'Mở Sổ lỗi sai', icon: '⌘', path: '/mistakes' },
-    listening.length && { id: 'listening', title: `${listening.length} lỗi nghe cần luyện lại`, detail: 'Quay lại câu nghe và làm lại thay vì chỉ xem đáp án', icon: '◉', path: '/mistakes' },
+    listening.length && { id: 'listening', title: `${listening.length} lỗi nghe cần luyện lại`, detail: 'Làm lại câu nghe trước khi xem đáp án', icon: '◉', path: '/mistakes' },
     reading.length && { id: 'reading', title: `${reading.length} lỗi đọc hiểu cần xem lại`, detail: 'Ôn câu hỏi, bằng chứng trong bài và suy luận', icon: 'R', path: '/mistakes' },
     writing.length && { id: 'writing', title: `${writing.length} bài viết chưa đạt tiêu chí`, detail: 'Viết lại sau khi xem checklist còn thiếu', icon: '✎', path: '/mistakes' },
     speaking.length && { id: 'speaking', title: `${speaking.length} bài nói dưới ngưỡng luyện tập`, detail: 'Nghe mẫu, thu lại và so transcript lần nữa', icon: 'S', path: '/mistakes' },
