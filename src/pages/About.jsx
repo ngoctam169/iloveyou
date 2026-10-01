@@ -7,7 +7,7 @@ import { AUTHOR } from '../data/author'
 const projectDetails = {
   Worldfone4X: {
     label: 'Omnichannel platform',
-    intro: 'Mình tham gia phát triển sản phẩm contact center hợp nhất voice, social messaging và CRM integration trong một hệ thống vận hành thực tế.',
+    intro: 'Mình tham gia phát triển Worldfone4X, làm các phần voice, social messaging và CRM integration.',
     highlights: [
       'Mình tích hợp Salesforce, HubSpot và các kênh Zalo, WhatsApp, LiveChat, LINE.',
       'Mình tối ưu module Omnichat để tăng message throughput và giảm peak-time latency.',
@@ -15,7 +15,7 @@ const projectDetails = {
   },
   'Shinhan Life': {
     label: 'Enterprise delivery',
-    intro: 'Mình tham gia triển khai và cải thiện chất lượng hệ thống trong môi trường doanh nghiệp có yêu cầu cao về security và maintainability.',
+    intro: 'Mình tham gia dự án Shinhan Life, chủ yếu xử lý chất lượng code, security và phần tích hợp.',
     highlights: [
       'Mình giảm 85% code smells khi xử lý SonarQube, khắc phục XSS và bổ sung unit tests.',
       'Mình triển khai onsite và tích hợp với internal APIs, phối hợp cùng IT và business phía khách hàng.',
@@ -23,7 +23,7 @@ const projectDetails = {
   },
   PVcomBank: {
     label: 'Banking communication',
-    intro: 'Mình tham gia xây dựng module communication độc lập cho môi trường tài chính, tập trung vào realtime interaction và tính ổn định.',
+    intro: 'Mình làm module communication cho PVcomBank, gồm realtime messaging và video call.',
     highlights: [
       'Mình phát triển secure video call bằng WebRTC và custom signaling.',
       'Mình tối ưu message delivery, WebSocket handling, load balancing và data serialization.',
@@ -31,7 +31,7 @@ const projectDetails = {
   },
   'Video Room Integration System': {
     label: 'Realtime architecture',
-    intro: 'Mình thiết kế luồng backend cho video-room tích hợp nhiều thành phần realtime và xử lý event bất đồng bộ.',
+    intro: 'Mình làm backend cho video room, nối Laravel với Janus/Jitsi và xử lý các event bất đồng bộ.',
     highlights: [
       'Mình kết hợp Laravel, Janus WebRTC Server, Jitsi, Redis Queue và MongoDB.',
       'Mình xử lý room events, mapping metadata giữa Janus/Jitsi và cleanup session bằng task scheduling.',
@@ -92,7 +92,7 @@ export default function About() {
       <div className="cvp5-section-head">
         <span>Selected work</span>
         <h2 id="projects-title">Dự án tiêu biểu</h2>
-        <p>Những điểm mạnh về backend, realtime, integration, security và performance được thể hiện trong chính bối cảnh dự án đã làm.</p>
+        <p>Một số dự án mình đã tham gia và phần việc mình trực tiếp xử lý.</p>
       </div>
 
       <div className="cvp5-project-list">
@@ -136,7 +136,7 @@ export default function About() {
           <div>
             <p className="cvp5-company">South Telecom</p>
             <h3>Full-stack Developer</h3>
-            <p>Mình phát triển và duy trì sản phẩm, tích hợp CRM/API, xử lý communication flows, production issue, performance và cloud-cost optimization. Mình phối hợp với Product, QA, Support; hỗ trợ developer mới và tham gia Scrum facilitation.</p>
+            <p>Ở South Telecom, mình làm feature, CRM/API integration, realtime communication, xử lý lỗi production và tối ưu performance. Mình cũng phối hợp với Product, QA, Support và hỗ trợ developer mới.</p>
           </div>
         </article>
 
@@ -148,7 +148,7 @@ export default function About() {
           <div>
             <p className="cvp5-company">R-Digital</p>
             <h3>Backend Developer Intern</h3>
-            <p>Mình phối hợp với frontend và các thành viên trong nhóm để xây dựng backend, cải thiện chức năng và báo cáo tiến độ dự án.</p>
+            <p>Mình làm backend, phối hợp với frontend và theo dõi các task được giao trong thời gian thực tập.</p>
           </div>
         </article>
       </div>
@@ -160,7 +160,7 @@ export default function About() {
           <span>Technical stack</span>
           <h2 id="stack-title">Công nghệ đã sử dụng</h2>
         </div>
-        <p>Stack được nhóm theo vai trò trong hệ thống để dễ đọc, thay vì biến portfolio thành một danh sách logo hoặc thanh phần trăm kỹ năng.</p>
+        <p>Các công nghệ mình đã dùng trong công việc và project.</p>
       </div>
 
       <div className="cvp5-stack">
@@ -185,7 +185,7 @@ export default function About() {
         <div>
           <span>Engineering notes</span>
           <h2>Cách mình phân tích và xử lý bài toán kỹ thuật</h2>
-          <p>Ghi chú về PHP, MongoDB, Redis, queue, WebSocket, WebRTC và các vấn đề production đã gặp trong quá trình làm việc.</p>
+          <p>Mình ghi lại các case đã gặp khi làm PHP, MongoDB, Redis, queue, WebSocket, WebRTC và production.</p>
         </div>
         <Link to="/blog">Đọc Engineering Blog <ArrowRight/></Link>
       </article>
@@ -195,7 +195,7 @@ export default function About() {
       <div>
         <span>Contact</span>
         <h2 id="contact-title">Nguyễn Ngọc Tâm · Full-stack Developer</h2>
-        <p>Mình sẵn sàng trao đổi về vị trí phù hợp tại TP.HCM hoặc cơ hội remote.</p>
+        <p>Có thể liên hệ mình qua email hoặc LinkedIn nếu muốn trao đổi về công việc.</p>
       </div>
       <div className="cvp5-contact-actions">
         <a className="btn large" href={`mailto:${AUTHOR.email}`}><Mail/> {AUTHOR.email}</a>
