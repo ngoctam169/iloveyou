@@ -107,6 +107,8 @@ for (const languageId of ['english','chinese','japanese','korean']) {
   assert(perfect.levelIndex === language.levels.length - 1, `${languageId} perfect placement score should recommend the highest level`)
 }
 
+assert(getRoadmap('english','B2') === getRoadmap('english','B2'), 'Roadmap generation should reuse the cached result for repeated lookups')
+
 for (const level of Object.keys(expectedTopics)) {
   assert(englishLevels[level], `Missing English metadata for ${level}`)
   const roadmap = getRoadmap('english', level)
