@@ -180,8 +180,12 @@ const nonEnglishReading = (languageId, words, lessonNumber) => {
 }
 
 const nonEnglishListeningText = (languageId, words) => {
+  const [firstWord] = words
   const examples = words.map((word) => word?.[4]).filter(Boolean)
-  return examples.slice(0, 2).join(' ') || words.map((word) => word[0]).join(' ')
+  const lead = firstWord?.[4] && String(firstWord[4]).includes(firstWord[0])
+    ? firstWord[4]
+    : `${firstWord?.[0] || ''}。 ${firstWord?.[4] || ''}`.trim()
+  return [lead, ...examples.filter((example) => example !== firstWord?.[4]).slice(0, 1)].filter(Boolean).join(' ') || words.map((word) => word[0]).join(' ')
 }
 
 const makeVocabularyListening = (languageId, words, lessonNumber) => {
