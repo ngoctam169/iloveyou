@@ -11,7 +11,7 @@ export const AUTHOR = {
   location: 'Ho Chi Minh City, Vietnam',
   email: 'nguyenngoctam1609@gmail.com',
   origin: 'Ninh Thuận, Vietnam',
-  description: 'Nguyễn Ngọc Tâm (Ngọc Tâm Dev) là Full-stack Developer tại South Telecom từ 07/2022, làm việc end-to-end từ JavaScript/TypeScript và client integration đến PHP/Laravel, database, cache, queue, realtime communication qua WebSocket/WebRTC, enterprise CRM/API integration, cloud/CI-CD và production reliability; từng tham gia các hệ thống omnichannel, banking communication và video-room integration.',
+  description: 'Nguyễn Ngọc Tâm là Full-stack Developer tại South Telecom từ 07/2022, làm việc với PHP/Laravel, JavaScript/TypeScript, MongoDB, Redis, WebSocket/WebRTC và các hệ thống tích hợp CRM.',
   focusAreas: [
     'Backend & realtime systems',
     'Omnichannel communication',
@@ -33,7 +33,7 @@ export const AUTHOR = {
   selectedProjects: [
     {
       name: 'Worldfone4X',
-      summary: 'Omnichannel Contact Center hợp nhất voice, social messaging và CRM integration; tham gia phát triển tính năng, tích hợp Salesforce/HubSpot, các kênh OTT và tối ưu Omnichat.',
+      summary: 'Tham gia phát triển Worldfone4X, tích hợp Salesforce/HubSpot, các kênh OTT và xử lý phần Omnichat.',
       technologies: ['PHP', 'MongoDB', 'Redis', 'Beanstalkd', 'JavaScript', 'WebSocket'],
     },
     {
@@ -43,12 +43,12 @@ export const AUTHOR = {
     },
     {
       name: 'PVcomBank',
-      summary: 'Phát triển module realtime communication độc lập có secure video call bằng WebRTC, custom signaling, tối ưu message delivery, WebSocket và data serialization.',
+      summary: 'Làm module realtime communication cho PVcomBank, gồm WebRTC video call, custom signaling, WebSocket và message delivery.',
       technologies: ['PHP', 'WebRTC', 'WebSocket', 'MongoDB', 'Redis'],
     },
     {
       name: 'Video Room Integration System',
-      summary: 'Thiết kế backend tích hợp Laravel, Janus WebRTC Server và Jitsi; xử lý event bất đồng bộ bằng Redis Queue, đồng bộ room events và tối ưu schema MongoDB.',
+      summary: 'Làm backend video room với Laravel, Janus, Jitsi, Redis Queue và MongoDB.',
       technologies: ['Laravel', 'Janus WebRTC', 'Jitsi', 'MongoDB', 'Redis', 'WebSocket'],
     },
   ],
@@ -90,7 +90,7 @@ export function personEntity(siteUrl) {
     jobTitle: AUTHOR.jobTitle,
     email: `mailto:${AUTHOR.email}`,
     description: AUTHOR.description,
-    disambiguatingDescription: 'Nguyễn Ngọc Tâm (Ngọc Tâm Dev), Full-stack Developer quê Ninh Thuận, làm việc tại South Telecom ở TP.HCM và tập trung vào backend, realtime communication, WebSocket, WebRTC và enterprise integration.',
+    disambiguatingDescription: 'Nguyễn Ngọc Tâm (Ngọc Tâm Dev), Full-stack Developer quê Ninh Thuận, hiện làm việc tại South Telecom ở TP.HCM.',
     url: `${siteUrl}/about`,
     mainEntityOfPage: { '@id': `${siteUrl}/about#profilepage` },
     address: {
@@ -109,7 +109,7 @@ export function personEntity(siteUrl) {
     hasOccupation: {
       '@type': 'Occupation',
       name: AUTHOR.jobTitle,
-      description: 'Full-stack Developer phát triển end-to-end từ client integration, backend/API và data layer đến realtime communication, enterprise integration, cloud delivery, performance và production reliability.',
+      description: 'Full-stack Developer làm việc với frontend integration, backend/API, database, realtime communication và hệ thống tích hợp.',
       skills: AUTHOR.knowsAbout.join(', '),
       occupationLocation: {
         '@type': 'City',
