@@ -19,6 +19,12 @@ for (const path of files) {
   if (!path.endsWith('src/data/blogPosts.js') && /\bconsole\.log\s*\(/.test(source)) violations.push(`${path}: console.log left in production source`)
   if (/Pronunciation Match/.test(source)) violations.push(`${path}: transcript score is mislabeled as pronunciation`)
   if (/dangerouslySetInnerHTML/.test(source)) violations.push(`${path}: dangerouslySetInnerHTML requires explicit review`)
+  const reactImport = source.match(/import\s*\{([^}]*)\}\s*from\s*['"]react['"]/s)?.[1] || ''
+  for (const hook of ['useState','useEffect','useMemo','useRef','useCallback','useReducer']) {
+    if (new RegExp(`\\b${hook}\\s*\\(`).test(source) && !new RegExp(`\\b${hook}\\b`).test(reactImport)) {
+      violations.push(`${path}: ${hook} is used but not imported from react`)
+    }
+  }
 }
 
 const app = readFileSync(new URL('../src/App.jsx', import.meta.url),'utf8')
