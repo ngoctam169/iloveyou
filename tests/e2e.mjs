@@ -205,8 +205,8 @@ try {
 
   await page.setViewportSize({ width: 375, height: 800 })
   await page.goto(`${origin}/dashboard`)
-  await page.getByRole('button', { name: 'Mở menu' }).click()
-  await page.getByRole('navigation', { name: 'Điều hướng di động' }).getByText(/Settings|Cài đặt/).click()
+  await page.getByRole('navigation', { name:'Điều hướng ứng dụng' }).getByRole('button', { name:/Thêm/ }).click()
+  await page.getByRole('navigation', { name:'Điều hướng di động' }).getByRole('link', { name:'Cài đặt', exact:true }).click()
   await page.waitForURL('**/settings')
 
   await page.goto(`${origin}/english/b2/lessons/english-b2-1-2`)
