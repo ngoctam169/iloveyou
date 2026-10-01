@@ -159,28 +159,28 @@ const contextualTarget = (languageId, levelName, words, topic, lessonNumber, fal
 
 const nonEnglishReading = (languageId, words, lessonNumber) => {
   const [a,b,c] = words
+  const examples = words.map((word) => word?.[4]).filter(Boolean)
+  const text = examples.join(' ')
   if (languageId === 'chinese') return {
-    title:`词汇阅读 · ${lessonNumber}`,
-    text:`本课学习“${a[0]}”、“${b[0]}”和“${c[0]}”。重点词是“${a[0]}”，它的越南语意思是“${a[3]}”。`,
-    question:'文中的重点词是哪一个？', options:[a[0],b[0],c[0]], answer:0, type:'Multiple Choice',
+    title:`短文 · ${lessonNumber}`,
+    text,
+    question:'哪一个词出现在第一句话里？', options:[a[0],b[0],c[0]], answer:0, type:'Multiple Choice',
   }
   if (languageId === 'japanese') return {
-    title:`語彙リーディング · ${lessonNumber}`,
-    text:`このレッスンでは「${a[0]}」「${b[0]}」「${c[0]}」を学びます。中心となる語は「${a[0]}」です。`,
-    question:'中心となる語はどれですか。', options:[a[0],b[0],c[0]], answer:0, type:'Multiple Choice',
+    title:`短文 · ${lessonNumber}`,
+    text,
+    question:'最初の文に出てくる語はどれですか。', options:[a[0],b[0],c[0]], answer:0, type:'Multiple Choice',
   }
   return {
-    title:`어휘 읽기 · ${lessonNumber}`,
-    text:`이 수업에서는 ‘${a[0]}’, ‘${b[0]}’, ‘${c[0]}’를 배웁니다. 중심 단어는 ‘${a[0]}’입니다.`,
-    question:'중심 단어는 무엇입니까?', options:[a[0],b[0],c[0]], answer:0, type:'Multiple Choice',
+    title:`짧은 글 · ${lessonNumber}`,
+    text,
+    question:'첫 문장에 나오는 단어는 무엇입니까?', options:[a[0],b[0],c[0]], answer:0, type:'Multiple Choice',
   }
 }
 
-const nonEnglishListeningText = (languageId, words, lessonNumber) => {
-  const [a,b,c] = words
-  if (languageId === 'chinese') return `第${lessonNumber}课。重点词是${a[0]}。另外两个词是${b[0]}和${c[0]}。`
-  if (languageId === 'japanese') return `第${lessonNumber}課です。中心の語は${a[0]}です。ほかの語は${b[0]}と${c[0]}です。`
-  return `${lessonNumber}번째 수업입니다. 중심 단어는 ${a[0]}입니다. 다른 단어는 ${b[0]}와 ${c[0]}입니다.`
+const nonEnglishListeningText = (languageId, words) => {
+  const examples = words.map((word) => word?.[4]).filter(Boolean)
+  return examples.slice(0, 2).join(' ') || words.map((word) => word[0]).join(' ')
 }
 
 const makeVocabularyListening = (languageId, words, lessonNumber) => {
@@ -196,30 +196,29 @@ const makeVocabularyListening = (languageId, words, lessonNumber) => {
 
 const generatedEnglishListening = (meta, topic, words, lessonNumber) => {
   const base = meta.listening[(lessonNumber - 1) % meta.listening.length]
-  const wordA = words[0]?.[0] || topic
-  const wordB = words[1]?.[0] || 'evidence'
-  const variants = [`${base} The speaker then connects ${wordA} with the wider topic of ${topic.toLowerCase()}.`,`During a discussion about ${topic.toLowerCase()}, one speaker highlights ${wordA}, while another asks for clearer ${wordB}.`,`A short report on ${topic.toLowerCase()} explains why ${wordA} matters and gives one practical example involving ${wordB}.`,`Two colleagues disagree about ${topic.toLowerCase()}, but they eventually use ${wordA} to clarify the main point.`]
-  return variants[(lessonNumber - 1) % variants.length]
+  const examples = words.map((word) => word?.[4]).filter(Boolean)
+  const variants = [
+    `${base} ${examples[0] || ''}`,
+    `${examples[0] || base} ${examples[1] || ''}`,
+    `${base} ${examples[1] || examples[0] || ''}`,
+    `${examples[1] || base} ${examples[2] || ''}`,
+  ]
+  return variants[(lessonNumber - 1) % variants.length].replace(/\s+/g,' ').trim()
 }
 
 const generatedEnglishReading = (meta, topic, words, lessonNumber) => {
   const labels = words.map((word) => word?.[0]).filter(Boolean)
   const focusIndex = (lessonNumber - 1) % labels.length
   const focus = labels[focusIndex]
-  const support = labels[(focusIndex + 1) % labels.length]
-  const variant = (lessonNumber - 1) % 3
-  const text = variant === 0
-    ? `${meta.reading.text} In this ${topic.toLowerCase()} lesson, the key term for the follow-up discussion is ${focus}, supported by ${support}.`
-    : variant === 1
-      ? `A learner preparing for ${topic.toLowerCase()} compares several ideas before choosing ${focus} as the central term. The learner also uses ${support} to add a concrete supporting detail.`
-      : `During a ${topic.toLowerCase()} review, a team lists ${labels.join(', ')}. After checking the context, the team identifies ${focus} as the main focus and uses ${support} as supporting language.`
+  const examples = words.map((word) => word?.[4]).filter(Boolean)
+  const text = [meta.reading?.text, ...examples].filter(Boolean).join(' ')
   return {
     title:`${topic} · Reading ${lessonNumber}`,
     text,
-    question:'Which term is identified as the main focus in the passage?',
-    options:labels,
-    answer:focusIndex,
-    type:'Multiple Choice',
+    question:'Which lesson word appears in this passage?',
+    options:[focus, ...labels.filter((item) => item !== focus)],
+    answer:0,
+    type:'Reading Comprehension',
   }
 }
 
@@ -294,7 +293,7 @@ function makeEnglishLessons(levelName, unitIndex, topic, meta, lessonCount, less
     }
     const listen = generatedEnglishListening(meta, topic, words, lessonNumber)
     const targetBase = meta.targets[(unitIndex + variant) % meta.targets.length]
-    const target = `${targetBase} Use ${words[0][0]} naturally when you expand your answer.`
+    const target = words.find((word) => word?.[4])?.[4] || targetBase
     const reading = generatedEnglishReading(meta, topic, words, lessonNumber)
     const focus = lessonFocuses[variant % lessonFocuses.length]
     const round = Math.floor(variant / lessonFocuses.length)
@@ -322,7 +321,7 @@ function makeEnglishLessons(levelName, unitIndex, topic, meta, lessonCount, less
         `Nhận diện và vận dụng cấu trúc ${grammar.structure}.`,
         'Nghe lấy ý chính, phản hồi bằng lời nói và viết một đoạn có tổ chức.',
       ],
-      detailedExplanation: `Bài học kết nối từ vựng chủ đề ${topic} với ${grammar.name}. Bạn sẽ gặp cùng ngôn ngữ ở ví dụ, hội thoại, bài đọc và các bài tập để chuyển từ nhận biết sang sử dụng chủ động.`,
+      detailedExplanation: `Chủ đề: ${topic} · Ngữ pháp: ${grammar.name} · Từ trọng tâm: ${words.map((word) => word[0]).join(', ')}.`,
       dialogue: {
         lines: [
           ['A', `Have you had a chance to think about ${topic.toLowerCase()}?`],
@@ -392,7 +391,7 @@ function makePracticeLessons(languageId, levelName, unitIndex, lessonOffset, top
     const lessonTheme = profile?.themes?.[(lessonNumber - 1) % profile.themes.length] || topic
     const grammar = localizeLevelGrammar(languageId, levelName, source, lessonNumber)
     const listen = nonEnglishListeningText(languageId, words, lessonNumber)
-    const target = contextualTarget(languageId, levelName, words, lessonTheme, lessonNumber, source.target)
+    const target = words.find((word) => word?.[4])?.[4] || contextualTarget(languageId, levelName, words, lessonTheme, lessonNumber, source.target)
     const reading = nonEnglishReading(languageId, words, lessonNumber)
     const writing = levelIndex >= 4
       ? { type:'Extended Writing', prompt:`Viết khoảng 120–150 từ về “${lessonTheme}”, cố gắng dùng ${words[0][0]} và ${words[1][0]}.`, keywords:words.slice(0,2).map((word) => word[0]), minWords:120, maxWords:180 }
@@ -424,7 +423,7 @@ function makePracticeLessons(languageId, levelName, unitIndex, lessonOffset, top
         `Vận dụng ${grammar.name} trong ngữ cảnh ${lessonTheme}.`,
         'Hoàn thành hoạt động nghe, đọc, viết và bài kiểm tra cuối bài.',
       ],
-      detailedExplanation:`Bài ${focus.toLowerCase()} của unit “${lessonTheme}” dùng curriculum riêng cho ${levelName}, kết hợp từ vựng đúng level với ${grammar.name} và hoạt động bốn kỹ năng.`,
+      detailedExplanation:`${levelName} · ${lessonTheme} · ${grammar.name} · ${words.map((word) => word[0]).join(', ')}.`,
     }
   })
 }
