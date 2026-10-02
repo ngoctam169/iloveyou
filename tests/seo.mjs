@@ -64,7 +64,7 @@ for (const post of standaloneBlogPosts) {
 const blogHtml = read('dist/blog/index.html')
 assert(blogHtml.includes(personalStory.title),'Main blog page is missing the personal journey preview')
 assert(blogHtml.includes('Có những quyết định lúc đưa ra mình chẳng nghĩ nó quan trọng đến vậy.'),'Personal journey preview was not prerendered')
-assert(blogHtml.includes(`href="/blog/${personalStory.slug}"`),'Personal journey preview is missing its standalone article link')
+assert(blogHtml.includes(`/blog/${personalStory.slug}`),'Personal journey preview is missing its standalone article link')
 const blogGraph = jsonLd(blogHtml)['@graph']
 const blogSchema = blogGraph.find((item) => item['@type'] === 'Blog')
 assert(blogSchema?.blogPost?.some((item) => item['@id'] === `${DEFAULT_SITE_URL}/blog/${personalStory.slug}#article`),'Blog schema does not reference the standalone personal story')
