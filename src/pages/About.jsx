@@ -3,6 +3,7 @@ import { ArrowRight, BriefcaseBusiness, Check, ExternalLink, GraduationCap, Mail
 import { Link } from 'react-router-dom'
 import Breadcrumbs from '../components/common/Breadcrumbs'
 import { AUTHOR } from '../data/author'
+import { trackEvent } from '../utils/analytics'
 
 const projectDetails = {
   Worldfone4X: {
@@ -68,9 +69,9 @@ export default function About() {
 
       <div className="cvp5-actions">
         <a className="btn large" href="#projects">Xem dự án <ArrowRight/></a>
-        <a className="btn secondary large" href={`mailto:${AUTHOR.email}`}><Mail/> Liên hệ</a>
-        <a className="cvp5-text-link" href={AUTHOR.sameAs[1]} target="_blank" rel="me noopener noreferrer">GitHub <ExternalLink/></a>
-        <a className="cvp5-text-link" href={AUTHOR.sameAs[0]} target="_blank" rel="me noopener noreferrer">LinkedIn <ExternalLink/></a>
+        <a className="btn secondary large" href={`mailto:${AUTHOR.email}`} onClick={() => trackEvent('about_contact_click', { channel:'email', placement:'hero' })}><Mail/> Liên hệ</a>
+        <a className="cvp5-text-link" href={AUTHOR.sameAs[1]} target="_blank" rel="me noopener noreferrer" onClick={() => trackEvent('about_contact_click', { channel:'github', placement:'hero' })}>GitHub <ExternalLink/></a>
+        <a className="cvp5-text-link" href={AUTHOR.sameAs[0]} target="_blank" rel="me noopener noreferrer" onClick={() => trackEvent('about_contact_click', { channel:'linkedin', placement:'hero' })}>LinkedIn <ExternalLink/></a>
       </div>
 
       <div className="cvp5-facts" aria-label="Thông tin nhanh">
@@ -198,8 +199,8 @@ export default function About() {
         <p>Có thể liên hệ mình qua email hoặc LinkedIn nếu muốn trao đổi về công việc.</p>
       </div>
       <div className="cvp5-contact-actions">
-        <a className="btn large" href={`mailto:${AUTHOR.email}`}><Mail/> {AUTHOR.email}</a>
-        <a className="btn secondary large" href={AUTHOR.sameAs[0]} target="_blank" rel="me noopener noreferrer"><BriefcaseBusiness/> LinkedIn</a>
+        <a className="btn large" href={`mailto:${AUTHOR.email}`} onClick={() => trackEvent('about_contact_click', { channel:'email', placement:'footer_cta' })}><Mail/> {AUTHOR.email}</a>
+        <a className="btn secondary large" href={AUTHOR.sameAs[0]} target="_blank" rel="me noopener noreferrer" onClick={() => trackEvent('about_contact_click', { channel:'linkedin', placement:'footer_cta' })}><BriefcaseBusiness/> LinkedIn</a>
       </div>
     </section>
   </article>

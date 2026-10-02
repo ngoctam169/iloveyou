@@ -70,7 +70,7 @@ export default function InfoPage({ page }) {
         <h2>Đo lường truy cập</h2>
         <div className={`analytics-status ${analyticsEnabled ? 'enabled' : ''}`}>
           <strong>{analyticsEnabled ? 'Google Analytics đang được bật' : 'Google Analytics hiện chưa được bật'}</strong>
-          <p>{analyticsEnabled ? 'Website dùng Google Analytics để hiểu cách các trang được sử dụng. Dữ liệu kỹ thuật có thể được xử lý theo chính sách của Google.' : 'Hiện website không tải Google Analytics. Khi chủ website bật đo lường, mục này sẽ tự cập nhật trạng thái.'}</p>
+          <p>{analyticsEnabled ? 'Website dùng Google Analytics để đo page view và một số thao tác như chọn ngôn ngữ/level, bắt đầu hoặc hoàn thành bài học, lưu từ vựng, bắt đầu ôn tập, nộp bài thi thử, đọc blog và bấm kênh liên hệ. NT không gửi nội dung microphone, bản ghi giọng nói hay nội dung bài viết của người học vào các event này. Dữ liệu kỹ thuật có thể được xử lý theo chính sách của Google.' : 'Hiện website không tải Google Analytics. Khi chủ website bật đo lường, mục này sẽ tự cập nhật trạng thái.'}</p>
         </div>
       </section>}
     </div>

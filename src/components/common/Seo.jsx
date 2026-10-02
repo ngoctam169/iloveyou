@@ -22,7 +22,7 @@ export default function Seo() {
     const image = `${siteUrl}${DEFAULT_OG_IMAGE}`
     document.title = meta.title
     upsertMeta('meta[name="description"]', { name:'description', content:meta.description })
-    upsertMeta('meta[name="keywords"]', { name:'keywords', content:meta.keywords || 'Nguyễn Ngọc Tâm developer, Ngọc Tâm Dev, PHP Developer, Laravel, MongoDB, Redis, WebSocket, WebRTC' })
+    removeMeta('meta[name="keywords"]')
     upsertMeta('meta[name="robots"]', { name:'robots', content:meta.robots || 'index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1' })
     upsertMeta('meta[name="author"]', { name:'author', content:AUTHOR.name })
     upsertMeta('meta[property="og:title"]', { property:'og:title', content:meta.ogTitle || meta.title })

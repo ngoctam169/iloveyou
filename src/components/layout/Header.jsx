@@ -2,6 +2,7 @@ import { ChevronDown, ClipboardCheck, Home, Languages, Menu, MoreHorizontal, Rot
 import { useEffect, useRef, useState } from 'react'
 import { Link, NavLink, useLocation } from 'react-router-dom'
 import { useApp } from '../../context/AppContext'
+import { trackEvent } from '../../utils/analytics'
 
 const languageItems = [
   ['/learn-english','Tiếng Anh','A1 → C2'],
@@ -105,7 +106,7 @@ export default function Header() {
             <div className="nav-popover-section" role="none">
               <div className="nav-popover-heading"><strong>Chọn ngôn ngữ</strong><Link role="menuitem" to="/languages">Xem tất cả</Link></div>
               <div className="nav-language-grid">
-                {languageItems.map(([to,label,level]) => <NavLink role="menuitem" key={to} to={to}><span>{label}</span><small>{level}</small></NavLink>)}
+                {languageItems.map(([to,label,level]) => <NavLink role="menuitem" key={to} to={to} onClick={() => trackEvent('select_language', { language:to.replace('/learn-',''), source:'header_menu' })}><span>{label}</span><small>{level}</small></NavLink>)}
               </div>
             </div>
             <div className="nav-popover-section nav-learning-tools" role="none">

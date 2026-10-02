@@ -15,6 +15,7 @@ import { wordKey } from '../utils/srs'
 import { buildGrammarQuestion, grammarEntryFor } from '../utils/grammarPractice'
 import NotFound from './NotFound'
 import { grammarPath, lessonPath as cleanLessonPath, levelPath, vocabularyPath } from '../utils/routes'
+import { trackEvent } from '../utils/analytics'
 
 const sections = [
   ['Vocabulary', BookOpen], ['Grammar', Sparkles], ['Listening', Headphones], ['Speaking', Mic],
@@ -51,6 +52,7 @@ export default function Lesson() {
   const [completedSections, setCompletedSections] = useState(() => savedSession?.completedSections || (savedSession?.completed ? sections.map((_, index) => index) : Array.from({ length: Math.min(8, Number(savedSession?.step) || 0) }, (_, index) => index)))
   const activeSeconds = useRef(Number(savedSession?.activeSeconds) || 0)
   const lastInteraction = useRef(Date.now())
+  const analyticsStarted = useRef(false)
   const navigate = useNavigate()
   const lessonPath = level ? cleanLessonPath(languageId, level[0], lessonId) : location.pathname
   const grammarEntry = lesson && grammarEntryFor(languageId, level?.[0], lesson.grammar.name)
@@ -69,6 +71,12 @@ export default function Lesson() {
   useEffect(() => {
     if (level && (state.selectedLanguage !== languageId || state.selectedLevel !== level[0])) chooseCourse(languageId, level[0])
   }, [languageId, level?.[0], state.selectedLanguage, state.selectedLevel])
+
+  useEffect(() => {
+    if (!lesson || !level || analyticsStarted.current) return
+    analyticsStarted.current = true
+    trackEvent('lesson_started', { language:languageId, level:level[0], lesson_id:lesson.id, lesson_number:lesson.number, lesson_title:lesson.title })
+  }, [lesson?.id, languageId, level?.[0]])
 
   useEffect(() => { if (sectionIndex >= 0) setStep(sectionIndex) }, [location.search])
 
@@ -132,7 +140,9 @@ export default function Lesson() {
     if (checked.quiz && !quizIsCorrect(lesson.quiz, answers.quiz)) addMistake({ id: `quiz-${lesson.id}`, type: lesson.quiz.type === 'Listening Quiz' ? 'Listening' : lesson.quiz.type?.includes('Vocabulary') ? 'Vocabulary' : 'Grammar', prompt: lesson.quiz.question, answer: quizAnswerLabel(lesson.quiz), yourAnswer: quizResponseLabel(lesson.quiz, answers.quiz), path })
     if ((answers.speakingScore ?? 0) < 70) addMistake({ id:`speaking-${lesson.id}`, type:'Speaking', prompt:lesson.target, answer:'Đạt transcript match từ 70% trở lên, sau đó tiếp tục luyện độ tự nhiên và ngữ điệu.', yourAnswer:`Transcript Match: ${answers.speakingScore ?? 0}%`, path:`${path}?section=speaking` })
     if (writing.score < 60) addMistake({ id: `writing-${lesson.id}`, type: 'Writing', prompt: lesson.writing.prompt, answer: writing.guidance, yourAnswer: writing.text || 'Chưa viết', path })
-    completeLesson({ lessonId: lesson.id, languageId, level: level[0], score: resultScore, skills, vocabularyCount: lesson.vocab.length, vocabularyWords: lesson.vocab.map((word) => word[0]), minutes: Math.max(0.1, Math.round(activeSeconds.current / 6) / 10) })
+    const minutes = Math.max(0.1, Math.round(activeSeconds.current / 6) / 10)
+    completeLesson({ lessonId: lesson.id, languageId, level: level[0], score: resultScore, skills, vocabularyCount: lesson.vocab.length, vocabularyWords: lesson.vocab.map((word) => word[0]), minutes })
+    trackEvent('lesson_completed', { language:languageId, level:level[0], lesson_id:lesson.id, score:resultScore, xp_earned:earnedXp, study_minutes:minutes, repeat_completion:alreadyCompleted })
     setStep(8)
   }
 

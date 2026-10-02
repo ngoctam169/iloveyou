@@ -26,8 +26,9 @@ try {
 
   await page.goto(`${origin}/blog`)
   await page.getByRole('heading',{ name:'Những ghi chú kỹ thuật mình muốn giữ lại',exact:true }).waitFor()
-  await page.getByRole('heading',{ name:'Từ Ninh Thuận vào Sài Gòn',exact:true,level:2 }).waitFor()
-  assert(await page.locator('#nguyen-ngoc-tam-ninh-thuan .article-content').count()===1,'Personal journey must be rendered inline inside /blog')
+  await page.getByRole('heading',{ name:/Từ Ninh Thuận vào Sài Gòn/,level:2 }).waitFor()
+  assert(await page.locator('.blog-story-preview').count()===1,'Personal journey preview must be rendered on /blog')
+  assert((await page.getByRole('link',{ name:/Đọc câu chuyện đầy đủ/ }).getAttribute('href'))==='/blog/nguyen-ngoc-tam-ninh-thuan','Personal journey preview must link to its standalone URL')
   assert(await page.locator('.blog-list .blog-card').count()===4,'Blog listing must contain four technical articles')
   await page.locator('.blog-list .blog-card').first().locator('h3 a').click()
   await page.waitForURL('**/blog/php-mongodb-performance')
@@ -63,7 +64,7 @@ try {
 
   for (const width of [320,375,768,1024,1440]) {
     await page.setViewportSize({ width,height:900 })
-    for (const route of ['/blog','/blog/websocket-realtime-system','/about']) {
+    for (const route of ['/blog','/blog/nguyen-ngoc-tam-ninh-thuan','/blog/websocket-realtime-system','/about']) {
       await page.goto(`${origin}${route}`)
       await page.locator('main.page').waitFor()
       const overflow=await page.evaluate(()=>document.documentElement.scrollWidth-document.documentElement.clientWidth)
@@ -72,15 +73,16 @@ try {
   }
 
   await page.goto(`${origin}/blog/nguyen-ngoc-tam-ninh-thuan`)
-  await page.waitForURL('**/blog#nguyen-ngoc-tam-ninh-thuan')
-  await page.locator('#nguyen-ngoc-tam-ninh-thuan').waitFor()
-  assert(await page.locator('#nguyen-ngoc-tam-ninh-thuan').count()===1,'Legacy personal story URL must redirect into the Blog section')
+  await page.waitForURL('**/blog/nguyen-ngoc-tam-ninh-thuan')
+  await page.getByRole('heading',{ name:/Từ Ninh Thuận vào Sài Gòn/,level:1 }).waitFor()
+  const personalSchema=await page.locator('#nt-json-ld').textContent().then(JSON.parse)
+  assert(personalSchema['@graph'].some((item)=>item['@type']==='BlogPosting'&&item.url===`${origin}/blog/nguyen-ngoc-tam-ninh-thuan`),'Personal story must expose standalone BlogPosting schema')
 
   await page.goto(`${origin}/blog/bai-viet-khong-ton-tai`)
   await page.getByRole('heading',{ name:/Lối này chưa có bài học/ }).waitFor()
   assert((await page.locator('meta[name="robots"]').getAttribute('content')).startsWith('noindex'),'Unknown article route must be noindex')
   assert(errors.length===0,`Runtime errors:\n${errors.join('\n')}`)
-  console.log('BLOG PASS: listing, articles, author entity, schemas, 404 and responsive layouts')
+  console.log('BLOG PASS: listing, standalone personal story, articles, author entity, schemas, 404 and responsive layouts')
 } finally {
   await browser?.close()
   server.kill('SIGTERM')

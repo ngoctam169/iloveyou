@@ -1127,7 +1127,7 @@ input:focus,textarea:focus,select:focus{border-color:var(--primary)!important;bo
 
 /* Stability & rendering performance */
 html{scrollbar-gutter:stable}
-.site-header.stable-header{will-change:transform;transform:translateZ(0)}
+.site-header.stable-header{transform:translateZ(0)}
 .toeic-scene{margin:0 0 20px;overflow:hidden;border:1px solid var(--line);border-radius:10px;background:var(--surface-2);aspect-ratio:16/9}
 .toeic-scene img{display:block;width:100%;height:100%;object-fit:cover}
 .error-boundary{min-height:70vh;display:grid;place-items:center;padding-block:70px}

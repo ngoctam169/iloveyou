@@ -8,10 +8,8 @@ export const blogPostMeta = [
     category: 'Hành trình cá nhân',
     tags: ['Nguyễn Ngọc Tâm', 'Ninh Thuận', 'South Telecom', '8D JSC', 'Full-stack Developer'],
     datePublished: '2026-09-28',
-    dateModified: '2026-10-01',
+    dateModified: '2026-10-02',
     readingTime: '8 phút đọc',
-    inline: true,
-    anchor: 'nguyen-ngoc-tam-ninh-thuan',
   },
   {
     slug: 'php-mongodb-performance',
@@ -22,8 +20,8 @@ export const blogPostMeta = [
     category: 'PHP & Database',
     tags: ['PHP', 'MongoDB', 'Redis', 'Performance'],
     datePublished: '2026-09-28',
-    dateModified: '2026-09-28',
-    readingTime: '12 phút đọc',
+    dateModified: '2026-10-02',
+    readingTime: '14 phút đọc',
   },
   {
     slug: 'websocket-realtime-system',
@@ -34,8 +32,8 @@ export const blogPostMeta = [
     category: 'Realtime Systems',
     tags: ['WebSocket', 'Realtime', 'Redis', 'Backend'],
     datePublished: '2026-09-28',
-    dateModified: '2026-09-28',
-    readingTime: '11 phút đọc',
+    dateModified: '2026-10-02',
+    readingTime: '13 phút đọc',
   },
   {
     slug: 'webrtc-video-call',
@@ -46,8 +44,8 @@ export const blogPostMeta = [
     category: 'WebRTC',
     tags: ['WebRTC', 'Video Call', 'Janus', 'Jitsi'],
     datePublished: '2026-09-28',
-    dateModified: '2026-09-28',
-    readingTime: '12 phút đọc',
+    dateModified: '2026-10-02',
+    readingTime: '14 phút đọc',
   },
   {
     slug: 'laravel-queue-redis',
@@ -58,13 +56,15 @@ export const blogPostMeta = [
     category: 'Laravel',
     tags: ['Laravel', 'Redis', 'Queue', 'PHP'],
     datePublished: '2026-09-28',
-    dateModified: '2026-09-28',
-    readingTime: '11 phút đọc',
+    dateModified: '2026-10-02',
+    readingTime: '13 phút đọc',
   },
 ]
 
+export const personalStoryMeta = blogPostMeta.find((post) => post.slug === 'nguyen-ngoc-tam-ninh-thuan')
+
 export const latestBlogPosts = blogPostMeta
-  .filter((post) => !post.inline)
+  .filter((post) => post.slug !== 'nguyen-ngoc-tam-ninh-thuan')
   .sort((a, b) => b.datePublished.localeCompare(a.datePublished))
 
 export const findBlogMeta = (slug) => blogPostMeta.find((post) => post.slug === slug)
