@@ -7,6 +7,7 @@ import { languages } from '../data/languages'
 import { useApp } from '../context/AppContext'
 import { languagePath } from '../utils/routes'
 import { latestBlogPosts } from '../data/blogMeta'
+import { trackEvent } from '../utils/analytics'
 
 const studyFlow = [
   [BookOpen,'01','Vocabulary','Học từ theo level, chủ đề và câu ví dụ.','/english-vocabulary'],
@@ -25,6 +26,7 @@ export default function Home() {
   const finish = () => {
     const language = languages.find((item) => item.id === form.language)
     update({ dailyGoal:form.daily, onboardingComplete:true, selectedLanguage:language.id, selectedLevel:language.levels[0][0], profile:{ ...state.profile, goal:form.goal } })
+    trackEvent('start_learning', { language:language.id, level:language.levels[0][0], goal:form.goal, daily_minutes:form.daily, placement_test:form.skill === 'test' })
     setOnboarding(false)
     navigate(form.skill === 'test' ? '/placement-test' : languagePath(language.id))
   }
@@ -53,7 +55,7 @@ export default function Home() {
           <strong>Choose your path</strong>
         </div>
         <div className="huashu-index-list">
-          {languages.map((language,index) => <Link key={language.id} to={languagePath(language.id)} className="huashu-index-row">
+          {languages.map((language,index) => <Link key={language.id} to={languagePath(language.id)} className="huashu-index-row" onClick={() => trackEvent('select_language', { language:language.id, source:'home_learning_index' })}>
             <span className="huashu-index-no">{String(index + 1).padStart(2,'0')}</span>
             <span className="huashu-index-language"><b>{language.nativeName}</b><small>{language.name}</small></span>
             <span className="huashu-index-levels">{language.levels.map(([level]) => level).join(' · ')}</span>
