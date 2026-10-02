@@ -8,10 +8,8 @@ export const blogPostMeta = [
     category: 'Hành trình cá nhân',
     tags: ['Nguyễn Ngọc Tâm', 'Ninh Thuận', 'South Telecom', '8D JSC', 'Full-stack Developer'],
     datePublished: '2026-09-28',
-    dateModified: '2026-10-01',
+    dateModified: '2026-10-02',
     readingTime: '8 phút đọc',
-    inline: true,
-    anchor: 'nguyen-ngoc-tam-ninh-thuan',
   },
   {
     slug: 'php-mongodb-performance',
@@ -63,8 +61,10 @@ export const blogPostMeta = [
   },
 ]
 
+export const personalStoryMeta = blogPostMeta.find((post) => post.slug === 'nguyen-ngoc-tam-ninh-thuan')
+
 export const latestBlogPosts = blogPostMeta
-  .filter((post) => !post.inline)
+  .filter((post) => post.slug !== 'nguyen-ngoc-tam-ninh-thuan')
   .sort((a, b) => b.datePublished.localeCompare(a.datePublished))
 
 export const findBlogMeta = (slug) => blogPostMeta.find((post) => post.slug === slug)
