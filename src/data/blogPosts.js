@@ -316,7 +316,7 @@ const articleContent = {
     p('Có một background job đã chạy ổn khá lâu rồi mới phát sinh lỗi. Hai script có tên gần giống nhau: một process fjob_syncdata_premium.php chạy định kỳ, còn job_syncdata_premium.php dùng câu lệnh ps kết hợp grep để kiểm tra xem job đã chạy hay chưa. Khi fjob chạy lâu hơn bình thường và chồng sang thời điểm job kế tiếp bắt đầu, chuỗi grep job_syncdata_premium.php vô tình match luôn tên fjob_syncdata_premium.php.'),
     p('Kết quả là script kết luận nhầm rằng job chính đang chạy và exit, dù process thật sự cần kiểm tra chưa hề tồn tại. Lỗi khó thấy vì trong thời gian dài fjob thường kết thúc trước chu kỳ kế tiếp, nên điều kiện sai chưa từng bị kích hoạt. Cách sửa không phải tăng interval, mà là làm điều kiện nhận diện process chính xác hơn, ví dụ dùng pgrep -f với pattern chặt, pidfile hoặc cơ chế lock rõ ràng thay cho grep tên process mơ hồ.'),
     code('bash', 'Ví dụ kiểm tra process theo pattern chính xác hơn', [
-      'if pgrep -f "[j]ob_syncdata_premium.php" > /dev/null; then',
+      'if pgrep -f "/job_syncdata_premium\\.php([[:space:]]|$)" > /dev/null; then',
       '  exit 0',
       'fi',
       '',
