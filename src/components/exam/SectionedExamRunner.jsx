@@ -104,7 +104,7 @@ export default function SectionedExamRunner({
     setElapsed(currentElapsed)
     setResult(report)
     clearExamSession(sessionKey)
-    trackEvent(`${analyticsExam}_submitted`, { exam_type:title, session_key:sessionKey, total_questions:totalQuestions, answered_questions:totalAnswered, timed_out:timedOut, score:report?.score ?? report?.estimatedScore ?? report?.totalScore })
+    trackEvent(analyticsExam === 'ielts' ? 'ielts_objective_completed' : `${analyticsExam}_submitted`, { exam_type:title, session_key:sessionKey, total_questions:totalQuestions, answered_questions:totalAnswered, timed_out:timedOut, score:report?.score ?? report?.estimatedScore ?? report?.totalScore })
     onComplete?.(report, { answers, sections:examSections })
   }
 
