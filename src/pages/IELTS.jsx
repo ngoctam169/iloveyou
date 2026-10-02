@@ -11,6 +11,7 @@ import { ieltsSpeaking } from '../data/ielts'
 import { buildIeltsObjectiveResult, ieltsAcademicWritingTasks, ieltsFullListening, ieltsFullReading, ieltsFullSections } from '../data/exams/ieltsFull'
 import { buildIeltsExamSections, buildIeltsWritingTasks } from '../data/exams/ieltsAdvanced'
 import { buildExamMistakes } from '../utils/examMistakes'
+import { trackEvent } from '../utils/analytics'
 import IELTSSpeakingStudio from '../components/exam/IELTSSpeakingStudio'
 
 const tabs = ['Overview','Full Mock','Listening Practice','Reading Practice','Writing','Speaking','History']
@@ -145,6 +146,7 @@ function IELTSFullMock({ onSpeaking,onHistory }) {
   if (phase === 'writing' && objective) return <IELTSWritingExam objective={objective} tasks={writingTasks} persistKey={IELTS_WRITING_KEY} onComplete={(report) => {
     const merged={ ...objective,...report,type:'Academic Full Mock',bands:objective.bands,timeUsed:objective.timeUsed + report.writingTimeUsed }
     saveExamResult('ielts',merged)
+    trackEvent('ielts_submitted', { exam_type:'Academic Full Mock', listening_band:merged.bands.Listening, reading_band:merged.bands.Reading, unanswered:merged.unanswered, writing_task1_words:merged.writingWords.task1, writing_task2_words:merged.writingWords.task2, time_used_seconds:merged.timeUsed })
     clearLocal(IELTS_FLOW_KEY)
     clearLocal(IELTS_WRITING_KEY)
     setFinalResult(merged)
