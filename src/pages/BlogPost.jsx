@@ -1,5 +1,6 @@
 import '../styles/blog.css'
 import { ArrowLeft, CalendarDays, Clock3 } from 'lucide-react'
+import { useEffect } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import AuthorBox from '../components/blog/AuthorBox'
 import BlogCard from '../components/blog/BlogCard'
@@ -8,6 +9,7 @@ import Breadcrumbs from '../components/common/Breadcrumbs'
 import { AUTHOR } from '../data/author'
 import { blogPosts, findBlogPost } from '../data/blogPosts'
 import NotFound from './NotFound'
+import { trackEvent } from '../utils/analytics'
 
 function ArticleBlock({ block }) {
   if (block.type === 'h2') return <h2 id={block.id}>{block.text}</h2>
@@ -21,6 +23,9 @@ function ArticleBlock({ block }) {
 export default function BlogPost() {
   const { slug } = useParams()
   const post = findBlogPost(slug)
+  useEffect(() => {
+    if (post) trackEvent('blog_read', { article_slug:post.slug, article_category:post.category, reading_time:post.readingTime })
+  }, [post?.slug])
   if (!post) return <NotFound compact/>
   const related = blogPosts.filter((item) => !item.inline && item.slug !== post.slug).sort((a,b) => Number(b.category === post.category) - Number(a.category === post.category)).slice(0,2)
   const formattedDate = new Intl.DateTimeFormat('vi-VN',{ dateStyle:'long' }).format(new Date(`${post.datePublished}T00:00:00`))
