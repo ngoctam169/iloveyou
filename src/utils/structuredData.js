@@ -29,7 +29,6 @@ export function buildStructuredData({ siteUrl, meta, path, breadcrumbs = default
       inLanguage:['vi','en'],
       creator:{ '@id':personId },
       author:{ '@id':personId },
-      potentialAction:{ '@type':'SearchAction', target:`${siteUrl}/search?q={search_term_string}`, 'query-input':'required name=search_term_string' },
     },
   ]
 
