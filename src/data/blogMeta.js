@@ -20,8 +20,8 @@ export const blogPostMeta = [
     category: 'PHP & Database',
     tags: ['PHP', 'MongoDB', 'Redis', 'Performance'],
     datePublished: '2026-09-28',
-    dateModified: '2026-09-28',
-    readingTime: '12 phút đọc',
+    dateModified: '2026-10-02',
+    readingTime: '14 phút đọc',
   },
   {
     slug: 'websocket-realtime-system',
@@ -32,8 +32,8 @@ export const blogPostMeta = [
     category: 'Realtime Systems',
     tags: ['WebSocket', 'Realtime', 'Redis', 'Backend'],
     datePublished: '2026-09-28',
-    dateModified: '2026-09-28',
-    readingTime: '11 phút đọc',
+    dateModified: '2026-10-02',
+    readingTime: '13 phút đọc',
   },
   {
     slug: 'webrtc-video-call',
@@ -44,8 +44,8 @@ export const blogPostMeta = [
     category: 'WebRTC',
     tags: ['WebRTC', 'Video Call', 'Janus', 'Jitsi'],
     datePublished: '2026-09-28',
-    dateModified: '2026-09-28',
-    readingTime: '12 phút đọc',
+    dateModified: '2026-10-02',
+    readingTime: '14 phút đọc',
   },
   {
     slug: 'laravel-queue-redis',
@@ -56,8 +56,8 @@ export const blogPostMeta = [
     category: 'Laravel',
     tags: ['Laravel', 'Redis', 'Queue', 'PHP'],
     datePublished: '2026-09-28',
-    dateModified: '2026-09-28',
-    readingTime: '11 phút đọc',
+    dateModified: '2026-10-02',
+    readingTime: '13 phút đọc',
   },
 ]
 
