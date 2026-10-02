@@ -18,6 +18,7 @@ const analyticsFiles=[
   'src/pages/Vocabulary.jsx',
   'src/pages/Review.jsx',
   'src/components/exam/SectionedExamRunner.jsx',
+  'src/pages/IELTS.jsx',
   'src/pages/BlogPost.jsx',
   'src/pages/About.jsx',
 ].map(read).join('\n')
