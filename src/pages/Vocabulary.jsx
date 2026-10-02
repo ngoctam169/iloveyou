@@ -14,6 +14,7 @@ import { speak } from '../utils/speech'
 import { isDue, isWeakVocabulary, localDate, vocabularyStatus, wordKey } from '../utils/srs'
 import { buildVocabularyPractice, checkVocabularyAnswer } from '../utils/vocabularyPractice'
 import { languagePath, levelPath, vocabularyPath } from '../utils/routes'
+import { trackEvent } from '../utils/analytics'
 
 const statuses = ['All', 'New Words', 'Learning', 'Review Today', 'Recently Wrong', 'Mastered', 'Weak Words', 'Favorites', 'Difficult', 'Learned']
 const PAGE_SIZE = 50
