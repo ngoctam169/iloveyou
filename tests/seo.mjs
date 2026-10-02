@@ -33,9 +33,9 @@ assert(person.email === `mailto:${AUTHOR.email}`,'Person entity is missing the p
 assert(aboutHtml.includes(`mailto:${AUTHOR.email}`) && aboutHtml.includes("Let's work together"),'About prerender is missing the recruiter contact CTA')
 assert(person.description?.includes('realtime communication') && person.knowsAbout?.includes('WebRTC') && person.knowsAbout?.includes('Salesforce Integration'),'Person entity is missing engineering capability signals')
 
-const inlineStory = blogPosts.find((post) => post.inline)
-const standaloneBlogPosts = blogPosts.filter((post) => !post.inline)
-assert(inlineStory,'Inline personal story is missing')
+const personalStory = blogPosts.find((post) => post.slug === 'nguyen-ngoc-tam-ninh-thuan')
+const standaloneBlogPosts = blogPosts
+assert(personalStory,'Personal story is missing')
 
 const titles = new Set()
 for (const post of standaloneBlogPosts) {
@@ -62,21 +62,21 @@ for (const post of standaloneBlogPosts) {
 }
 
 const blogHtml = read('dist/blog/index.html')
-assert(blogHtml.includes(inlineStory.title),'Main blog page is missing the inline personal journey')
-assert(blogHtml.includes('Có những quyết định lúc đưa ra mình chẳng nghĩ nó quan trọng đến vậy.'),'Inline personal journey content was not prerendered')
+assert(blogHtml.includes(personalStory.title),'Main blog page is missing the personal journey preview')
+assert(blogHtml.includes('Có những quyết định lúc đưa ra mình chẳng nghĩ nó quan trọng đến vậy.'),'Personal journey preview was not prerendered')
+assert(blogHtml.includes(`href="/blog/${personalStory.slug}"`),'Personal journey preview is missing its standalone article link')
 const blogGraph = jsonLd(blogHtml)['@graph']
-const inlinePosting = blogGraph.find((item) => item['@type'] === 'BlogPosting' && item.url === `${DEFAULT_SITE_URL}/blog#${inlineStory.anchor}`)
-assert(inlinePosting?.about?.['@id'] === `${DEFAULT_SITE_URL}/#person`,'Inline personal story schema is not connected to the Person entity')
-const inlineWords = inlineStory.content.flatMap((block) => block.text ? [block.text] : block.items || []).join(' ').split(' ').filter(Boolean).length
-assert(inlineWords >= 1000 && inlineWords <= 2000,`Inline personal story has ${inlineWords} words; expected 1000–2000`)
-const inlineStoryText = inlineStory.content.flatMap((block) => block.text ? [block.text] : block.items || []).join(' ')
-assert(!/Ngọc Tâm Dev|Tâm Dev|developer branding/i.test(inlineStoryText),'Inline personal story still contains branding language')
-assert(!/Ngọc Tâm Dev|Tâm Dev/i.test(inlineStory.description),'Inline story description still contains branding language')
-assert(!inlineStory.tags.some((tag) => /Ngọc Tâm Dev|Tâm Dev/i.test(tag)),'Inline story tags still contain branding language')
+const blogSchema = blogGraph.find((item) => item['@type'] === 'Blog')
+assert(blogSchema?.blogPost?.some((item) => item['@id'] === `${DEFAULT_SITE_URL}/blog/${personalStory.slug}#article`),'Blog schema does not reference the standalone personal story')
+const personalWords = personalStory.content.flatMap((block) => block.text ? [block.text] : block.items || []).join(' ').split(' ').filter(Boolean).length
+assert(personalWords >= 1000 && personalWords <= 2200,`Personal story has ${personalWords} words; expected 1000–2200`)
+const personalStoryText = personalStory.content.flatMap((block) => block.text ? [block.text] : block.items || []).join(' ')
+assert(!/Ngọc Tâm Dev|Tâm Dev|developer branding/i.test(personalStoryText),'Personal story still contains branding language')
+assert(!/Ngọc Tâm Dev|Tâm Dev/i.test(personalStory.description),'Personal story description still contains branding language')
+assert(!personalStory.tags.some((tag) => /Ngọc Tâm Dev|Tâm Dev/i.test(tag)),'Personal story tags still contain branding language')
 
 const sitemap = read('dist/sitemap.xml')
 for (const path of ['/about','/blog',...standaloneBlogPosts.map((post) => `/blog/${post.slug}`)]) assert(sitemap.includes(`<loc>${DEFAULT_SITE_URL}${path}</loc>`),`Sitemap is missing ${path}`)
-assert(!sitemap.includes(`<loc>${DEFAULT_SITE_URL}/blog/${inlineStory.slug}</loc>`),'Inline personal story should not be a separate sitemap URL')
 const robots = read('dist/robots.txt')
 assert(robots.includes(`Sitemap: ${DEFAULT_SITE_URL}/sitemap.xml`) && !/Disallow:\s*\//.test(robots),'robots.txt blocks crawling or has a wrong sitemap')
 const notFound = read('dist/404.html')
@@ -84,11 +84,13 @@ assert(notFound.includes('noindex, follow'),'404 output is indexable')
 const builtHome = read('dist/index.html')
 assert(builtHome.includes('/iloveyou/assets/') && builtHome.includes('Nguyễn Ngọc Tâm') && builtHome.includes('Ngọc Tâm Dev'),'Production base path or homepage personal identity signal is missing')
 assert(builtHome.includes('<title>NT Language Learning | Học ngoại ngữ · Nguyễn Ngọc Tâm</title>'),'Homepage title is not product-first with author identity')
+assert(!/<meta[^>]+name="keywords"/i.test(builtHome) && !/<meta[^>]+name="keywords"/i.test(aboutHtml),'Obsolete meta keywords should not be rendered')
 const homeGraph = jsonLd(builtHome)['@graph']
 const homeWebsite = homeGraph.find((item) => item['@type'] === 'WebSite')
 const homePerson = homeGraph.find((item) => item['@type'] === 'Person')
 assert(homeWebsite?.name === 'NT Language Learning' && homeWebsite?.creator?.['@id'] === `${DEFAULT_SITE_URL}/#person`,'WebSite does not identify the language product and Nguyễn Ngọc Tâm as creator')
 assert(!homeWebsite?.about,'Product WebSite should not claim Nguyễn Ngọc Tâm is the subject of the whole site')
+assert(!homeWebsite?.potentialAction,'Deprecated WebSite SearchAction should not be emitted')
 assert(homePerson?.name === AUTHOR.name && homePerson?.worksFor?.name === 'South Telecom','Homepage Person entity is incomplete')
 assert(builtHome.includes('Học ngoại ngữ theo level') && builtHome.includes('TOEIC và IELTS'),'Homepage prerender is not language-learning first')
 assert(builtHome.includes('Người phát triển') && builtHome.includes('Nguyễn Ngọc Tâm (Ngọc Tâm Dev)'),'Homepage lost the visible author identity/link')
