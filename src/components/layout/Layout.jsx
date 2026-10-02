@@ -20,7 +20,8 @@ export default function Layout() {
     const scrollWhenReady = () => {
       const target = document.getElementById(id)
       if (target) {
-        target.scrollIntoView({ behavior:'smooth', block:'start' })
+        const reducedMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
+        target.scrollIntoView({ behavior:reducedMotion ? 'auto' : 'smooth', block:'start' })
         return
       }
       attempts += 1
@@ -30,5 +31,5 @@ export default function Layout() {
     return () => window.cancelAnimationFrame(frame)
   }, [location.pathname, location.hash])
 
-  return <div className="app-shell"><Header /><main className="page" key={location.pathname}><Outlet /></main>{!focusedLesson && <Footer />}<Toast /></div>
+  return <div className="app-shell"><a className="skip-link" href="#main-content">Bỏ qua menu</a><Header /><main id="main-content" className="page" tabIndex="-1" key={location.pathname}><Outlet /></main>{!focusedLesson && <Footer />}<Toast /></div>
 }
