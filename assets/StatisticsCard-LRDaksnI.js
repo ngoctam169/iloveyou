@@ -1,0 +1,1 @@
+import{t as e}from"./react-vendor-DYephmB7.js";var t=e();function n({icon:e,value:n,label:r,detail:i}){return(0,t.jsxs)(`article`,{className:`statistics-card`,children:[e&&(0,t.jsx)(`span`,{children:(0,t.jsx)(e,{})}),(0,t.jsxs)(`div`,{children:[(0,t.jsx)(`strong`,{children:n}),(0,t.jsx)(`small`,{children:r}),i&&(0,t.jsx)(`em`,{children:i})]})]})}export{n as t};

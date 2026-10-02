@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://ngoctam169.github.io/iloveyou/sitemap.xml

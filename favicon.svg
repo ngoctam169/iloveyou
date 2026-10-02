@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-labelledby="title desc">
+  <title id="title">NT logo</title>
+  <desc id="desc">NT Language Learning monogram.</desc>
+  <rect width="64" height="64" rx="12" fill="#1a1918"/>
+  <path d="M15 45V19l18 26V19" fill="none" stroke="#f5f4f0" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M37 20h15M44.5 20v25" fill="none" stroke="#f5f4f0" stroke-width="5.5" stroke-linecap="round"/>
+  <path d="M17 52h30" fill="none" stroke="#d97757" stroke-width="3" stroke-linecap="round"/>
+</svg>
