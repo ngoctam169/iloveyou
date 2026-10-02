@@ -6,6 +6,7 @@ import QuizQuestion, { hasAnswer } from '../common/QuizQuestion'
 import { useApp } from '../../context/AppContext'
 import { speak } from '../../utils/speech'
 import { clearExamSession, loadExamSession, pickFreshForm, rememberForm, saveExamSession } from '../../services/examSessionService'
+import { trackEvent } from '../../utils/analytics'
 
 export default function SectionedExamRunner({
   title,
@@ -44,6 +45,7 @@ export default function SectionedExamRunner({
   const answered = useMemo(() => questions.filter((item) => hasAnswer(answers[item.id])).length, [questions, answers])
   const totalQuestions = examSections.reduce((sum, item) => sum + item.questions.length, 0)
   const totalAnswered = examSections.reduce((sum, item) => sum + item.questions.filter((q) => hasAnswer(answers[q.id])).length, 0)
+  const analyticsExam = sessionKey?.startsWith('toeic') ? 'toeic' : sessionKey?.startsWith('ielts') ? 'ielts' : 'exam'
 
   const begin = () => {
     const nextSections = pickFreshForm(sectionsFactory, sections, sessionKey)
@@ -62,6 +64,7 @@ export default function SectionedExamRunner({
     setRemaining(duration)
     setSessionStartedAt(now)
     setDeadline(now + duration * 1000)
+    trackEvent(`${analyticsExam}_started`, { exam_type:title, session_key:sessionKey, total_questions:nextSections.reduce((sum,item) => sum + item.questions.length, 0) })
   }
 
   useEffect(() => {
@@ -101,6 +104,7 @@ export default function SectionedExamRunner({
     setElapsed(currentElapsed)
     setResult(report)
     clearExamSession(sessionKey)
+    trackEvent(`${analyticsExam}_submitted`, { exam_type:title, session_key:sessionKey, total_questions:totalQuestions, answered_questions:totalAnswered, timed_out:timedOut, score:report?.score ?? report?.estimatedScore ?? report?.totalScore })
     onComplete?.(report, { answers, sections:examSections })
   }
 
