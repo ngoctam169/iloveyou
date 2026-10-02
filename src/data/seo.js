@@ -4,32 +4,6 @@ import { blogPostMeta, findBlogMeta } from './blogMeta.js'
 export const SITE_NAME = 'NT Language Learning'
 export const DEFAULT_SITE_URL = 'https://ngoctam169.github.io/iloveyou'
 export const DEFAULT_OG_IMAGE = '/og-image.png'
-export const PERSONAL_SEO_KEYWORDS = [
-  'Nguyễn Ngọc Tâm developer',
-  'Nguyen Ngoc Tam developer',
-  'Ngọc Tâm Dev',
-  'Tâm Dev',
-  'Nguyễn Ngọc Tâm Full-stack Developer',
-  'Nguyễn Ngọc Tâm Backend Developer',
-  'Nguyễn Ngọc Tâm Realtime Developer',
-  'Nguyễn Ngọc Tâm South Telecom',
-  'Nguyễn Ngọc Tâm PHP Laravel',
-  'Nguyễn Ngọc Tâm WebSocket WebRTC',
-  'Nguyễn Ngọc Tâm MongoDB Redis',
-  'Nguyễn Ngọc Tâm Salesforce HubSpot',
-  'Nguyễn Ngọc Tâm PVcomBank',
-  'Nguyễn Ngọc Tâm Shinhan Life',
-  'Full-stack Developer Ho Chi Minh City',
-  'Backend Developer Vietnam',
-  'Realtime Systems Developer Vietnam',
-  'PHP Laravel Developer Vietnam',
-  'WebSocket WebRTC Developer',
-  'Omnichannel Communication Developer',
-  'Janus Jitsi Developer',
-  'Enterprise Integration Developer',
-  'Nguyễn Ngọc Tâm Ninh Thuận',
-].join(', ')
-
 const noindex = 'noindex, follow'
 const appMeta = (meta) => ({ ...meta, robots:noindex })
 
@@ -51,19 +25,16 @@ const staticMeta = {
   '/': {
     title: 'NT Language Learning | Học ngoại ngữ · Nguyễn Ngọc Tâm',
     description: 'NT Language Learning giúp học tiếng Anh, Trung, Nhật, Hàn theo level, luyện vocabulary, grammar, bốn kỹ năng, TOEIC và IELTS. Project được phát triển bởi Nguyễn Ngọc Tâm (Ngọc Tâm Dev).',
-    keywords: `NT Language Learning, học tiếng Anh online, học tiếng Trung HSK, học tiếng Nhật JLPT, học tiếng Hàn TOPIK, TOEIC, IELTS, Nguyễn Ngọc Tâm, Ngọc Tâm Dev`,
     pageType:'website-home',
   },
   '/about': {
-    title: 'Nguyễn Ngọc Tâm | Full-stack Developer – PHP, JavaScript, Realtime',
+    title: 'Nguyễn Ngọc Tâm – Full-stack Developer tại South Telecom | Portfolio',
     description: 'Portfolio của Nguyễn Ngọc Tâm, Full-stack Developer tại South Telecom: JavaScript/TypeScript, PHP/Laravel, MongoDB/Redis, WebSocket/WebRTC, CRM/API integration, cloud, CI/CD, performance và production systems.',
-    keywords: PERSONAL_SEO_KEYWORDS,
     pageType:'profile',
   },
   '/blog': {
     title: 'Engineering Blog Nguyễn Ngọc Tâm | PHP, Realtime, WebRTC & Backend',
     description: 'Engineering notes của Nguyễn Ngọc Tâm về PHP/Laravel, MongoDB, Redis, WebSocket, WebRTC, queue, performance, realtime systems và các bài toán production.',
-    keywords: `blog Nguyễn Ngọc Tâm, Ngọc Tâm Dev, South Telecom, PHP, Laravel, MongoDB, Redis, WebSocket, WebRTC, realtime systems, backend developer, performance`,
     pageType:'blog',
   },
   '/languages': appMeta({ title: 'Khóa học ngôn ngữ online | NT', description: 'Khám phá lộ trình học tiếng Anh, Trung, Nhật và Hàn theo các khung CEFR, HSK, JLPT và TOPIK tại NT.' }),
@@ -99,7 +70,6 @@ export function getLanguageSeo(languageId) {
   return {
     title: `Học ${copy.vi} online theo ${copy.target} | NT`,
     description: copy.summary,
-    keywords: `${copy.keyword}, học ${copy.vi} online, ${language.framework}, từ vựng ${copy.vi}, ngữ pháp ${copy.vi}`,
     robots:noindex,
   }
 }
@@ -116,7 +86,6 @@ export function getSeoForPath(pathname, search = '') {
       title:post.seoTitle,
       ogTitle:post.title,
       description:post.description,
-      keywords:`${post.tags.join(', ')}, Nguyễn Ngọc Tâm, Full-stack Developer`,
       path,
       pageType:'article',
       article:post,
