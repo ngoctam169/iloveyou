@@ -63,6 +63,8 @@ export const AUTHOR = {
   sameAs: [
     'https://linkedin.com/in/ngoctam1609',
     'https://github.com/ngoctam169',
+    'https://ngoctam169.github.io/',
+    'https://ngoctam169.github.io/nguyen-ngoc-tam-portfolio/',
   ],
   employment: {
     organization: 'South Telecom',
