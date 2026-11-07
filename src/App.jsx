@@ -29,6 +29,9 @@ const MyVocabulary = lazy(() => import('./pages/MyVocabulary'))
 const Grammar = lazy(() => import('./pages/Grammar'))
 const TOEIC = lazy(() => import('./pages/TOEIC'))
 const IELTS = lazy(() => import('./pages/IELTS'))
+const HSK = lazy(() => import('./pages/HSK'))
+const JLPT = lazy(() => import('./pages/JLPT'))
+const TOPIK = lazy(() => import('./pages/TOPIK'))
 const Review = lazy(() => import('./pages/Review'))
 const SelfStudy = lazy(() => import('./pages/SelfStudy'))
 const NotFound = lazy(() => import('./pages/NotFound'))
@@ -70,6 +73,9 @@ export default function App() {
       <Route path="/flashcards" element={<Flashcards/>}/>
       <Route path="/toeic" element={<TOEIC/>}/>
       <Route path="/ielts" element={<IELTS/>}/>
+      <Route path="/hsk" element={<HSK/>}/>
+      <Route path="/jlpt" element={<JLPT/>}/>
+      <Route path="/topik" element={<TOPIK/>}/>
       <Route path="/review" element={<Review/>}/>
       <Route path="/history" element={<Navigate replace to="/progress#history"/>}/>
       <Route path="/self-study" element={<SelfStudy/>}/>

@@ -16,7 +16,7 @@ const languageCopy = {
 
 export const coreSeoRoutes = [
   '/', '/languages', '/learn-english', '/learn-chinese', '/learn-japanese', '/learn-korean',
-  '/english-vocabulary', '/english-grammar', '/toeic', '/ielts', '/about', '/blog', '/contact', '/privacy', '/terms', '/search',
+  '/english-vocabulary', '/english-grammar', '/toeic', '/ielts', '/hsk', '/jlpt', '/topik', '/about', '/blog', '/contact', '/privacy', '/terms', '/search',
 ]
 
 const personalIndexRoutes = ['/', '/about', '/blog']
@@ -42,6 +42,9 @@ const staticMeta = {
   '/english-grammar': appMeta({ title: 'English Grammar từ A1 đến C2 | NT', description: 'Hệ thống English grammar theo CEFR, có cấu trúc, cách dùng, ví dụ, lỗi thường gặp và bài luyện.' }),
   '/toeic': appMeta({ title: 'Luyện thi TOEIC Listening & Reading | NT', description: 'Luyện TOEIC Listening và Reading theo dạng câu hỏi, xem giải thích, từ vựng và theo dõi kết quả mini test.' }),
   '/ielts': appMeta({ title: 'Luyện IELTS đủ bốn kỹ năng | NT', description: 'Luyện IELTS Listening, Reading, Writing và Speaking với bài tập theo dạng, checklist rõ ràng và lịch sử luyện tập.' }),
+  '/hsk': appMeta({ title: 'Thi thử HSK 1–6 Thực chiến (听力 · 阅读 · 书写) | LinguaFlow', description: 'Thi thử HSK 1 đến HSK 6 chuẩn Hanban/CTI có bấm giờ, nghe hội thoại tiếng Trung, đọc hiểu, sắp xếp câu và chấm chữa chi tiết.' }),
+  '/jlpt': appMeta({ title: 'Thi thử JLPT N5–N1 Thực chiến (文字語彙文法 · 読解 · 聴解) | LinguaFlow', description: 'Thi thử JLPT N5 đến N1 chuẩn JEES thang 180 điểm, xét điểm liệt từng phần và giải thích chi tiết từng câu.' }),
+  '/topik': appMeta({ title: 'Thi thử TOPIK I & II Thực chiến (듣기 · 쓰기 · 읽기) | LinguaFlow', description: 'Thi thử TOPIK I (Cấp 1–2) và TOPIK II (Cấp 3–6) chuẩn NIIED Hàn Quốc kèm bảng giải thích đáp án chi tiết.' }),
   '/contact': appMeta({ title: 'Liên hệ | Ngọc Tâm Dev', description: 'Thông tin liên hệ và góp ý cho website của Nguyễn Ngọc Tâm.' }),
   '/privacy': appMeta({ title: 'Chính sách quyền riêng tư | NT', description: 'Cách NT lưu tiến độ học tập trên thiết bị và bảo vệ quyền riêng tư của người học.' }),
   '/terms': appMeta({ title: 'Điều khoản sử dụng | NT', description: 'Điều khoản sử dụng nội dung, tính năng và dữ liệu học tập trên website NT.' }),

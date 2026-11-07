@@ -140,10 +140,20 @@ export default function Home() {
               <Link to="/toeic"><span>TOEIC</span><strong>200 câu · Full Test</strong><ArrowRight/></Link>
               <Link to="/ielts"><span>IELTS</span><strong>4 skills · Academic</strong><ArrowRight/></Link>
             </>
+          ) : activeLanguage.id === 'chinese' ? (
+            <>
+              <Link to="/hsk"><span>HSK 1–6</span><strong>听力 · 阅读 · 书写 · Full Test</strong><ArrowRight/></Link>
+              <Link to="/placement-test"><span>PLACEMENT</span><strong>Kiểm tra trình độ HSK</strong><ArrowRight/></Link>
+            </>
+          ) : activeLanguage.id === 'japanese' ? (
+            <>
+              <Link to="/jlpt"><span>JLPT N5–N1</span><strong>180 điểm · 3 phần · Full Test</strong><ArrowRight/></Link>
+              <Link to="/placement-test"><span>PLACEMENT</span><strong>Kiểm tra trình độ JLPT</strong><ArrowRight/></Link>
+            </>
           ) : (
             <>
-              <Link to={vocabularyPath(activeLanguage.id, activeLevel)}><span>VOCABULARY</span><strong>Kho từ {activeLanguage.viName} · {activeLevel}</strong><ArrowRight/></Link>
-              <Link to="/placement-test"><span>PLACEMENT</span><strong>Kiểm tra trình độ {activeLanguage.framework}</strong><ArrowRight/></Link>
+              <Link to="/topik"><span>TOPIK I &amp; II</span><strong>듣기 · 쓰기 · 읽기 · Full Test</strong><ArrowRight/></Link>
+              <Link to="/placement-test"><span>PLACEMENT</span><strong>Kiểm tra trình độ TOPIK</strong><ArrowRight/></Link>
             </>
           )}
         </div>
@@ -197,13 +207,45 @@ export default function Home() {
     <section className="exam-home huashu-exam-section" aria-labelledby="exam-title">
       <div className="section-shell">
         <div className="section-intro left">
-          <span className="overline">EXAM PREPARATION</span>
-          <h2 id="exam-title">Luyện thi như một kỳ thi thật.</h2>
-          <p>Timer, full test, lịch sử kết quả và vòng ôn lỗi sai — nhưng điểm luyện tập không được trình bày như chứng chỉ chính thức.</p>
+          <span className="overline">EXAM PREPARATION · {activeLanguage.flag} {activeLanguage.viName.toUpperCase()}</span>
+          <h2 id="exam-title">Thi thử {activeLanguage.viName} chuẩn cấu trúc kỳ thi thật.</h2>
+          <p>Đồng hồ đếm ngược từng phần, lưu bài tự động khi tải lại trang, chấm điểm theo quy chuẩn quốc tế và bảng chấm chữa giải thích chi tiết từng câu ngay sau khi nộp bài.</p>
         </div>
         <div className="exam-home-grid">
-          <article><span>TOEIC</span><h3>Listening & Reading</h3><p>200 câu · 45 phút Listening · 75 phút Reading · điểm ước tính · review.</p><Link className="btn light" to="/toeic">Luyện TOEIC <ArrowRight/></Link></article>
-          <article><span>IELTS</span><h3>Academic · Four Skills</h3><p>Listening · Reading · Writing · Speaking với flow luyện tập và full mock.</p><Link className="btn light" to="/ielts">Luyện IELTS <ArrowRight/></Link></article>
+          {activeLanguage.id === 'english' && (
+            <>
+              <article><span>TOEIC</span><h3>Listening &amp; Reading (200 câu)</h3><p>200 câu · 45 phút Listening · 75 phút Reading · chấm điểm ước tính thang 10–990 và bảng chấm chữa từng câu.</p><Link className="btn light" to="/toeic">Thi thử TOEIC <ArrowRight/></Link></article>
+              <article><span>IELTS</span><h3>Academic · Four Skills</h3><p>Listening 40 câu · Reading 40 câu · Writing Task 1 &amp; 2 · Speaking Part 1–3 kèm bảng giải thích chi tiết.</p><Link className="btn light" to="/ielts">Thi thử IELTS <ArrowRight/></Link></article>
+            </>
+          )}
+          {activeLanguage.id === 'chinese' && (
+            <>
+              <article><span>HSK 1–6</span><h3>汉语水平考试 · 听力 · 阅读 · 书写</h3><p>Mô phỏng đề thi HSK 1–6 chuẩn Hanban/CTI: Nghe hội thoại tiếng Trung, Đọc hiểu, Sắp xếp câu chữ 把/被 (thang 200/300 điểm) và chấm chữa từng câu.</p><Link className="btn light" to="/hsk">Thi thử HSK ({activeLevel}) <ArrowRight/></Link></article>
+              <article><span>PLACEMENT</span><h3>Đánh giá năng lực HSK</h3><p>Bài kiểm tra 24 câu phân loại nhanh trình độ HSK 1 → HSK 6 để chọn đúng lộ trình học tập.</p><Link className="btn light" to="/placement-test">Kiểm tra trình độ HSK <ArrowRight/></Link></article>
+            </>
+          )}
+          {activeLanguage.id === 'japanese' && (
+            <>
+              <article><span>JLPT N5–N1</span><h3>日本語能力試験 · 文字語彙文法 · 読解 · 聴解</h3><p>Đề thi JLPT 3 phần chuẩn JEES (thang 180 điểm), có bài toán dấu sao ★, đọc hiểu email/thông báo, nghe hội thoại và xét cả điểm liệt từng phần (≥ 19/60).</p><Link className="btn light" to="/jlpt">Thi thử JLPT ({activeLevel}) <ArrowRight/></Link></article>
+              <article><span>PLACEMENT</span><h3>Đánh giá năng lực JLPT</h3><p>Bài kiểm tra 24 câu phân loại trình độ tiếng Nhật từ N5 đến N1 kèm gợi ý lộ trình học.</p><Link className="btn light" to="/placement-test">Kiểm tra trình độ JLPT <ArrowRight/></Link></article>
+            </>
+          )}
+          {activeLanguage.id === 'korean' && (
+            <>
+              <article><span>TOPIK I &amp; II</span><h3>한국어능력시험 · 듣기 · 쓰기 · 읽기</h3><p>Mô phỏng kỳ thi TOPIK I (Cấp 1–2, 200đ) và TOPIK II (Cấp 3–6, 300đ) chuẩn NIIED với câu hỏi điền khuyết 쓰기 51–54 và giải thích từng câu.</p><Link className="btn light" to="/topik">Thi thử TOPIK ({activeLevel}) <ArrowRight/></Link></article>
+              <article><span>PLACEMENT</span><h3>Đánh giá năng lực TOPIK</h3><p>Bài kiểm tra 24 câu xác định nhanh cấp độ TOPIK 1 → TOPIK 6 của bạn trước khi vào lộ trình chính.</p><Link className="btn light" to="/placement-test">Kiểm tra trình độ TOPIK <ArrowRight/></Link></article>
+            </>
+          )}
+        </div>
+        <div className="exam-switcher-strip" aria-label="Danh sách kỳ thi quốc tế theo ngôn ngữ">
+          <span>Hệ thống phòng thi thực chiến cho cả 4 ngôn ngữ:</span>
+          <div>
+            <Link to="/toeic">GB TOEIC (200 câu)</Link>
+            <Link to="/ielts">GB IELTS Academic</Link>
+            <Link to="/hsk">CN HSK 1–6 (汉语水平考试)</Link>
+            <Link to="/jlpt">JP JLPT N5–N1 (日本語能力試験)</Link>
+            <Link to="/topik">KR TOPIK I &amp; II (한국어능력시험)</Link>
+          </div>
         </div>
       </div>
     </section>

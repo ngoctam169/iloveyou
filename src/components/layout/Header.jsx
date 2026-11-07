@@ -22,7 +22,37 @@ const practiceItems = [
 const examItems = [
   ['/toeic','TOEIC'],
   ['/ielts','IELTS'],
+  ['/hsk','HSK'],
+  ['/jlpt','JLPT'],
+  ['/topik','TOPIK'],
 ]
+
+const EXAMS_BY_LANGUAGE = {
+  english: [
+    ['/toeic', 'TOEIC Listening & Reading', '200 câu · 120 phút · Thang 10–990'],
+    ['/ielts', 'IELTS Academic 4 Kỹ năng', 'Listening · Reading · Writing · Speaking'],
+    ['/placement-test', 'Kiểm tra trình độ CEFR', '24 câu phân loại A1 → C2'],
+  ],
+  chinese: [
+    ['/hsk', 'Thi thử HSK 1–6 Thực chiến', '听力 · 阅读 · 书写 · Thang 200/300đ'],
+    ['/placement-test', 'Kiểm tra trình độ HSK', '24 câu phân loại HSK 1 → HSK 6'],
+  ],
+  japanese: [
+    ['/jlpt', 'Thi thử JLPT N5–N1 Thực chiến', '文字語彙文法 · 読解 · 聴解 · 180đ'],
+    ['/placement-test', 'Kiểm tra trình độ JLPT', '24 câu phân loại N5 → N1'],
+  ],
+  korean: [
+    ['/topik', 'Thi thử TOPIK I & II Thực chiến', '듣기 · 쓰기 · 읽기 · Cấp 1급–6급'],
+    ['/placement-test', 'Kiểm tra trình độ TOPIK', '24 câu phân loại TOPIK 1 → 6'],
+  ],
+}
+
+const PRIMARY_EXAM_ROUTE = {
+  english: '/toeic',
+  chinese: '/hsk',
+  japanese: '/jlpt',
+  korean: '/topik',
+}
 
 const accountItems = [
   ['/progress','Tiến độ học'],
@@ -73,6 +103,8 @@ export default function Header() {
       navigate(`/${targetLang.id}/${levelSlug(resolvedLevel)}/grammar`)
     } else if (/^\/(english|chinese|japanese|korean)(\/|$)/.test(location.pathname)) {
       navigate(levelPath(targetLang.id, resolvedLevel))
+    } else if (['/toeic', '/ielts', '/hsk', '/jlpt', '/topik'].includes(location.pathname)) {
+      navigate(PRIMARY_EXAM_ROUTE[targetLang.id] || '/toeic')
     }
   }
 
@@ -163,8 +195,29 @@ export default function Header() {
           <button className="nav-group-button" type="button" aria-haspopup="menu" aria-expanded={openGroup === 'exam'} onClick={() => toggleGroup('exam')}>
             Thi thử<ChevronDown/>
           </button>
-          {openGroup === 'exam' && <div className="nav-popover" role="menu">
-            {examItems.map(([to,label]) => <NavLink role="menuitem" key={to} to={to}>{label}</NavLink>)}
+          {openGroup === 'exam' && <div className="nav-popover exam-nav-popover" role="menu">
+            <div className="nav-popover-section" role="none">
+              <div className="nav-popover-heading">
+                <strong>Bài thi {activeLanguage.flag} {activeLanguage.viName}</strong>
+                <button type="button" className="nav-switch-trigger" onClick={() => setOpenGroup('lang')}>Đổi tiếng ↗</button>
+              </div>
+              <div className="exam-focused-list" role="none">
+                {(EXAMS_BY_LANGUAGE[activeLanguage.id] || EXAMS_BY_LANGUAGE.english).map(([to, title, desc]) => (
+                  <NavLink role="menuitem" key={to} to={to} className="exam-focused-item">
+                    <span>{title}</span>
+                    <small>{desc}</small>
+                  </NavLink>
+                ))}
+              </div>
+            </div>
+            <div className="nav-popover-section" role="none">
+              <div className="nav-popover-heading">
+                <strong>Tất cả kỳ thi theo ngôn ngữ</strong>
+              </div>
+              <div className="exam-all-chips" role="none">
+                {examItems.map(([to,label]) => <NavLink role="menuitem" key={to} to={to}>{label}</NavLink>)}
+              </div>
+            </div>
           </div>}
         </div>
 
@@ -272,7 +325,13 @@ export default function Header() {
       </section>
 
       {mobilePanel === 'exams' ? <section className="mobile-focus-panel">
-        <strong>Thi thử</strong>
+        <strong>Thi thử ({activeLanguage.flag} {activeLanguage.viName})</strong>
+        <div className="mobile-focused-exams">
+          {(EXAMS_BY_LANGUAGE[activeLanguage.id] || EXAMS_BY_LANGUAGE.english).map(([to, title]) => (
+            <Link key={`focus-${to}`} to={to}>{title}</Link>
+          ))}
+        </div>
+        <strong>Tất cả kỳ thi quốc tế</strong>
         <div>{examItems.map(([to,label]) => <Link key={to} to={to}>{label}</Link>)}</div>
       </section> : mobilePanel === 'more' ? <>
         <section>

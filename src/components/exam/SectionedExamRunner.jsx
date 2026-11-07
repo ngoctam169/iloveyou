@@ -3,6 +3,7 @@ import { useEffect, useMemo, useState } from 'react'
 import ExamTimer from '../common/ExamTimer'
 import ProgressBar from '../common/ProgressBar'
 import QuizQuestion, { hasAnswer } from '../common/QuizQuestion'
+import ExamReviewInspector from './ExamReviewInspector'
 import { useApp } from '../../context/AppContext'
 import { speak } from '../../utils/speech'
 import { clearExamSession, loadExamSession, pickFreshForm, rememberForm, saveExamSession } from '../../services/examSessionService'
@@ -18,6 +19,7 @@ export default function SectionedExamRunner({
   renderResult,
   onComplete,
   sessionKey,
+  languageId = 'english',
 }) {
   const { setToast } = useApp()
   const [initialSession] = useState(() => loadExamSession(sessionKey, sections))
@@ -38,11 +40,13 @@ export default function SectionedExamRunner({
   const [flagged, setFlagged] = useState(initialSession?.flagged || {})
   const [playedAudio, setPlayedAudio] = useState(initialSession?.playedAudio || {})
   const [sessionStartedAt, setSessionStartedAt] = useState(Number(initialSession?.sessionStartedAt) || null)
+  const [navFilter, setNavFilter] = useState('all')
 
   const section = examSections[sectionIndex]
   const questions = section?.questions || []
   const question = questions[questionIndex]
   const answered = useMemo(() => questions.filter((item) => hasAnswer(answers[item.id])).length, [questions, answers])
+  const sectionFlaggedCount = useMemo(() => questions.filter((item) => flagged[item.id]).length, [questions, flagged])
   const totalQuestions = examSections.reduce((sum, item) => sum + item.questions.length, 0)
   const totalAnswered = examSections.reduce((sum, item) => sum + item.questions.filter((q) => hasAnswer(answers[q.id])).length, 0)
   const analyticsExam = sessionKey?.startsWith('toeic') ? 'toeic' : sessionKey?.startsWith('ielts') ? 'ielts' : 'exam'
@@ -144,7 +148,14 @@ export default function SectionedExamRunner({
     </section>
   }
 
-  if (result) return renderResult({ result, restart:begin, answers, sections:examSections })
+  if (result) {
+    return (
+      <div className="full-exam-completed-stack">
+        {renderResult({ result, restart:begin, answers, sections:examSections })}
+        <ExamReviewInspector sections={examSections} answers={answers} flagged={flagged} languageId={languageId}/>
+      </div>
+    )
+  }
 
   const atLastQuestion = questionIndex === questions.length - 1
   const atLastSection = sectionIndex === examSections.length - 1
@@ -154,7 +165,7 @@ export default function SectionedExamRunner({
   const audioPlayed = Boolean(audioKey && playedAudio[audioKey])
   const playExamAudio = () => {
     if (!audioKey || audioPlayed) return
-    const startedPlayback = speak(audioKey,'english',1,setToast)
+    const startedPlayback = speak(audioKey, question?.languageId || languageId, 1, setToast)
     if (startedPlayback) setPlayedAudio((current) => ({ ...current,[audioKey]:true }))
   }
 
@@ -185,17 +196,54 @@ export default function SectionedExamRunner({
           <strong>{section.label}</strong>
           <span>{questions.length} câu</span>
         </div>
+        <div className="question-nav-filters" aria-label="Bộ lọc bảng câu hỏi">
+          {[
+            ['all', `Tất cả (${questions.length})`],
+            ['unanswered', `Trống (${questions.length - answered})`],
+            ['flagged', `Đánh dấu (${sectionFlaggedCount})`],
+          ].map(([id, label]) => (
+            <button
+              key={id}
+              type="button"
+              className={navFilter === id ? 'active' : ''}
+              onClick={() => setNavFilter(id)}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
         <div className="question-nav dense">
-          {questions.map((item, index) => <button
-            key={item.id}
-            aria-label={`Câu ${globalBefore + index + 1}`}
-            className={`${index === questionIndex ? 'active' : ''} ${hasAnswer(answers[item.id]) ? 'answered' : ''} ${flagged[item.id] ? 'flagged' : ''}`}
-            onClick={() => setQuestionIndex(index)}
-          >{globalBefore + index + 1}</button>)}
+          {questions.map((item, index) => {
+            const isAns = hasAnswer(answers[item.id])
+            const isFlag = Boolean(flagged[item.id])
+            const dimmed = (navFilter === 'unanswered' && isAns) || (navFilter === 'flagged' && !isFlag)
+            return (
+              <button
+                key={item.id}
+                aria-label={`Câu ${globalBefore + index + 1}`}
+                className={`${index === questionIndex ? 'active' : ''} ${isAns ? 'answered' : ''} ${isFlag ? 'flagged' : ''} ${dimmed ? 'dimmed' : ''}`}
+                onClick={() => setQuestionIndex(index)}
+              >
+                {globalBefore + index + 1}
+              </button>
+            )
+          })}
         </div>
         <div className="nav-legend">
           <span><i className="answered"/>Đã trả lời</span>
           <span><i className="flagged"/>Đánh dấu</span>
+        </div>
+        <div className="sidebar-submit-box">
+          <small>Đã làm {answered}/{questions.length} câu trong phần này</small>
+          {!atLastSection ? (
+            <button type="button" className="btn secondary small" onClick={() => advanceSection(false)}>
+              Chuyển sang {examSections[sectionIndex + 1].label} →
+            </button>
+          ) : (
+            <button type="button" className="btn secondary small" onClick={() => finish(false)}>
+              Kết thúc &amp; Chấm điểm ({totalAnswered}/{totalQuestions})
+            </button>
+          )}
         </div>
       </aside>
 
