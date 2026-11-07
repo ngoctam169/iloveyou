@@ -24,7 +24,7 @@ export function buildStructuredData({ siteUrl, meta, path, breadcrumbs = default
       '@id':websiteId,
       url:`${siteUrl}/`,
       name:SITE_NAME,
-      alternateName:['NT','NT Language Learning','Ngọc Tâm Dev'],
+      alternateName:['LinguaFlow','NT Language Learning','NT','Ngọc Tâm Dev'],
       description:'Website học ngoại ngữ theo level với tiếng Anh, Trung, Nhật, Hàn, vocabulary, grammar, bốn kỹ năng, TOEIC và IELTS; được phát triển bởi Nguyễn Ngọc Tâm (Ngọc Tâm Dev).',
       inLanguage:['vi','en'],
       creator:{ '@id':personId },

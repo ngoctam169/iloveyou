@@ -15,8 +15,9 @@ walk(root)
 const violations = []
 for (const path of files) {
   const source = readFileSync(path,'utf8')
+  const normalizedPath = path.replace(/\\/g, '/')
   if (/\b(TODO|FIXME|HACK|XXX)\b/.test(source)) violations.push(`${path}: unfinished marker`)
-  if (!path.endsWith('src/data/blogPosts.js') && /\bconsole\.log\s*\(/.test(source)) violations.push(`${path}: console.log left in production source`)
+  if (!normalizedPath.endsWith('src/data/blogPosts.js') && /\bconsole\.log\s*\(/.test(source)) violations.push(`${path}: console.log left in production source`)
   if (/Pronunciation Match/.test(source)) violations.push(`${path}: transcript score is mislabeled as pronunciation`)
   if (/dangerouslySetInnerHTML/.test(source)) violations.push(`${path}: dangerouslySetInnerHTML requires explicit review`)
   const reactImport = source.match(/import\s*\{([^}]*)\}\s*from\s*['"]react['"]/s)?.[1] || ''

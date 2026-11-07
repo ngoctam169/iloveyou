@@ -1,9 +1,9 @@
-import '../styles/blog.css'
 import { ArrowRight, BriefcaseBusiness, Check, ExternalLink, GraduationCap, Mail, MapPin } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import Breadcrumbs from '../components/common/Breadcrumbs'
 import { AUTHOR } from '../data/author'
 import { trackEvent } from '../utils/analytics'
+import '../styles/blog.css'
 
 const projectDetails = {
   Worldfone4X: {

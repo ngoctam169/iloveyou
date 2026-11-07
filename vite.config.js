@@ -3,7 +3,7 @@ import react from '@vitejs/plugin-react'
 
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), '')
-  const defaultBase = mode === 'production' ? '/iloveyou/' : '/'
+  const defaultBase = mode === 'production' ? '/linguaflow/' : '/'
 
   return {
     plugins: [react()],

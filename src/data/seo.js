@@ -1,8 +1,8 @@
 import { findLevel, getLanguage, languages, levelSlug } from './languages.js'
 import { blogPostMeta, findBlogMeta } from './blogMeta.js'
 
-export const SITE_NAME = 'NT Language Learning'
-export const DEFAULT_SITE_URL = 'https://ngoctam169.github.io/iloveyou'
+export const SITE_NAME = 'LinguaFlow'
+export const DEFAULT_SITE_URL = 'https://ngoctam169.github.io/linguaflow'
 export const DEFAULT_OG_IMAGE = '/og-image.png'
 const noindex = 'noindex, follow'
 const appMeta = (meta) => ({ ...meta, robots:noindex })
@@ -23,8 +23,8 @@ const personalIndexRoutes = ['/', '/about', '/blog']
 
 const staticMeta = {
   '/': {
-    title: 'NT Language Learning | Học ngoại ngữ · Nguyễn Ngọc Tâm',
-    description: 'NT Language Learning giúp học tiếng Anh, Trung, Nhật, Hàn theo level, luyện vocabulary, grammar, bốn kỹ năng, TOEIC và IELTS. Project được phát triển bởi Nguyễn Ngọc Tâm (Ngọc Tâm Dev).',
+    title: 'LinguaFlow | Học ngoại ngữ · Nguyễn Ngọc Tâm',
+    description: 'LinguaFlow giúp học tập trung từng ngoại ngữ (tiếng Anh, Trung, Nhật, Hàn) theo level, luyện vocabulary, grammar, bốn kỹ năng, TOEIC và IELTS. Project được phát triển bởi Nguyễn Ngọc Tâm (Ngọc Tâm Dev).',
     pageType:'website-home',
   },
   '/about': {

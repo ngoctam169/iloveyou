@@ -9,14 +9,15 @@ import { useApp } from '../context/AppContext'
 import { speak } from '../utils/speech'
 
 export default function PlacementTest() {
+  const { state, chooseCourse, setToast } = useApp()
   const [started, setStarted] = useState(false)
-  const [languageId, setLanguageId] = useState('english')
+  const [languageId, setLanguageId] = useState(state.selectedLanguage || 'english')
   const [index, setIndex] = useState(0)
   const [answers, setAnswers] = useState([])
   const [selected, setSelected] = useState(null)
-  const { chooseCourse, setToast } = useApp()
   const navigate = useNavigate()
   const language = getLanguage(languageId) || getLanguage('english')
+  const focusedLanguage = getLanguage(state.selectedLanguage) || languages[0]
   const questions = useMemo(() => buildPlacementQuestions(language.id), [language.id])
 
   const start = (id) => {
@@ -30,6 +31,16 @@ export default function PlacementTest() {
   if (!started) return <div className="inner-page section-shell placement-intro">
     <Link to="/" className="back-link"><ChevronLeft/> Trang chủ</Link>
     <div className="test-heading"><span className="test-icon"><Target/></span><span className="overline">PLACEMENT TEST</span><h1>Kiểm tra level trước khi học</h1><p>Mỗi level có câu Vocabulary, Grammar, Reading và Listening. Kết quả chỉ dùng để gợi ý điểm bắt đầu.</p></div>
+    <div className="placement-focused-cta panel">
+      <div>
+        <span className="overline">NGÔN NGỮ ĐANG TẬP TRUNG</span>
+        <h2>{focusedLanguage.flag} {focusedLanguage.viName} ({focusedLanguage.framework})</h2>
+        <p>Bài đánh giá nhanh {focusedLanguage.levels.length * 4} câu trải từ {focusedLanguage.levels[0][0]} đến {focusedLanguage.levels.at(-1)[0]} để gợi ý điểm khởi đầu sát nhất.</p>
+      </div>
+      <button type="button" className="btn large" onClick={() => start(focusedLanguage.id)}>
+        Kiểm tra {focusedLanguage.viName} ngay <ArrowRight size={17}/>
+      </button>
+    </div>
     <div className="test-language-grid">{languages.map((item) => <button key={item.id} onClick={() => start(item.id)}><span>{item.flag}</span><strong>{item.nativeName}</strong><small>{item.framework} · {item.levels.length * 4} câu</small><ArrowRight/></button>)}</div>
     <Link className="text-link" to="/languages">Hoặc chọn level thủ công</Link>
   </div>

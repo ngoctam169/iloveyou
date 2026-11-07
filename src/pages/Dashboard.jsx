@@ -1,4 +1,5 @@
-import { ArrowRight, BarChart3, BookOpen, CalendarDays, Clock3, Flame, Layers3, RotateCcw, Sparkles, Star, Target, Type } from 'lucide-react'
+import { ArrowRight, BarChart3, BookOpen, CalendarDays, Clock3, Flame, Layers3, Pause, Play, RotateCcw, Sparkles, Star, Target, Timer, Type } from 'lucide-react'
+import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import ProgressBar from '../components/common/ProgressBar'
 import StatisticsCard from '../components/common/StatisticsCard'
@@ -12,7 +13,39 @@ import { speak } from '../utils/speech'
 import { languagePath, lessonPath, levelPath, vocabularyPath } from '../utils/routes'
 
 export default function Dashboard() {
-  const { state, setVocabularyMeta, setToast } = useApp()
+  const { state, setVocabularyMeta, logFocusSession, setToast } = useApp()
+  const [pomoPreset, setPomoPreset] = useState(25)
+  const [pomoSeconds, setPomoSeconds] = useState(25 * 60)
+  const [pomoRunning, setPomoRunning] = useState(false)
+
+  useEffect(() => {
+    if (!pomoRunning) return undefined
+    const timer = window.setInterval(() => {
+      setPomoSeconds((prev) => {
+        if (prev <= 1) {
+          window.clearInterval(timer)
+          setPomoRunning(false)
+          logFocusSession(pomoPreset, `Pomodoro ${pomoPreset}p`)
+          return pomoPreset * 60
+        }
+        return prev - 1
+      })
+    }, 1000)
+    return () => window.clearInterval(timer)
+  }, [pomoRunning, pomoPreset])
+
+  const selectPreset = (mins) => {
+    setPomoRunning(false)
+    setPomoPreset(mins)
+    setPomoSeconds(mins * 60)
+  }
+
+  const formatPomo = (sec) => {
+    const m = String(Math.floor(sec / 60)).padStart(2, '0')
+    const s = String(sec % 60).padStart(2, '0')
+    return `${m}:${s}`
+  }
+
   const language = getLanguage(state.selectedLanguage) || getLanguage('english')
   const level = language.levels.find(([name]) => name === state.selectedLevel)?.[0] || language.levels[0][0]
   const lessons = getRoadmap(language.id, level).flatMap((unit) => unit.lessons)
@@ -50,7 +83,7 @@ export default function Dashboard() {
       <section className="panel today-plan"><div className="panel-title"><div><span className="panel-icon purple"><CalendarDays /></span><div><h3>Gợi ý hôm nay</h3><p>Chọn hoạt động phù hợp, không cần làm theo thứ tự.</p></div></div></div><ul><li><span/><Link className="plan-link" to={vocabularyPath(language.id,level)}>Học từ mới ({vocabularyNew} từ)</Link></li>{vocabularyDue > 0 && <li><span/><Link className="plan-link" to={`${vocabularyPath(language.id,level)}?status=review`}>Ôn {vocabularyDue} từ đến hạn</Link></li>}<li><span/><Link className="plan-link" to={lessonPath(language.id,level,next.id)}>Tiếp tục bài {level}-{next.number}</Link></li>{state.mistakes.length > 0 && <li><span/><Link className="plan-link" to="/mistakes">Xem lại {state.mistakes.length} lỗi sai</Link></li>}<li><Sparkles/><Link className="plan-link" to="/self-study">Tự tạo bài luyện</Link></li></ul></section>
       <section className="panel"><div className="panel-title"><div><span className="panel-icon orange"><RotateCcw /></span><div><h3>Ôn hôm nay</h3><p>Dữ liệu từ lịch SRS và mistake notebook</p></div></div><Link to="/review">Xem tất cả</Link></div><div className="review-items"><div><span className="round-icon purple">Aa</span><strong>{vocabularyDue}</strong><small>từ cần ôn</small></div><div><span className="round-icon blue">⌘</span><strong>{mistakeCounts.grammar}</strong><small>lỗi ngữ pháp</small></div><div><span className="round-icon red">!</span><strong>{mistakeCounts.listening}</strong><small>bài nghe</small></div></div><div className="dashboard-review-sizes">{[5, 10, 20, 'all'].map((size) => <Link key={size} to={`/flashcards?language=${language.id}&level=${encodeURIComponent(level)}&limit=${size}`}>{size === 'all' ? 'Tất cả' : size}</Link>)}</div><Link to="/review" className="btn secondary full">Bắt đầu ôn <ArrowRight /></Link></section>
       <section className="panel skill-quick"><div className="panel-title"><div><span className="panel-icon blue"><Layers3 /></span><div><h3>Tiến độ kỹ năng</h3><p>Điểm trung bình của level {level}</p></div></div><Link to="/progress">Chi tiết</Link></div>{skills.map((name) => <ProgressBar key={name} label={name} value={progress.skillScores[name] || 0} />)}</section></div>
-      <aside className="dashboard-aside"><section className="panel stat-summary"><div><span className="big-icon flame"><Flame /></span><strong>{state.streak}</strong><small>ngày liên tiếp</small></div><div><span className="big-icon star"><Star /></span><strong>{state.xp.toLocaleString()}</strong><small>tổng XP</small></div></section><section className="panel current-course"><span className="overline">KHÓA HỌC HIỆN TẠI</span><div className="current-course-top"><span className="flag small">{language.flag}</span><div><strong>{language.name}</strong><small>{level} · {language.framework}</small></div></div><ProgressBar value={percent} label="Tiến độ khóa học" /><div className="course-mini-stats"><span>{progress.completedLessons.length} bài hoàn thành</span><span>{vocabulary.filter((word) => state.flashcardProgress[wordKey(word)] || state.vocabularyMeta?.[wordKey(word)]?.learned).length} từ đã học</span><span>{progress.studyMinutes} phút học</span></div><Link to={levelPath(language.id,level)}>Xem lộ trình <ArrowRight /></Link></section><section className="panel weekly-mini"><div className="panel-title"><div><h3>Tuần này</h3><p>{activity.reduce((sum, value) => sum + Number(value || 0), 0)} phút học</p></div></div><div className="mini-bars">{activity.map((minutes, index) => <div key={index}><span style={{ height: `${Math.min(100, Math.max(5, Number(minutes || 0) * 5))}%` }} /><small>{weekdays[index]}</small></div>)}</div><Link className="text-link" to="/progress#history">Xem lịch sử học tập →</Link></section></aside></div>
+      <aside className="dashboard-aside"><section className="panel stat-summary"><div><span className="big-icon flame"><Flame /></span><strong>{state.streak}</strong><small>ngày liên tiếp</small></div><div><span className="big-icon star"><Star /></span><strong>{state.xp.toLocaleString()}</strong><small>tổng XP</small></div></section><section className="panel current-course"><span className="overline">KHÓA HỌC HIỆN TẠI</span><div className="current-course-top"><span className="flag small">{language.flag}</span><div><strong>{language.name}</strong><small>{level} · {language.framework}</small></div></div><ProgressBar value={percent} label="Tiến độ khóa học" /><div className="course-mini-stats"><span>{progress.completedLessons.length} bài hoàn thành</span><span>{vocabulary.filter((word) => state.flashcardProgress[wordKey(word)] || state.vocabularyMeta?.[wordKey(word)]?.learned).length} từ đã học</span><span>{progress.studyMinutes} phút học</span></div><Link to={levelPath(language.id,level)}>Xem lộ trình <ArrowRight /></Link></section><section className="panel pomodoro-panel" aria-label="Đồng hồ tập trung Pomodoro"><div className="panel-title"><div><span className="panel-icon orange"><Timer /></span><div><h3>Pomodoro tập trung</h3><p>Đếm giờ học {language.viName || language.name} & cộng XP</p></div></div></div><div className="pomo-presets">{[15, 25, 45].map((mins) => <button key={mins} type="button" className={pomoPreset === mins ? 'active' : ''} onClick={() => selectPreset(mins)}>{mins}p</button>)}</div><div className="pomo-clock" role="timer" aria-live="off">{formatPomo(pomoSeconds)}</div><div className="pomo-actions"><button type="button" className="btn small" onClick={() => setPomoRunning((v) => !v)}>{pomoRunning ? <><Pause size={15}/> Tạm dừng</> : <><Play size={15}/> Bắt đầu</>}</button><button type="button" className="btn secondary small" onClick={() => { setPomoRunning(false); setPomoSeconds(pomoPreset * 60); logFocusSession(pomoPreset, `Phiên tập trung ${language.name} ${level}`) }}>Ghi nhận +{pomoPreset}p</button></div></section><section className="panel weekly-mini"><div className="panel-title"><div><h3>Tuần này</h3><p>{activity.reduce((sum, value) => sum + Number(value || 0), 0)} phút học</p></div></div><div className="mini-bars">{activity.map((minutes, index) => <div key={index}><span style={{ height: `${Math.min(100, Math.max(5, Number(minutes || 0) * 5))}%` }} /><small>{weekdays[index]}</small></div>)}</div><Link className="text-link" to="/progress#history">Xem lịch sử học tập →</Link></section></aside></div>
   </div>
 }
 

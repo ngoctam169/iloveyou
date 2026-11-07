@@ -4,13 +4,13 @@ import Analytics from './components/common/Analytics'
 import Seo from './components/common/Seo'
 import Layout from './components/layout/Layout'
 import { getLanguage, levelSlug } from './data/languages'
+import Home from './pages/Home'
+import InfoPage from './pages/InfoPage'
+import Languages from './pages/Languages'
 import { languagePath, lessonPath, levelPath } from './utils/routes'
 
-const Home = lazy(() => import('./pages/Home'))
-const Languages = lazy(() => import('./pages/Languages'))
 const LanguageLanding = lazy(() => import('./pages/LanguageLanding'))
 const ResourceLanding = lazy(() => import('./pages/ResourceLanding'))
-const InfoPage = lazy(() => import('./pages/InfoPage'))
 const About = lazy(() => import('./pages/About'))
 const Blog = lazy(() => import('./pages/Blog'))
 const BlogPost = lazy(() => import('./pages/BlogPost'))

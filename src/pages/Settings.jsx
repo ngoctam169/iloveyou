@@ -1,16 +1,49 @@
-import { Bell, Moon, RotateCcw, Save, Sun, UserRound, Volume2 } from 'lucide-react'
+import { Bell, Download, Moon, RotateCcw, Save, Sun, Upload, UserRound, Volume2 } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import Modal from '../components/common/Modal'
 import { useApp } from '../context/AppContext'
 import { languages } from '../data/languages'
 
 export default function Settings() {
-  const { state, update, chooseCourse, reset, setToast } = useApp()
+  const { state, update, chooseCourse, importBackupState, reset, setToast } = useApp()
   const [confirmReset, setConfirmReset] = useState(false)
   const [displayName, setDisplayName] = useState(state.profile.displayName)
   const [goal, setGoal] = useState(state.profile.goal || '')
   const setting = (partial) => update({ settings: { ...state.settings, ...partial } })
   const language = languages.find((item) => item.id === state.selectedLanguage) || languages[0]
+
+  const handleExportBackup = () => {
+    const payload = JSON.stringify({
+      exportedAt: new Date().toISOString(),
+      app: 'LinguaFlow',
+      state,
+    }, null, 2)
+    const blob = new Blob([payload], { type: 'application/json' })
+    const url = URL.createObjectURL(blob)
+    const link = document.createElement('a')
+    link.href = url
+    link.download = `linguaflow-backup-${new Date().toISOString().slice(0, 10)}.json`
+    document.body.appendChild(link)
+    link.click()
+    link.remove()
+    URL.revokeObjectURL(url)
+    setToast('Đã tải xuống file sao lưu tiến độ (.json)')
+  }
+
+  const handleImportFile = (event) => {
+    const file = event.target.files?.[0]
+    if (!file) return
+    const reader = new FileReader()
+    reader.onload = () => {
+      try {
+        importBackupState(String(reader.result || ''))
+      } catch (error) {
+        setToast(error.message || 'Không thể đọc file sao lưu.')
+      }
+    }
+    reader.readAsText(file)
+    event.target.value = ''
+  }
 
   useEffect(() => {
     setDisplayName(state.profile.displayName)
@@ -44,6 +77,23 @@ export default function Settings() {
     <section className="settings-section vertical"><div className="settings-title"><span><Bell/></span><div><h2>Mục tiêu từ vựng</h2><p>Số từ gợi ý luyện mỗi ngày; có thể học nhiều hoặc ít hơn.</p></div></div><div className="segmented small">{[5, 10, 20, 30].map((count) => <button key={count} aria-pressed={state.dailyVocabularyGoal === count} className={state.dailyVocabularyGoal === count ? 'active' : ''} onClick={() => update({ dailyVocabularyGoal: count })}>{count} từ</button>)}</div></section>
 
     <section className="settings-section vertical"><div className="settings-title"><span><Volume2/></span><div><h2>Audio & Speech</h2><p>Thiết lập phát âm dùng chung trong bài học.</p></div></div><div className="setting-row"><div><strong>Auto Play Audio</strong><span>Tự động phát câu mẫu khi mở phần Listening</span></div><button role="switch" aria-checked={state.settings.autoplay} className={`toggle ${state.settings.autoplay ? 'on' : ''}`} onClick={() => setting({ autoplay: !state.settings.autoplay })} aria-label="Tự động phát audio"><span/></button></div><div className="setting-row"><div><strong>Speech Speed</strong><span>Tốc độ giọng đọc mặc định</span></div><div className="segmented small">{[['slow','0.75x'],['normal','1x'],['fast','1.25x']].map(([speed,label]) => <button key={speed} aria-pressed={state.settings.speechSpeed === speed} className={state.settings.speechSpeed === speed ? 'active' : ''} onClick={() => setting({ speechSpeed: speed })}>{label}</button>)}</div></div></section>
+
+    <section className="settings-section vertical">
+      <div className="settings-title">
+        <span><Download/></span>
+        <div>
+          <h2>Sao lưu & Khôi phục dữ liệu (Backup JSON)</h2>
+          <p>Xuất toàn bộ tiến độ, lịch SRS, từ cá nhân và sổ lỗi sai ra file JSON để lưu trữ hoặc chuyển sang thiết bị khác.</p>
+        </div>
+      </div>
+      <div className="backup-actions-row">
+        <button type="button" className="btn secondary small" onClick={handleExportBackup}><Download size={16}/> Xuất file sao lưu (.json)</button>
+        <label className="btn secondary small backup-upload-btn">
+          <Upload size={16}/> Khôi phục từ file (.json)
+          <input type="file" accept="application/json,.json" onChange={handleImportFile} hidden />
+        </label>
+      </div>
+    </section>
 
     <section className="danger-zone"><div><RotateCcw/><div><h2>Reset Progress</h2><p>Xóa bài đã hoàn thành, XP, streak và toàn bộ lịch sử ôn tập.</p></div></div><button className="btn danger" onClick={() => setConfirmReset(true)}>Đặt lại tiến độ</button></section>
     <Modal open={confirmReset} onClose={() => setConfirmReset(false)} title="Đặt lại toàn bộ tiến độ?"><p>Hành động này không thể hoàn tác. Tên hiển thị cũng sẽ trở về mặc định.</p><div className="modal-actions"><button className="btn secondary" onClick={() => setConfirmReset(false)}>Hủy</button><button className="btn danger" onClick={() => { reset(); setConfirmReset(false) }}>Xác nhận đặt lại</button></div></Modal>

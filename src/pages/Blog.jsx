@@ -1,4 +1,3 @@
-import '../styles/blog.css'
 import { ArrowRight, BookOpenText, CalendarDays, Clock3 } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import BlogCard from '../components/blog/BlogCard'
@@ -6,6 +5,7 @@ import Breadcrumbs from '../components/common/Breadcrumbs'
 import { AUTHOR } from '../data/author'
 import { findBlogPost } from '../data/blogPosts'
 import { latestBlogPosts } from '../data/blogMeta'
+import '../styles/blog.css'
 
 export default function Blog() {
   const story = findBlogPost('nguyen-ngoc-tam-ninh-thuan')

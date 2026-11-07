@@ -1,8 +1,12 @@
-import { useEffect } from 'react'
+import { Suspense, useEffect } from 'react'
 import { Outlet, useLocation } from 'react-router-dom'
 import Header from './Header'
 import Footer from './Footer'
 import Toast from '../common/Toast'
+
+function RouteFallback() {
+  return <div className="loading" role="status"><span/><p>Đang mở nội dung học tập LinguaFlow…</p></div>
+}
 
 export default function Layout() {
   const location = useLocation()
@@ -31,5 +35,5 @@ export default function Layout() {
     return () => window.cancelAnimationFrame(frame)
   }, [location.pathname, location.hash])
 
-  return <div className="app-shell"><a className="skip-link" href="#main-content">Bỏ qua menu</a><Header /><main id="main-content" className="page" tabIndex="-1" key={location.pathname}><Outlet /></main>{!focusedLesson && <Footer />}<Toast /></div>
+  return <div className="app-shell"><a className="skip-link" href="#main-content">Bỏ qua menu</a><Header /><main id="main-content" className="page" tabIndex="-1" key={location.pathname}><Suspense fallback={<RouteFallback />}><Outlet /></Suspense></main>{!focusedLesson && <Footer />}<Toast /></div>
 }

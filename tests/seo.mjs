@@ -14,7 +14,7 @@ const jsonLd = (html) => {
   return JSON.parse(match[1])
 }
 
-assert(DEFAULT_SITE_URL === 'https://ngoctam169.github.io/iloveyou','Production site URL is not the verified GitHub Pages URL')
+assert(DEFAULT_SITE_URL === 'https://ngoctam169.github.io/linguaflow','Production site URL is not the verified GitHub Pages URL')
 for (const file of ['dist/index.html','dist/about/index.html','dist/blog/index.html','dist/sitemap.xml','dist/robots.txt','dist/404.html','dist/.nojekyll']) assert(existsSync(join(root,file)),`Missing production file: ${file}`)
 
 const aboutHtml = read('dist/about/index.html')
@@ -82,13 +82,13 @@ assert(robots.includes(`Sitemap: ${DEFAULT_SITE_URL}/sitemap.xml`) && !/Disallow
 const notFound = read('dist/404.html')
 assert(notFound.includes('noindex, follow'),'404 output is indexable')
 const builtHome = read('dist/index.html')
-assert(builtHome.includes('/iloveyou/assets/') && builtHome.includes('Nguyễn Ngọc Tâm') && builtHome.includes('Ngọc Tâm Dev'),'Production base path or homepage personal identity signal is missing')
-assert(builtHome.includes('<title>NT Language Learning | Học ngoại ngữ · Nguyễn Ngọc Tâm</title>'),'Homepage title is not product-first with author identity')
+assert(builtHome.includes('/linguaflow/assets/') && builtHome.includes('Nguyễn Ngọc Tâm') && builtHome.includes('Ngọc Tâm Dev'),'Production base path or homepage personal identity signal is missing')
+assert(builtHome.includes('<title>LinguaFlow | Học ngoại ngữ · Nguyễn Ngọc Tâm</title>'),'Homepage title is not product-first with author identity')
 assert(!/<meta[^>]+name="keywords"/i.test(builtHome) && !/<meta[^>]+name="keywords"/i.test(aboutHtml),'Obsolete meta keywords should not be rendered')
 const homeGraph = jsonLd(builtHome)['@graph']
 const homeWebsite = homeGraph.find((item) => item['@type'] === 'WebSite')
 const homePerson = homeGraph.find((item) => item['@type'] === 'Person')
-assert(homeWebsite?.name === 'NT Language Learning' && homeWebsite?.creator?.['@id'] === `${DEFAULT_SITE_URL}/#person`,'WebSite does not identify the language product and Nguyễn Ngọc Tâm as creator')
+assert(homeWebsite?.name === 'LinguaFlow' && homeWebsite?.creator?.['@id'] === `${DEFAULT_SITE_URL}/#person`,'WebSite does not identify the language product and Nguyễn Ngọc Tâm as creator')
 assert(!homeWebsite?.about,'Product WebSite should not claim Nguyễn Ngọc Tâm is the subject of the whole site')
 assert(!homeWebsite?.potentialAction,'Deprecated WebSite SearchAction should not be emitted')
 assert(homePerson?.name === AUTHOR.name && homePerson?.worksFor?.name === 'South Telecom','Homepage Person entity is incomplete')

@@ -1,76 +1,157 @@
-import { ArrowRight, BookOpen, Brain, Check, Headphones, RotateCcw, Sparkles } from 'lucide-react'
+import { ArrowRight, BookOpen, Brain, Check, Globe, Headphones, RotateCcw, Sparkles } from 'lucide-react'
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import BlogCard from '../components/blog/BlogCard'
 import Modal from '../components/common/Modal'
-import { languages } from '../data/languages'
+import { getLanguage, languages } from '../data/languages'
 import { useApp } from '../context/AppContext'
-import { languagePath } from '../utils/routes'
+import { getLevelProgress } from '../utils/progress'
+import { grammarPath, languagePath, levelPath, vocabularyPath } from '../utils/routes'
 import { latestBlogPosts } from '../data/blogMeta'
 import { trackEvent } from '../utils/analytics'
 
-const studyFlow = [
-  [BookOpen,'01','Vocabulary','Học từ theo level, chủ đề và câu ví dụ.','/english-vocabulary'],
-  [Brain,'02','Grammar','Hiểu cấu trúc, cách dùng và luyện ngay trong bài học.','/english-grammar'],
-  [Headphones,'03','Four Skills','Kết nối nghe, nói, đọc và viết trong cùng một lộ trình.','/learn-english'],
-  [RotateCcw,'04','Review','Quay lại từ yếu, lỗi sai và nội dung đến hạn ôn.','/review'],
-]
-
 export default function Home() {
-  const { state, update } = useApp()
+  const { state, update, chooseCourse, setToast } = useApp()
   const [onboarding, setOnboarding] = useState(false)
+  const [showPicker, setShowPicker] = useState(false)
   const [step, setStep] = useState(1)
   const [form, setForm] = useState({ language:state.selectedLanguage || 'english', goal:'Giao tiếp', skill:'beginner', daily:30 })
   const navigate = useNavigate()
+  const activeLanguage = getLanguage(state.selectedLanguage) || languages[0]
+  const activeLevel = activeLanguage.levels.some(([lvl]) => lvl === state.selectedLevel) ? state.selectedLevel : activeLanguage.levels[0][0]
+  const needsInitialPick = !state.languageFocused || showPicker
+
+  const studyFlow = [
+    [BookOpen,'01','Vocabulary',`Học từ vựng ${activeLanguage.viName} (${activeLevel}) theo chủ đề, câu ví dụ và SRS.`,vocabularyPath(activeLanguage.id, activeLevel)],
+    [Brain,'02','Grammar',`Nắm vững cấu trúc ngữ pháp ${activeLanguage.viName} (${activeLevel}) và luyện ngay trong bài.`,grammarPath(activeLanguage.id, activeLevel)],
+    [Headphones,'03','Four Skills',`Kết nối nghe, nói, đọc và viết xuyên suốt lộ trình ${activeLanguage.framework}.`,levelPath(activeLanguage.id, activeLevel)],
+    [RotateCcw,'04','Review','Quay lại từ yếu, lỗi sai và nội dung đến hạn ôn tập.', '/review'],
+  ]
+
+  const pickFocusLanguage = (langId, customLevel = null) => {
+    const langObj = getLanguage(langId) || languages[0]
+    const targetLevel = customLevel || state.lastLevelByLanguage?.[langObj.id] || langObj.levels[0][0]
+    chooseCourse(langObj.id, targetLevel)
+    setForm((current) => ({ ...current, language: langObj.id }))
+    setShowPicker(false)
+    trackEvent('select_language', { language: langObj.id, level: targetLevel, source: 'home_focus_gate' })
+    setToast(`Đang tập trung vào ${langObj.flag} ${langObj.viName} (${targetLevel}). Bạn có thể đổi ngôn ngữ ở góc phải trên cùng.`)
+  }
 
   const finish = () => {
     const language = languages.find((item) => item.id === form.language)
-    update({ dailyGoal:form.daily, onboardingComplete:true, selectedLanguage:language.id, selectedLevel:language.levels[0][0], profile:{ ...state.profile, goal:form.goal } })
+    update({ dailyGoal:form.daily, onboardingComplete:true, languageFocused:true, selectedLanguage:language.id, selectedLevel:language.levels[0][0], profile:{ ...state.profile, goal:form.goal } })
     trackEvent('start_learning', { language:language.id, level:language.levels[0][0], goal:form.goal, daily_minutes:form.daily, placement_test:form.skill === 'test' })
     setOnboarding(false)
     navigate(form.skill === 'test' ? '/placement-test' : languagePath(language.id))
   }
 
   return <>
+    {needsInitialPick && (
+      <section className="section-shell focus-language-gate" aria-label="Chọn ngôn ngữ tập trung">
+        <div className="focus-gate-card">
+          <div className="focus-gate-head">
+            <div>
+              <span className="overline"><Globe size={13}/> BƯỚC 1 · CHỌN 1 NGÔN NGỮ TẬP TRUNG</span>
+              <h2>Bạn muốn tập trung chinh phục ngôn ngữ nào?</h2>
+              <p>Chọn 1 ngôn ngữ bên dưới để toàn bộ giao diện, lộ trình, từ vựng và bài luyện chỉ tập trung vào ngôn ngữ đó. Khi cần đổi sang tiếng khác, bạn chỉ cần bấm nút <strong>{activeLanguage.flag} {activeLanguage.viName}</strong> ở góc trên bên phải.</p>
+            </div>
+            {state.languageFocused && (
+              <button type="button" className="btn ghost small" onClick={() => setShowPicker(false)}>Giữ {activeLanguage.viName}</button>
+            )}
+          </div>
+          <div className="focus-gate-grid">
+            {languages.map((item) => {
+              const isCurrent = item.id === activeLanguage.id && state.languageFocused
+              const rememberedLvl = state.lastLevelByLanguage?.[item.id] || item.levels[0][0]
+              return (
+                <button
+                  key={item.id}
+                  type="button"
+                  className={`focus-lang-card ${isCurrent ? 'selected' : ''}`}
+                  onClick={() => pickFocusLanguage(item.id)}
+                >
+                  <div className="focus-lang-top">
+                    <span className="focus-lang-flag">{item.flag}</span>
+                    <span className="focus-lang-badge">{item.framework}</span>
+                  </div>
+                  <strong>{item.viName} <em>({item.nativeName})</em></strong>
+                  <p>{item.description}</p>
+                  <div className="focus-lang-foot">
+                    <small>{item.levels[0][0]} → {item.levels.at(-1)[0]} · Bắt đầu ở {rememberedLvl}</small>
+                    <span>Chọn học <ArrowRight size={14}/></span>
+                  </div>
+                </button>
+              )
+            })}
+          </div>
+        </div>
+      </section>
+    )}
+
     <section className="hero section-shell product-hero huashu-home-hero" aria-labelledby="home-title">
       <div className="hero-copy">
-        <div className="eyebrow"><Sparkles size={14}/> LANGUAGE LEARNING · FOUR PATHS</div>
-        <h1 id="home-title">Học ngoại ngữ theo <em>từng level.</em></h1>
-        <p>Tiếng Anh, Trung, Nhật và Hàn theo level. Học từ vựng, ngữ pháp, bốn kỹ năng và luyện TOEIC/IELTS trong cùng một hệ thống.</p>
+        <div className="eyebrow"><Sparkles size={14}/> LINGUAFLOW · ĐANG TẬP TRUNG: {activeLanguage.flag} {activeLanguage.viName.toUpperCase()} ({activeLanguage.framework})</div>
+        <h1 id="home-title">Chinh phục {activeLanguage.viName} theo <em>từng level.</em></h1>
+        <p>Toàn bộ không gian học hiện đang tập trung riêng cho <strong>{activeLanguage.viName} ({activeLanguage.nativeName} · {activeLanguage.framework})</strong> — từ vựng, ngữ pháp, nghe–nói–đọc–viết và ôn tập SRS. Bạn có thể đổi cấp độ hoặc chuyển sang ngôn ngữ khác ngay trên góc phải.</p>
         <div className="hero-actions">
           <button className="btn large" onClick={() => setOnboarding(true)}>Bắt đầu học <ArrowRight size={17}/></button>
-          <Link className="btn secondary large" to="/languages">Xem lộ trình</Link>
+          <Link className="btn secondary large" to={levelPath(activeLanguage.id, activeLevel)}>Vào thẳng {activeLanguage.viName} · {activeLevel}</Link>
+          <button type="button" className="btn ghost large" onClick={() => setShowPicker(true)}>Đổi ngôn ngữ ({activeLanguage.flag})</button>
         </div>
         <div className="trust-row">
-          <span><Check/> Tự chọn level</span>
+          <span><Check/> Đang khóa mục tiêu: {activeLanguage.viName} ({activeLevel})</span>
           <span><Check/> ~1000 từ / level</span>
           <span><Check/> Lưu tiến độ trên thiết bị</span>
         </div>
-        <p className="hero-maker">Đây là project mình tự làm để gom bài học, từ vựng và phần luyện thi vào một chỗ. <Link to="/about">About Me →</Link></p>
+        <p className="hero-maker">LinguaFlow là hệ thống học ngoại ngữ tập trung do Nguyễn Ngọc Tâm phát triển. <Link to="/about">About Me →</Link></p>
       </div>
 
-      <div className="hero-visual huashu-learning-index" aria-label="Lộ trình ngôn ngữ">
+      <div className="hero-visual huashu-learning-index" aria-label={`Lộ trình ${activeLanguage.viName}`}>
         <div className="huashu-index-head">
-          <span>Learning index · 2026</span>
-          <strong>Choose your path</strong>
+          <span>{activeLanguage.flag} {activeLanguage.framework} ROADMAP · 2026</span>
+          <strong>Lộ trình {activeLanguage.viName}</strong>
         </div>
         <div className="huashu-index-list">
-          {languages.map((language,index) => <Link key={language.id} to={languagePath(language.id)} className="huashu-index-row" onClick={() => trackEvent('select_language', { language:language.id, source:'home_learning_index' })}>
-            <span className="huashu-index-no">{String(index + 1).padStart(2,'0')}</span>
-            <span className="huashu-index-language"><b>{language.nativeName}</b><small>{language.name}</small></span>
-            <span className="huashu-index-levels">{language.levels.map(([level]) => level).join(' · ')}</span>
-            <ArrowRight/>
-          </Link>)}
+          {activeLanguage.levels.map(([lvl, label], index) => {
+            const progress = getLevelProgress(state, activeLanguage.id, lvl)
+            const completedCount = progress.completedLessons?.length || 0
+            return (
+              <Link
+                key={lvl}
+                to={levelPath(activeLanguage.id, lvl)}
+                className={`huashu-index-row ${lvl === activeLevel ? 'active-focus-row' : ''}`}
+                onClick={() => {
+                  chooseCourse(activeLanguage.id, lvl)
+                  trackEvent('select_level', { language: activeLanguage.id, level: lvl, source: 'home_learning_index' })
+                }}
+              >
+                <span className="huashu-index-no">{String(index + 1).padStart(2,'0')}</span>
+                <span className="huashu-index-language"><b>{lvl}</b><small>{label}</small></span>
+                <span className="huashu-index-levels">{completedCount > 0 ? `Đã hoàn thành ${completedCount} bài` : (lvl === activeLevel ? 'Đang chọn · Vào học ngay' : '60 bài học · Từ vựng & 4 kỹ năng')}</span>
+                <ArrowRight/>
+              </Link>
+            )
+          })}
         </div>
         <div className="huashu-exam-rail">
-          <Link to="/toeic"><span>TOEIC</span><strong>200 câu · Full Test</strong><ArrowRight/></Link>
-          <Link to="/ielts"><span>IELTS</span><strong>4 skills · Academic</strong><ArrowRight/></Link>
+          {activeLanguage.id === 'english' ? (
+            <>
+              <Link to="/toeic"><span>TOEIC</span><strong>200 câu · Full Test</strong><ArrowRight/></Link>
+              <Link to="/ielts"><span>IELTS</span><strong>4 skills · Academic</strong><ArrowRight/></Link>
+            </>
+          ) : (
+            <>
+              <Link to={vocabularyPath(activeLanguage.id, activeLevel)}><span>VOCABULARY</span><strong>Kho từ {activeLanguage.viName} · {activeLevel}</strong><ArrowRight/></Link>
+              <Link to="/placement-test"><span>PLACEMENT</span><strong>Kiểm tra trình độ {activeLanguage.framework}</strong><ArrowRight/></Link>
+            </>
+          )}
         </div>
       </div>
     </section>
 
-    <section className="stats-strip" aria-label="Tổng quan NT Language Learning">
-      <div><strong>4</strong><span>Ngôn ngữ</span></div>
+    <section className="stats-strip" aria-label="Tổng quan LinguaFlow">
+      <div><strong>{activeLanguage.levels.length}</strong><span>Cấp độ {activeLanguage.framework} ({activeLanguage.viName})</span></div>
       <div><strong>~1000</strong><span>Từ / level</span></div>
       <div><strong>200</strong><span>TOEIC Full Test</span></div>
       <div><strong>4</strong><span>IELTS skills</span></div>
@@ -79,15 +160,19 @@ export default function Home() {
     <section className="home-levels section-block huashu-framework" aria-labelledby="levels-title">
       <div className="section-shell">
         <div className="section-intro left">
-          <span className="overline">LEARNING FRAMEWORK</span>
-          <h2 id="levels-title">Chọn level rồi học thẳng vào phần mình cần.</h2>
-          <p>Mỗi level có bài học, từ vựng, ngữ pháp và phần luyện riêng.</p>
+          <span className="overline">{activeLanguage.framework} FOCUS FRAMEWORK · {activeLanguage.viName.toUpperCase()}</span>
+          <h2 id="levels-title">Các chặng {activeLanguage.framework} của {activeLanguage.viName}</h2>
+          <p>Bạn đang ở chế độ tập trung 1 ngôn ngữ ({activeLanguage.flag} {activeLanguage.viName}). Chọn bất kỳ level nào bên dưới để học thẳng vào bài học, từ vựng và ngữ pháp của level đó.</p>
         </div>
         <div className="framework-grid">
-          <article><strong>01 / CEFR</strong><h3>English A1–C2</h3><p>Từ giao tiếp nền tảng đến diễn đạt học thuật và chuyên nghiệp.</p><Link to="/learn-english">Mở lộ trình <ArrowRight/></Link></article>
-          <article><strong>02 / HSK</strong><h3>Chinese HSK 1–6</h3><p>Phát âm, chữ Hán, từ vựng và mẫu câu theo từng chặng.</p><Link to="/learn-chinese">Mở lộ trình <ArrowRight/></Link></article>
-          <article><strong>03 / JLPT</strong><h3>Japanese N5–N1</h3><p>Hệ chữ, Kanji, ngữ pháp và đọc hiểu theo cấp độ.</p><Link to="/learn-japanese">Mở lộ trình <ArrowRight/></Link></article>
-          <article><strong>04 / TOPIK</strong><h3>Korean TOPIK 1–6</h3><p>Hangeul, cấu trúc câu và năng lực giao tiếp theo level.</p><Link to="/learn-korean">Mở lộ trình <ArrowRight/></Link></article>
+          {activeLanguage.levels.slice(0, 4).map(([lvl, label], idx) => (
+            <article key={lvl}>
+              <strong>{String(idx + 1).padStart(2, '0')} / {activeLanguage.framework}</strong>
+              <h3>{activeLanguage.viName} · {lvl} ({label})</h3>
+              <p>Lộ trình 60 bài học, kho từ vựng {lvl}, ngữ pháp trọng tâm và luyện 4 kỹ năng cho cấp độ {label.toLowerCase()}.</p>
+              <Link to={levelPath(activeLanguage.id, lvl)} onClick={() => chooseCourse(activeLanguage.id, lvl)}>Mở lộ trình {lvl} <ArrowRight/></Link>
+            </article>
+          ))}
         </div>
       </div>
     </section>
@@ -127,7 +212,7 @@ export default function Home() {
       <div>
         <span className="overline">BUILT BY</span>
         <h2 id="maker-title">Nguyễn Ngọc Tâm · Full-stack Developer</h2>
-        <p>Mình làm NT Language Learning để học ngoại ngữ và thử những thứ mình đang học về product, frontend và backend. Portfolio và blog được để riêng để phần học không bị rối.</p>
+        <p>Mình làm LinguaFlow để học ngoại ngữ tập trung từng thứ tiếng và thử những thứ mình đang học về product, frontend và backend. Portfolio và blog được để riêng để phần học không bị rối.</p>
       </div>
       <Link className="btn secondary" to="/about">About Me <ArrowRight/></Link>
     </section>

@@ -1,4 +1,3 @@
-import '../styles/blog.css'
 import { ArrowLeft, CalendarDays, Clock3 } from 'lucide-react'
 import { useEffect } from 'react'
 import { Link, useParams } from 'react-router-dom'
@@ -9,6 +8,7 @@ import Breadcrumbs from '../components/common/Breadcrumbs'
 import { AUTHOR } from '../data/author'
 import { blogPosts, findBlogPost } from '../data/blogPosts'
 import NotFound from './NotFound'
+import '../styles/blog.css'
 import { trackEvent } from '../utils/analytics'
 
 function ArticleBlock({ block }) {

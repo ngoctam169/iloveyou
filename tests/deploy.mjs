@@ -4,7 +4,7 @@ import { fileURLToPath } from 'node:url'
 
 const root = fileURLToPath(new URL('..', import.meta.url))
 const dist = join(root, 'dist')
-const basePath = '/iloveyou/'
+const basePath = '/linguaflow/'
 const assert = (condition, message) => {
   if (!condition) throw new Error(message)
 }
@@ -68,7 +68,7 @@ for (const file of htmlFiles) {
   assert(moduleScripts.length > 0, `${label} has no production module script`)
   assert(moduleScripts.every((url) => url.startsWith(`${basePath}assets/`)), `${label} has a module script outside ${basePath}assets/`)
 
-  const localRefs = [...html.matchAll(/\b(?:src|href)="(\/iloveyou\/[^"]*)"/g)].map((match) => match[1])
+  const localRefs = [...html.matchAll(/\b(?:src|href)="(\/linguaflow\/[^"]*)"/g)].map((match) => match[1])
   for (const url of localRefs) {
     assert(resolvesInDist(url), `${label} references a missing production file or route: ${url}`)
   }

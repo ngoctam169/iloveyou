@@ -1,5 +1,6 @@
 import { createContext, useContext, useEffect, useMemo, useRef, useState } from 'react'
-import { clearAllAppStorage, defaultState, loadState, saveState } from '../utils/storage'
+import { languages } from '../data/languages'
+import { clearAllAppStorage, defaultState, loadState, normalizeStateObject, saveState } from '../utils/storage'
 import { averageSkillScores, emptyLevelProgress, progressKey } from '../utils/progress'
 import { applyActivity } from '../utils/activity'
 import { localDate, nextSchedule, wordKey } from '../utils/srs'
@@ -45,7 +46,25 @@ export function AppProvider({ children }) {
     ...current,
     lessonSessions: { ...(current.lessonSessions || {}), [lessonId]: session },
   }))
-  const chooseCourse = (language, level) => update({ selectedLanguage: language, selectedLevel: level })
+  const chooseCourse = (language, level) => setState((current) => {
+    const langObj = languages.find((item) => item.id === language) || languages[0]
+    const remembered = current.lastLevelByLanguage?.[langObj.id]
+    const validLevel = langObj.levels.some(([lvl]) => lvl === level)
+      ? level
+      : langObj.levels.some(([lvl]) => lvl === remembered)
+        ? remembered
+        : langObj.levels[0][0]
+    return {
+      ...current,
+      selectedLanguage: langObj.id,
+      selectedLevel: validLevel,
+      languageFocused: true,
+      lastLevelByLanguage: {
+        ...(current.lastLevelByLanguage || {}),
+        [langObj.id]: validLevel,
+      },
+    }
+  })
 
   const completeLesson = ({ lessonId, languageId, level, score, skills, vocabularyCount = 0, vocabularyWords = [], minutes = 8 }) => {
     setState((current) => {
@@ -81,6 +100,11 @@ export function AppProvider({ children }) {
         ...activity,
         selectedLanguage: languageId,
         selectedLevel: level,
+        languageFocused: true,
+        lastLevelByLanguage: {
+          ...(current.lastLevelByLanguage || {}),
+          [languageId]: level,
+        },
         levelProgress: {
           ...(current.levelProgress || {}),
           [key]: {
@@ -221,6 +245,43 @@ export function AppProvider({ children }) {
   const recordStudyTime = (seconds = 900, type = 'Daily Review') => {
     setState((current) => applyActivity(current, { type, seconds }))
   }
+  const logFocusSession = (minutes = 25, topic = 'Pomodoro Focus') => {
+    const cleanMinutes = Math.max(1, Math.min(180, Number(minutes) || 25))
+    setState((current) => {
+      const key = progressKey(current.selectedLanguage, current.selectedLevel)
+      const previous = { ...emptyLevelProgress(), ...(current.levelProgress?.[key] || {}) }
+      const activity = applyActivity(current, {
+        type: 'Self Study',
+        skill: 'Focus Session',
+        topic,
+        seconds: cleanMinutes * 60,
+      })
+      return {
+        ...activity,
+        xp: (Number(current.xp) || 0) + cleanMinutes * 2,
+        levelProgress: {
+          ...(current.levelProgress || {}),
+          [key]: {
+            ...previous,
+            studyMinutes: (Number(previous.studyMinutes) || 0) + cleanMinutes,
+          },
+        },
+      }
+    })
+    setToast(`Đã ghi nhận +${cleanMinutes} phút tập trung và +${cleanMinutes * 2} XP!`)
+  }
+  const importBackupState = (rawPayload) => {
+    const parsed = typeof rawPayload === 'string' ? JSON.parse(rawPayload) : rawPayload
+    if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) {
+      throw new Error('File sao lưu không hợp lệ.')
+    }
+    const unwrapped = parsed.state && typeof parsed.state === 'object' ? parsed.state : parsed
+    const nextState = normalizeStateObject({ ...unwrapped, languageFocused: true })
+    setState(nextState)
+    saveState(nextState)
+    setToast('Đã khôi phục tiến độ học tập thành công!')
+    return nextState
+  }
   const recordGrammarAnswer = (topic, correct) => {
     setState((current) => {
       const activity = applyActivity(current, { type:'Grammar', skill:'Grammar', topic, total:1, correct:correct ? 1 : 0, seconds:0 })
@@ -240,7 +301,7 @@ export function AppProvider({ children }) {
   }
 
   const value = useMemo(() => ({
-    state, update, persistLessonSession, chooseCourse, completeLesson, toggleSaved, removeMistake, addMistake, addMistakes, reviewVocabulary, setVocabularyMeta, savePersonalWord, deletePersonalWord, createVocabularyList, toggleWordInList, deleteVocabularyList, recordSelfStudy, recordStudyTime, recordGrammarAnswer, saveExamResult, reset,
+    state, update, persistLessonSession, chooseCourse, completeLesson, toggleSaved, removeMistake, addMistake, addMistakes, reviewVocabulary, setVocabularyMeta, savePersonalWord, deletePersonalWord, createVocabularyList, toggleWordInList, deleteVocabularyList, recordSelfStudy, recordStudyTime, logFocusSession, importBackupState, recordGrammarAnswer, saveExamResult, reset,
     toast, setToast,
   }), [state, toast])
 

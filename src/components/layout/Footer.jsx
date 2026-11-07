@@ -13,7 +13,7 @@ export default function Footer() {
   return <footer className="footer editorial-footer">
     <div className="footer-inner">
       <div className="footer-brand">
-        <Link className="brand editorial-wordmark" to="/">NT Learning</Link>
+        <Link className="brand editorial-wordmark" to="/">LinguaFlow</Link>
         <p>Language learning · TOEIC · IELTS</p>
         <small>Project học ngoại ngữ mình tự làm và vẫn đang sửa dần.</small>
       </div>

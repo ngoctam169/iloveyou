@@ -40,56 +40,77 @@ export const defaultState = {
   settings: { autoplay: false, speechSpeed: 'normal' },
   activityHistory: [0, 0, 0, 0, 0, 0, 0],
   onboardingComplete: false,
+  languageFocused: false,
+  lastLevelByLanguage: {
+    english: 'B1',
+    chinese: 'HSK 1',
+    japanese: 'N5',
+    korean: 'TOPIK 1',
+  },
+}
+
+export function normalizeStateObject(parsed) {
+  if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) return defaultState
+  const today = localDate()
+  const migrated = migrateProgress(parsed)
+  const selectedLanguage = languages.some((language) => language.id === parsed.selectedLanguage) ? parsed.selectedLanguage : defaultState.selectedLanguage
+  const selectedCourse = languages.find((language) => language.id === selectedLanguage)
+  const selectedLevel = selectedCourse.levels.some(([level]) => level === parsed.selectedLevel) ? parsed.selectedLevel : selectedCourse.levels[0][0]
+  const parsedProfile = parsed.profile && typeof parsed.profile === 'object' ? parsed.profile : {}
+  const rawLastLevels = parsed.lastLevelByLanguage && typeof parsed.lastLevelByLanguage === 'object' ? parsed.lastLevelByLanguage : {}
+  const lastLevelByLanguage = Object.fromEntries(
+    languages.map((lang) => {
+      const candidate = lang.id === selectedLanguage ? selectedLevel : rawLastLevels[lang.id]
+      const valid = lang.levels.some(([lvl]) => lvl === candidate) ? candidate : (defaultState.lastLevelByLanguage[lang.id] || lang.levels[0][0])
+      return [lang.id, valid]
+    }),
+  )
+  return {
+    ...defaultState,
+    ...parsed,
+    schemaVersion: 2,
+    selectedLanguage,
+    selectedLevel,
+    languageFocused: Boolean(parsed.languageFocused || parsed.onboardingComplete),
+    lastLevelByLanguage,
+    levelProgress: migrated,
+    xp: Math.max(0, Number(parsed.xp) || 0),
+    streak: Math.max(0, Number(parsed.streak) || 0),
+    lastStudyDate: typeof parsed.lastStudyDate === 'string' ? parsed.lastStudyDate : null,
+    theme: parsed.theme === 'dark' ? 'dark' : 'light',
+    dailyGoal: [15, 30, 45, 60].includes(Number(parsed.dailyGoal)) ? Number(parsed.dailyGoal) : defaultState.dailyGoal,
+    dailyVocabularyGoal: [5, 10, 20, 30].includes(Number(parsed.dailyVocabularyGoal)) ? Number(parsed.dailyVocabularyGoal) : defaultState.dailyVocabularyGoal,
+    todayMinutes: parsed.todayDate === today ? Math.max(0, Number(parsed.todayMinutes) || 0) : 0,
+    todayDate: today,
+    profile: { ...defaultState.profile, ...parsedProfile, displayName: typeof parsedProfile.displayName === 'string' && parsedProfile.displayName.trim() ? parsedProfile.displayName.trim() : defaultState.profile.displayName, goal: typeof parsedProfile.goal === 'string' ? parsedProfile.goal : defaultState.profile.goal },
+    settings: { autoplay: parsed.settings?.autoplay === true, speechSpeed: ['slow','normal','fast'].includes(parsed.settings?.speechSpeed) ? parsed.settings.speechSpeed : 'normal' },
+    savedItems: Array.isArray(parsed.savedItems) ? parsed.savedItems.filter((item) => item && typeof item === 'object' && typeof item.id === 'string').map(migrateLinkedItem) : [],
+    mistakes: Array.isArray(parsed.mistakes) ? parsed.mistakes.filter((item) => item && typeof item === 'object' && typeof item.id === 'string').map(migrateLinkedItem) : [],
+    flashcardProgress: migrateFlashcards(parsed.flashcardProgress, selectedLanguage, selectedLevel),
+    skillReview: parsed.skillReview && typeof parsed.skillReview === 'object' && !Array.isArray(parsed.skillReview) ? parsed.skillReview : {},
+    vocabularyMeta: parsed.vocabularyMeta && typeof parsed.vocabularyMeta === 'object' && !Array.isArray(parsed.vocabularyMeta) ? parsed.vocabularyMeta : {},
+    personalVocabulary: Array.isArray(parsed.personalVocabulary) ? parsed.personalVocabulary.filter((word) => word && typeof word.id === 'string' && typeof word.word === 'string' && typeof word.meaningVi === 'string' && languages.some((language) => language.id === word.languageId && language.levels.some(([level]) => level === word.level))).map((word) => ({ ...word, personal: true, collocations: Array.isArray(word.collocations) ? word.collocations : [], synonyms: Array.isArray(word.synonyms) ? word.synonyms : [], antonyms: Array.isArray(word.antonyms) ? word.antonyms : [], lessons: [], lessonIds: [] })) : [],
+    vocabularyLists: Array.isArray(parsed.vocabularyLists) ? parsed.vocabularyLists.filter((list) => list && typeof list.id === 'string' && typeof list.name === 'string' && Array.isArray(list.wordKeys)).map((list) => ({ ...list, wordKeys: list.wordKeys.filter((key) => typeof key === 'string') })) : [],
+    lessonSessions: parsed.lessonSessions && typeof parsed.lessonSessions === 'object' ? parsed.lessonSessions : {},
+    writingDrafts: parsed.writingDrafts && typeof parsed.writingDrafts === 'object' && !Array.isArray(parsed.writingDrafts) ? parsed.writingDrafts : {},
+    vocabularyActivity: Array.isArray(parsed.vocabularyActivity) ? parsed.vocabularyActivity.slice(-3000) : [],
+    selfStudyHistory: Array.isArray(parsed.selfStudyHistory) ? parsed.selfStudyHistory.slice(0, 100) : [],
+    dailyActivity: parsed.dailyActivity && typeof parsed.dailyActivity === 'object' ? parsed.dailyActivity : {},
+    learningHistory: Array.isArray(parsed.learningHistory) ? parsed.learningHistory.slice(0, 5000) : [],
+    totalStudySeconds: Math.max(0, Number(parsed.totalStudySeconds) || 0),
+    longestStreak: Math.max(0, Number(parsed.longestStreak) || 0),
+    toeicTarget: [450, 550, 650, 750, 850, 900].includes(Number(parsed.toeicTarget)) ? Number(parsed.toeicTarget) : defaultState.toeicTarget,
+    toeicHistory: Array.isArray(parsed.toeicHistory) ? parsed.toeicHistory.slice(-20) : [],
+    ieltsTarget: [4, 5, 5.5, 6, 6.5, 7, 7.5, 8, 8.5, 9].includes(Number(parsed.ieltsTarget)) ? Number(parsed.ieltsTarget) : defaultState.ieltsTarget,
+    ieltsHistory: Array.isArray(parsed.ieltsHistory) ? parsed.ieltsHistory.slice(-20) : [],
+    activityHistory: Array.isArray(parsed.activityHistory) ? parsed.activityHistory.slice(-28).map((minutes) => Math.max(0, Number(minutes) || 0)) : defaultState.activityHistory,
+  }
 }
 
 export function loadState() {
   try {
     const parsed = JSON.parse(localStorage.getItem(STORAGE_KEY))
-    if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) return defaultState
-    const today = localDate()
-    const migrated = migrateProgress(parsed)
-    const selectedLanguage = languages.some((language) => language.id === parsed.selectedLanguage) ? parsed.selectedLanguage : defaultState.selectedLanguage
-    const selectedCourse = languages.find((language) => language.id === selectedLanguage)
-    const selectedLevel = selectedCourse.levels.some(([level]) => level === parsed.selectedLevel) ? parsed.selectedLevel : selectedCourse.levels[0][0]
-    const parsedProfile = parsed.profile && typeof parsed.profile === 'object' ? parsed.profile : {}
-    return {
-      ...defaultState,
-      ...parsed,
-      schemaVersion: 2,
-      selectedLanguage,
-      selectedLevel,
-      levelProgress: migrated,
-      xp: Math.max(0, Number(parsed.xp) || 0),
-      streak: Math.max(0, Number(parsed.streak) || 0),
-      lastStudyDate: typeof parsed.lastStudyDate === 'string' ? parsed.lastStudyDate : null,
-      theme: parsed.theme === 'dark' ? 'dark' : 'light',
-      dailyGoal: [15, 30, 45, 60].includes(Number(parsed.dailyGoal)) ? Number(parsed.dailyGoal) : defaultState.dailyGoal,
-      dailyVocabularyGoal: [5, 10, 20, 30].includes(Number(parsed.dailyVocabularyGoal)) ? Number(parsed.dailyVocabularyGoal) : defaultState.dailyVocabularyGoal,
-      todayMinutes: parsed.todayDate === today ? Math.max(0, Number(parsed.todayMinutes) || 0) : 0,
-      todayDate: today,
-      profile: { ...defaultState.profile, ...parsedProfile, displayName: typeof parsedProfile.displayName === 'string' && parsedProfile.displayName.trim() ? parsedProfile.displayName.trim() : defaultState.profile.displayName, goal: typeof parsedProfile.goal === 'string' ? parsedProfile.goal : defaultState.profile.goal },
-      settings: { autoplay: parsed.settings?.autoplay === true, speechSpeed: ['slow','normal','fast'].includes(parsed.settings?.speechSpeed) ? parsed.settings.speechSpeed : 'normal' },
-      savedItems: Array.isArray(parsed.savedItems) ? parsed.savedItems.filter((item) => item && typeof item === 'object' && typeof item.id === 'string').map(migrateLinkedItem) : [],
-      mistakes: Array.isArray(parsed.mistakes) ? parsed.mistakes.filter((item) => item && typeof item === 'object' && typeof item.id === 'string').map(migrateLinkedItem) : [],
-      flashcardProgress: migrateFlashcards(parsed.flashcardProgress, selectedLanguage, selectedLevel),
-      skillReview: parsed.skillReview && typeof parsed.skillReview === 'object' && !Array.isArray(parsed.skillReview) ? parsed.skillReview : {},
-      vocabularyMeta: parsed.vocabularyMeta && typeof parsed.vocabularyMeta === 'object' && !Array.isArray(parsed.vocabularyMeta) ? parsed.vocabularyMeta : {},
-      personalVocabulary: Array.isArray(parsed.personalVocabulary) ? parsed.personalVocabulary.filter((word) => word && typeof word.id === 'string' && typeof word.word === 'string' && typeof word.meaningVi === 'string' && languages.some((language) => language.id === word.languageId && language.levels.some(([level]) => level === word.level))).map((word) => ({ ...word, personal: true, collocations: Array.isArray(word.collocations) ? word.collocations : [], synonyms: Array.isArray(word.synonyms) ? word.synonyms : [], antonyms: Array.isArray(word.antonyms) ? word.antonyms : [], lessons: [], lessonIds: [] })) : [],
-      vocabularyLists: Array.isArray(parsed.vocabularyLists) ? parsed.vocabularyLists.filter((list) => list && typeof list.id === 'string' && typeof list.name === 'string' && Array.isArray(list.wordKeys)).map((list) => ({ ...list, wordKeys: list.wordKeys.filter((key) => typeof key === 'string') })) : [],
-      lessonSessions: parsed.lessonSessions && typeof parsed.lessonSessions === 'object' ? parsed.lessonSessions : {},
-      writingDrafts: parsed.writingDrafts && typeof parsed.writingDrafts === 'object' && !Array.isArray(parsed.writingDrafts) ? parsed.writingDrafts : {},
-      vocabularyActivity: Array.isArray(parsed.vocabularyActivity) ? parsed.vocabularyActivity.slice(-3000) : [],
-      selfStudyHistory: Array.isArray(parsed.selfStudyHistory) ? parsed.selfStudyHistory.slice(0, 100) : [],
-      dailyActivity: parsed.dailyActivity && typeof parsed.dailyActivity === 'object' ? parsed.dailyActivity : {},
-      learningHistory: Array.isArray(parsed.learningHistory) ? parsed.learningHistory.slice(0, 5000) : [],
-      totalStudySeconds: Math.max(0, Number(parsed.totalStudySeconds) || 0),
-      longestStreak: Math.max(0, Number(parsed.longestStreak) || 0),
-      toeicTarget: [450, 550, 650, 750, 850, 900].includes(Number(parsed.toeicTarget)) ? Number(parsed.toeicTarget) : defaultState.toeicTarget,
-      toeicHistory: Array.isArray(parsed.toeicHistory) ? parsed.toeicHistory.slice(-20) : [],
-      ieltsTarget: [4, 5, 5.5, 6, 6.5, 7, 7.5, 8, 8.5, 9].includes(Number(parsed.ieltsTarget)) ? Number(parsed.ieltsTarget) : defaultState.ieltsTarget,
-      ieltsHistory: Array.isArray(parsed.ieltsHistory) ? parsed.ieltsHistory.slice(-20) : [],
-      activityHistory: Array.isArray(parsed.activityHistory) ? parsed.activityHistory.slice(-28).map((minutes) => Math.max(0, Number(minutes) || 0)) : defaultState.activityHistory,
-    }
+    return normalizeStateObject(parsed)
   } catch {
     return defaultState
   }

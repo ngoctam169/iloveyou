@@ -14,7 +14,12 @@ import './styles/platform.css'
 import './styles/seo.css'
 import './styles/huashu.css'
 
-const routerBase = import.meta.env.BASE_URL === '/' ? '' : import.meta.env.BASE_URL.replace(/\/$/, '')
+const configuredBase = import.meta.env.BASE_URL === '/' ? '' : import.meta.env.BASE_URL.replace(/\/$/, '')
+const routerBase = window.location.pathname.startsWith('/linguaflow')
+  ? '/linguaflow'
+  : window.location.pathname.startsWith('/iloveyou')
+    ? '/iloveyou'
+    : configuredBase
 
 if (window.location.hash.startsWith('#/')) {
   const legacyPath = window.location.hash.slice(1)

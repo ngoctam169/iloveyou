@@ -1,15 +1,10 @@
-import { ChevronDown, ClipboardCheck, Home, Languages, Menu, MoreHorizontal, RotateCcw, Search, X } from 'lucide-react'
+import { Check, ChevronDown, ClipboardCheck, Globe, Home, Languages, Menu, MoreHorizontal, RotateCcw, Search, X } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
-import { Link, NavLink, useLocation } from 'react-router-dom'
+import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom'
 import { useApp } from '../../context/AppContext'
+import { getLanguage, languages, levelSlug } from '../../data/languages'
 import { trackEvent } from '../../utils/analytics'
-
-const languageItems = [
-  ['/learn-english','Tiếng Anh','A1 → C2'],
-  ['/learn-chinese','Tiếng Trung','HSK 1 → 6'],
-  ['/learn-japanese','Tiếng Nhật','N5 → N1'],
-  ['/learn-korean','Tiếng Hàn','TOPIK 1 → 6'],
-]
+import { languagePath, levelPath } from '../../utils/routes'
 
 const learningTools = [
   ['/vocabulary','Từ vựng'],
@@ -48,16 +43,38 @@ const examPathActive = (pathname) => examItems.some(([to]) => pathActive(pathnam
 const accountPathActive = (pathname) => accountItems.some(([to]) => pathActive(pathname,to))
 
 export default function Header() {
-  const { state } = useApp()
+  const { state, chooseCourse } = useApp()
   const [menuOpen, setMenuOpen] = useState(false)
   const [mobilePanel, setMobilePanel] = useState('all')
   const [openGroup, setOpenGroup] = useState(null)
   const headerRef = useRef(null)
   const location = useLocation()
+  const navigate = useNavigate()
+  const activeLanguage = getLanguage(state.selectedLanguage) || languages[0]
+  const activeLevel = activeLanguage.levels.some(([lvl]) => lvl === state.selectedLevel) ? state.selectedLevel : activeLanguage.levels[0][0]
   const publicLanding = location.pathname === '/' || location.pathname.startsWith('/learn-') || location.pathname.startsWith('/blog') || ['/languages','/english-vocabulary','/english-grammar','/about','/contact','/privacy','/terms'].includes(location.pathname)
   const initials = String(state.profile.displayName || 'Learner').split(' ').filter(Boolean).map((part) => part[0]).slice(-2).join('').toUpperCase()
   const profileName = String(state.profile.displayName || 'Người học').trim()
   const brandTarget = publicLanding ? '/' : '/dashboard'
+
+  const handleCornerLanguageSwitch = (langId, nextLevel = null) => {
+    const targetLang = getLanguage(langId) || languages[0]
+    const resolvedLevel = nextLevel && targetLang.levels.some(([lvl]) => lvl === nextLevel)
+      ? nextLevel
+      : (state.lastLevelByLanguage?.[targetLang.id] || targetLang.levels[0][0])
+    chooseCourse(targetLang.id, resolvedLevel)
+    trackEvent('select_language', { language: targetLang.id, level: resolvedLevel, source: 'corner_switcher' })
+    setOpenGroup(null)
+    if (location.pathname.startsWith('/learn-')) {
+      navigate(languagePath(targetLang.id))
+    } else if (/^\/(english|chinese|japanese|korean)\/[^/]+\/vocabulary$/.test(location.pathname)) {
+      navigate(`/${targetLang.id}/${levelSlug(resolvedLevel)}/vocabulary`)
+    } else if (/^\/(english|chinese|japanese|korean)\/[^/]+\/grammar$/.test(location.pathname)) {
+      navigate(`/${targetLang.id}/${levelSlug(resolvedLevel)}/grammar`)
+    } else if (/^\/(english|chinese|japanese|korean)(\/|$)/.test(location.pathname)) {
+      navigate(levelPath(targetLang.id, resolvedLevel))
+    }
+  }
 
   useEffect(() => {
     setMenuOpen(false)
@@ -95,7 +112,7 @@ export default function Header() {
 
   return <>
     <header className="site-header stable-header editorial-global-header" ref={headerRef}>
-      <Link className="brand editorial-wordmark" to={brandTarget} aria-label={publicLanding ? 'NT Learning - Trang chủ' : 'NT Learning - Hôm nay'}><span>NT Learning</span></Link>
+      <Link className="brand editorial-wordmark" to={brandTarget} aria-label={publicLanding ? 'LinguaFlow - Trang chủ' : 'LinguaFlow - Hôm nay'}><span>LinguaFlow</span></Link>
 
       <nav className="desktop-nav simplified-desktop-nav" aria-label="Điều hướng chính">
         <div className={`nav-group ${learningPathActive(location.pathname) ? 'active' : ''} ${openGroup === 'learn' ? 'open' : ''}`}>
@@ -104,9 +121,27 @@ export default function Header() {
           </button>
           {openGroup === 'learn' && <div className="nav-popover learning-nav-popover" role="menu">
             <div className="nav-popover-section" role="none">
-              <div className="nav-popover-heading"><strong>Chọn ngôn ngữ</strong><Link role="menuitem" to="/languages">Xem tất cả</Link></div>
-              <div className="nav-language-grid">
-                {languageItems.map(([to,label,level]) => <NavLink role="menuitem" key={to} to={to} onClick={() => trackEvent('select_language', { language:to.replace('/learn-',''), source:'header_menu' })}><span>{label}</span><small>{level}</small></NavLink>)}
+              <div className="nav-popover-heading">
+                <strong>Đang tập trung: {activeLanguage.flag} {activeLanguage.viName}</strong>
+                <button type="button" className="nav-switch-trigger" onClick={() => setOpenGroup('lang')}>Đổi ngôn ngữ ↗</button>
+              </div>
+              <div className="nav-focused-language">
+                <NavLink role="menuitem" to={languagePath(activeLanguage.id)} onClick={() => trackEvent('select_language', { language: activeLanguage.id, source: 'header_menu' })}>
+                  <span>{activeLanguage.viName}</span>
+                  <small>{activeLanguage.framework} · {activeLanguage.levels[0][0]} → {activeLanguage.levels.at(-1)[0]}</small>
+                </NavLink>
+                <div className="nav-focused-levels" role="none">
+                  {activeLanguage.levels.map(([lvl]) => (
+                    <Link
+                      key={lvl}
+                      to={levelPath(activeLanguage.id, lvl)}
+                      className={lvl === activeLevel ? 'active' : ''}
+                      onClick={() => chooseCourse(activeLanguage.id, lvl)}
+                    >
+                      {lvl}
+                    </Link>
+                  ))}
+                </div>
               </div>
             </div>
             <div className="nav-popover-section nav-learning-tools" role="none">
@@ -138,10 +173,71 @@ export default function Header() {
       </nav>
 
       <div className="header-actions">
+        <div className={`corner-lang-wrap ${openGroup === 'lang' ? 'open' : ''}`}>
+          <button
+            type="button"
+            className="corner-lang-button"
+            aria-label={`Đổi ngoại ngữ (${activeLanguage.viName} · ${activeLevel})`}
+            aria-haspopup="menu"
+            aria-expanded={openGroup === 'lang'}
+            onClick={() => toggleGroup('lang')}
+          >
+            <span className="corner-lang-flag" aria-hidden="true">{activeLanguage.flag}</span>
+            <span className="corner-lang-name">{activeLanguage.viName}</span>
+            <small className="corner-lang-level">{activeLevel}</small>
+            <ChevronDown size={13}/>
+          </button>
+          {openGroup === 'lang' && (
+            <div className="nav-popover corner-lang-popover" role="menu" aria-label="Đổi ngoại ngữ và cấp độ">
+              <div className="corner-popover-head">
+                <span><Globe size={13}/> NGÔN NGỮ TẬP TRUNG</span>
+                <small>Chỉ hiển thị lộ trình của ngôn ngữ đã chọn</small>
+              </div>
+              <div className="corner-lang-list" role="none">
+                {languages.map((item) => {
+                  const selected = item.id === activeLanguage.id
+                  const rememberedLvl = state.lastLevelByLanguage?.[item.id] || item.levels[0][0]
+                  return (
+                    <button
+                      key={item.id}
+                      type="button"
+                      role="menuitemradio"
+                      aria-checked={selected}
+                      className={`corner-lang-option ${selected ? 'active' : ''}`}
+                      onClick={() => handleCornerLanguageSwitch(item.id)}
+                    >
+                      <span className="corner-opt-flag">{item.flag}</span>
+                      <span className="corner-opt-copy">
+                        <strong>{item.viName} <em>({item.nativeName})</em></strong>
+                        <small>{item.framework} · Đang ở {selected ? activeLevel : rememberedLvl}</small>
+                      </span>
+                      {selected && <Check size={15}/>}
+                    </button>
+                  )
+                })}
+              </div>
+              <div className="corner-level-picker" role="none">
+                <span>Đổi nhanh level {activeLanguage.viName} ({activeLanguage.framework})</span>
+                <div>
+                  {activeLanguage.levels.map(([lvl]) => (
+                    <button
+                      key={lvl}
+                      type="button"
+                      className={lvl === activeLevel ? 'active' : ''}
+                      onClick={() => handleCornerLanguageSwitch(activeLanguage.id, lvl)}
+                    >
+                      {lvl}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
         <Link className="icon-btn search-link" to="/search" aria-label="Tìm kiếm"><Search size={19}/></Link>
         <div className="header-session-slot">
           {publicLanding
-            ? <Link to="/languages" className="btn small header-start-learning">Bắt đầu học</Link>
+            ? <Link to={levelPath(activeLanguage.id, activeLevel)} className="btn small header-start-learning">Bắt đầu học</Link>
             : <div className={`account-menu-wrap ${accountPathActive(location.pathname) ? 'active' : ''}`}>
                 <button className="avatar small-avatar account-button" type="button" aria-label="Mở menu tài khoản" aria-haspopup="menu" aria-expanded={openGroup === 'account'} onClick={() => toggleGroup('account')}>{initials}</button>
                 {openGroup === 'account' && <div className="nav-popover account-popover" role="menu">
@@ -156,6 +252,24 @@ export default function Header() {
 
     {menuOpen && <nav className="mobile-menu grouped-mobile-menu simplified-mobile-menu" id="mobile-menu" aria-label="Điều hướng di động">
       <button className="mobile-menu-close" type="button" onClick={() => setMenuOpen(false)} aria-label="Đóng menu"><X size={18}/></button>
+      <section className="mobile-lang-strip">
+        <strong>Ngôn ngữ tập trung: {activeLanguage.flag} {activeLanguage.viName} ({activeLevel})</strong>
+        <div className="mobile-lang-chips">
+          {languages.map((item) => (
+            <button
+              key={item.id}
+              type="button"
+              className={item.id === activeLanguage.id ? 'active' : ''}
+              onClick={() => {
+                handleCornerLanguageSwitch(item.id)
+                setMenuOpen(false)
+              }}
+            >
+              {item.flag} {item.viName}
+            </button>
+          ))}
+        </div>
+      </section>
 
       {mobilePanel === 'exams' ? <section className="mobile-focus-panel">
         <strong>Thi thử</strong>
